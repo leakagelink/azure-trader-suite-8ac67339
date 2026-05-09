@@ -4,8 +4,11 @@ import {
   CandlestickSeries,
   HistogramSeries,
   LineSeries,
+  AreaSeries,
+  BarSeries,
   type IChartApi,
   type ISeriesApi,
+  type IPriceLine,
 } from "lightweight-charts";
 import DrawingOverlay from "./DrawingOverlay";
 import { useChartDrawings, type DrawingMode } from "@/hooks/useChartDrawings";
@@ -15,9 +18,14 @@ import {
   macd as calcMACD,
   rsi as calcRSI,
   sma as calcSMA,
+  vwap as calcVWAP,
+  stochastic as calcStoch,
+  atr as calcATR,
+  heikinAshi,
   type IndicatorConfig,
   DEFAULTS,
 } from "@/lib/indicators";
+import type { PriceAlert } from "@/hooks/usePriceAlerts";
 
 export interface Candle {
   time: number;
@@ -28,6 +36,8 @@ export interface Candle {
   volume?: number;
 }
 
+export type ChartType = "candles" | "heikin" | "line" | "area" | "bars";
+
 interface Props {
   symbol: string;
   candles: Candle[];
@@ -35,16 +45,30 @@ interface Props {
   color: string;
   magnet?: boolean;
   indicators?: IndicatorConfig[];
+  chartType?: ChartType;
+  alerts?: PriceAlert[];
 }
 
-export default function TradingChart({ symbol, candles, mode, color, magnet, indicators = [] }: Props) {
+export default function TradingChart({
+  symbol,
+  candles,
+  mode,
+  color,
+  magnet,
+  indicators = [],
+  chartType = "candles",
+  alerts = [],
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<IChartApi | null>(null);
-  const [series, setSeries] = useState<ISeriesApi<"Candlestick"> | null>(null);
+  const mainSeriesRef = useRef<ISeriesApi<any> | null>(null);
+  const [mainSeries, setMainSeries] = useState<ISeriesApi<any> | null>(null);
   const [volSeries, setVolSeries] = useState<ISeriesApi<"Histogram"> | null>(null);
   const indSeriesRef = useRef<ISeriesApi<any>[]>([]);
+  const alertLinesRef = useRef<IPriceLine[]>([]);
   const { drawings, setDrawings } = useChartDrawings(symbol);
 
+  // create chart once
   useEffect(() => {
     if (!containerRef.current) return;
     const c = createChart(containerRef.current, {
@@ -62,14 +86,6 @@ export default function TradingChart({ symbol, candles, mode, color, magnet, ind
       crosshair: { mode: 1 },
       autoSize: true,
     });
-    const cs = c.addSeries(CandlestickSeries, {
-      upColor: "#10b981",
-      downColor: "#ef4444",
-      borderUpColor: "#10b981",
-      borderDownColor: "#ef4444",
-      wickUpColor: "#10b981",
-      wickDownColor: "#ef4444",
-    });
     const vs = c.addSeries(HistogramSeries, {
       priceFormat: { type: "volume" },
       priceScaleId: "",
@@ -77,27 +93,62 @@ export default function TradingChart({ symbol, candles, mode, color, magnet, ind
     });
     vs.priceScale().applyOptions({ scaleMargins: { top: 0.85, bottom: 0 } });
     setChart(c);
-    setSeries(cs);
     setVolSeries(vs);
     return () => {
       c.remove();
       setChart(null);
-      setSeries(null);
+      setMainSeries(null);
+      mainSeriesRef.current = null;
       setVolSeries(null);
       indSeriesRef.current = [];
+      alertLinesRef.current = [];
     };
   }, []);
 
+  // (re)create main series whenever chartType changes
   useEffect(() => {
-    if (!series || !volSeries || !candles.length) return;
-    const data = candles.map((k) => ({
-      time: k.time as any,
-      open: k.open,
-      high: k.high,
-      low: k.low,
-      close: k.close,
-    }));
-    series.setData(data);
+    if (!chart) return;
+    if (mainSeriesRef.current) {
+      try { chart.removeSeries(mainSeriesRef.current); } catch {}
+      mainSeriesRef.current = null;
+    }
+    let s: ISeriesApi<any>;
+    if (chartType === "line") {
+      s = chart.addSeries(LineSeries, { color: "#3b82f6", lineWidth: 2 });
+    } else if (chartType === "area") {
+      s = chart.addSeries(AreaSeries, {
+        lineColor: "#3b82f6",
+        topColor: "rgba(59,130,246,0.4)",
+        bottomColor: "rgba(59,130,246,0.02)",
+        lineWidth: 2,
+      });
+    } else if (chartType === "bars") {
+      s = chart.addSeries(BarSeries, { upColor: "#10b981", downColor: "#ef4444" });
+    } else {
+      s = chart.addSeries(CandlestickSeries, {
+        upColor: "#10b981",
+        downColor: "#ef4444",
+        borderUpColor: "#10b981",
+        borderDownColor: "#ef4444",
+        wickUpColor: "#10b981",
+        wickDownColor: "#ef4444",
+      });
+    }
+    mainSeriesRef.current = s;
+    setMainSeries(s);
+  }, [chart, chartType]);
+
+  // feed data
+  useEffect(() => {
+    if (!mainSeries || !volSeries || !candles.length) return;
+    const src = chartType === "heikin" ? heikinAshi(candles) : candles;
+    if (chartType === "line" || chartType === "area") {
+      mainSeries.setData(src.map((k) => ({ time: k.time as any, value: k.close })));
+    } else {
+      mainSeries.setData(
+        src.map((k) => ({ time: k.time as any, open: k.open, high: k.high, low: k.low, close: k.close })),
+      );
+    }
     volSeries.setData(
       candles.map((k) => ({
         time: k.time as any,
@@ -105,57 +156,53 @@ export default function TradingChart({ symbol, candles, mode, color, magnet, ind
         color: k.close >= k.open ? "rgba(16,185,129,0.35)" : "rgba(239,68,68,0.35)",
       })),
     );
-  }, [candles, series, volSeries]);
+  }, [candles, mainSeries, volSeries, chartType]);
 
   // Indicators
   useEffect(() => {
     if (!chart || !candles.length) return;
-    // tear down previous
-    for (const s of indSeriesRef.current) {
-      try { chart.removeSeries(s); } catch {}
-    }
+    for (const s of indSeriesRef.current) { try { chart.removeSeries(s); } catch {} }
     indSeriesRef.current = [];
-
-    let nextPane = 1; // pane 0 = price
-
-    const addLine = (
-      points: { time: number; value: number }[],
-      color: string,
-      pane = 0,
-      lineWidth: 1 | 2 = 2,
-    ) => {
+    let nextPane = 1;
+    const addLine = (pts: { time: number; value: number }[], col: string, pane = 0, lw: 1 | 2 = 2) => {
       const s = chart.addSeries(
         LineSeries,
-        { color, lineWidth, priceLineVisible: false, lastValueVisible: false },
+        { color: col, lineWidth: lw, priceLineVisible: false, lastValueVisible: false },
         pane,
       );
-      s.setData(points.map((p) => ({ time: p.time as any, value: p.value })));
+      s.setData(pts.map((p) => ({ time: p.time as any, value: p.value })));
       indSeriesRef.current.push(s);
     };
-
     for (const ind of indicators) {
       const def = DEFAULTS[ind.kind] || {};
-      const color = ind.color || def.color || "#888";
-      if (ind.kind === "sma") {
-        addLine(calcSMA(candles, ind.period ?? def.period ?? 20), color);
-      } else if (ind.kind === "ema") {
-        addLine(calcEMA(candles, ind.period ?? def.period ?? 21), color);
-      } else if (ind.kind === "bb") {
+      const col = ind.color || def.color || "#888";
+      if (ind.kind === "sma") addLine(calcSMA(candles, ind.period ?? 20), col);
+      else if (ind.kind === "ema") addLine(calcEMA(candles, ind.period ?? 21), col);
+      else if (ind.kind === "bb") {
         const r = calcBB(candles, ind.period ?? 20, ind.stdDev ?? 2);
-        addLine(r.mid, color, 0, 1);
-        addLine(r.upper, color, 0, 1);
-        addLine(r.lower, color, 0, 1);
+        addLine(r.mid, col, 0, 1); addLine(r.upper, col, 0, 1); addLine(r.lower, col, 0, 1);
+      } else if (ind.kind === "vwap") {
+        addLine(calcVWAP(candles), col);
       } else if (ind.kind === "rsi") {
         const pane = nextPane++;
-        addLine(calcRSI(candles, ind.period ?? 14), color, pane);
-        // 30 / 70 reference lines
+        addLine(calcRSI(candles, ind.period ?? 14), col, pane);
         const t0 = candles[0].time, tN = candles[candles.length - 1].time;
         addLine([{ time: t0, value: 70 }, { time: tN, value: 70 }], "rgba(239,68,68,0.5)", pane, 1);
         addLine([{ time: t0, value: 30 }, { time: tN, value: 30 }], "rgba(16,185,129,0.5)", pane, 1);
+      } else if (ind.kind === "stoch") {
+        const pane = nextPane++;
+        const r = calcStoch(candles, ind.period ?? 14, ind.smoothK ?? 3, ind.smoothD ?? 3);
+        addLine(r.k, col, pane);
+        addLine(r.d, "#f97316", pane, 1);
+        const t0 = candles[0].time, tN = candles[candles.length - 1].time;
+        addLine([{ time: t0, value: 80 }, { time: tN, value: 80 }], "rgba(239,68,68,0.4)", pane, 1);
+        addLine([{ time: t0, value: 20 }, { time: tN, value: 20 }], "rgba(16,185,129,0.4)", pane, 1);
+      } else if (ind.kind === "atr") {
+        addLine(calcATR(candles, ind.period ?? 14), col, nextPane++);
       } else if (ind.kind === "macd") {
         const pane = nextPane++;
         const r = calcMACD(candles, ind.fast ?? 12, ind.slow ?? 26, ind.signal ?? 9);
-        addLine(r.macdLine, color, pane);
+        addLine(r.macdLine, col, pane);
         addLine(r.signal, "#f97316", pane, 1);
         const hs = chart.addSeries(
           HistogramSeries,
@@ -169,6 +216,25 @@ export default function TradingChart({ symbol, candles, mode, color, magnet, ind
     chart.timeScale().fitContent();
   }, [chart, candles, indicators]);
 
+  // Alert price lines
+  useEffect(() => {
+    if (!mainSeries) return;
+    for (const pl of alertLinesRef.current) { try { mainSeries.removePriceLine(pl); } catch {} }
+    alertLinesRef.current = [];
+    for (const a of alerts) {
+      if (a.triggered) continue;
+      const pl = mainSeries.createPriceLine({
+        price: a.price,
+        color: a.direction === "above" ? "#10b981" : "#ef4444",
+        lineWidth: 1,
+        lineStyle: 2,
+        axisLabelVisible: true,
+        title: a.direction === "above" ? "▲ alert" : "▼ alert",
+      });
+      alertLinesRef.current.push(pl);
+    }
+  }, [mainSeries, alerts]);
+
   const last = candles[candles.length - 1];
   const prev = candles[candles.length - 2] ?? last;
   const change = last && prev ? ((last.close - prev.close) / prev.close) * 100 : 0;
@@ -178,7 +244,7 @@ export default function TradingChart({ symbol, candles, mode, color, magnet, ind
       <div ref={containerRef} className="absolute inset-0" />
       <DrawingOverlay
         chart={chart}
-        series={series}
+        series={mainSeries as any}
         containerRef={containerRef}
         mode={mode}
         color={color}

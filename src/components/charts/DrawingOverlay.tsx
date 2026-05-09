@@ -206,6 +206,79 @@ export default function DrawingOverlay({
           if (x == null || y == null) continue;
           ctx.font = isSel ? "bold 13px sans-serif" : "13px sans-serif";
           ctx.fillText(d.text || "Text", x, y);
+        } else if (d.type === "ray" && d.points.length >= 2) {
+          const x1 = toX(d.points[0].time);
+          const y1 = toY(d.points[0].price);
+          const x2 = toX(d.points[1].time);
+          const y2 = toY(d.points[1].price);
+          if (x1 == null || y1 == null || x2 == null || y2 == null) continue;
+          // extend to right edge
+          const dx = x2 - x1, dy = y2 - y1;
+          const W = cont.clientWidth;
+          let xe: number = x2 as number, ye: number = y2 as number;
+          if (dx !== 0) {
+            const t = (W - (x1 as number)) / dx;
+            if (t > 1) { xe = W; ye = (y1 as number) + dy * t; }
+          }
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(xe, ye);
+          ctx.stroke();
+        } else if (d.type === "measure" && d.points.length >= 2) {
+          const x1 = toX(d.points[0].time);
+          const y1 = toY(d.points[0].price);
+          const x2 = toX(d.points[1].time);
+          const y2 = toY(d.points[1].price);
+          if (x1 == null || y1 == null || x2 == null || y2 == null) continue;
+          const up = d.points[1].price >= d.points[0].price;
+          const fill = up ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)";
+          const stroke = up ? "#10b981" : "#ef4444";
+          ctx.fillStyle = fill;
+          ctx.strokeStyle = stroke;
+          ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
+          ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+          const diff = d.points[1].price - d.points[0].price;
+          const pct = (diff / d.points[0].price) * 100;
+          // approx bars from candle spacing
+          let bars = 0;
+          if (candles.length >= 2) {
+            const step = candles[1].time - candles[0].time || 1;
+            bars = Math.round((d.points[1].time - d.points[0].time) / step);
+          }
+          ctx.fillStyle = stroke;
+          ctx.font = "bold 11px sans-serif";
+          const txt = `${diff >= 0 ? "+" : ""}${diff.toFixed(2)}  ${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%  |  ${bars} bars`;
+          ctx.fillText(txt, (x1 + x2) / 2 - 80, (y1 + y2) / 2);
+        } else if ((d.type === "long" || d.type === "short") && d.points.length >= 2) {
+          const x1 = toX(d.points[0].time);
+          const y1 = toY(d.points[0].price); // entry
+          const x2 = toX(d.points[1].time);
+          const y2 = toY(d.points[1].price); // target
+          if (x1 == null || y1 == null || x2 == null || y2 == null) continue;
+          const entry = d.points[0].price;
+          const target = d.points[1].price;
+          // auto SL mirrored from entry
+          const stopPrice = entry - (target - entry);
+          const ys = toY(stopPrice);
+          if (ys == null) continue;
+          const left = Math.min(x1, x2), right = Math.max(x1, x2);
+          const isLong = d.type === "long";
+          const profitColor = isLong ? "rgba(16,185,129,0.18)" : "rgba(239,68,68,0.18)";
+          const lossColor = isLong ? "rgba(239,68,68,0.18)" : "rgba(16,185,129,0.18)";
+          // profit zone (entry -> target)
+          ctx.fillStyle = profitColor;
+          ctx.fillRect(left, Math.min(y1, y2), right - left, Math.abs(y2 - y1));
+          // loss zone (entry -> stop)
+          ctx.fillStyle = lossColor;
+          ctx.fillRect(left, Math.min(y1, ys), right - left, Math.abs(ys - y1));
+          // entry line
+          ctx.strokeStyle = "#facc15";
+          ctx.lineWidth = 1.5;
+          ctx.beginPath(); ctx.moveTo(left, y1); ctx.lineTo(right, y1); ctx.stroke();
+          // labels
+          ctx.fillStyle = "#facc15";
+          ctx.font = "bold 11px sans-serif";
+          const rr = Math.abs((target - entry) / (entry - stopPrice)).toFixed(2);
+          ctx.fillText(`${isLong ? "LONG" : "SHORT"}  Entry ${entry.toFixed(2)}  TP ${target.toFixed(2)}  SL ${stopPrice.toFixed(2)}  RR 1:${rr}`, left + 4, Math.min(y1, y2, ys) - 4);
         }
 
         // selection handles

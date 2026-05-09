@@ -9,6 +9,10 @@ import {
   MousePointerClick,
   Magnet,
   Minus,
+  MoveUpRight,
+  Ruler,
+  TrendingUp,
+  TrendingDown,
   AlignHorizontalDistributeCenter,
   AlignVerticalJustifyCenter,
   Square,
@@ -19,28 +23,43 @@ import {
   Undo2,
   Trash2,
   Search,
+  CandlestickChart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
-import TradingChart, { type Candle } from "@/components/charts/TradingChart";
+import TradingChart, { type Candle, type ChartType } from "@/components/charts/TradingChart";
 import { useChartDrawings, type DrawingMode } from "@/hooks/useChartDrawings";
 import { useChartIndicators } from "@/hooks/useChartIndicators";
 import IndicatorsMenu from "@/components/charts/IndicatorsMenu";
+import AlertsMenu from "@/components/charts/AlertsMenu";
+import { usePriceAlerts } from "@/hooks/usePriceAlerts";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1h", "4h", "1d", "1w"] as const;
 type Tf = (typeof TIMEFRAMES)[number];
 
+const CHART_TYPES: { value: ChartType; label: string }[] = [
+  { value: "candles", label: "Candles" },
+  { value: "heikin", label: "Heikin Ashi" },
+  { value: "line", label: "Line" },
+  { value: "area", label: "Area" },
+  { value: "bars", label: "Bars" },
+];
+
 const TOOLS: { mode: DrawingMode; label: string; Icon: any }[] = [
   { mode: "cursor", label: "Cursor", Icon: MousePointer2 },
   { mode: "select", label: "Select / Move", Icon: MousePointerClick },
   { mode: "trendline", label: "Trend Line", Icon: Minus },
+  { mode: "ray", label: "Ray", Icon: MoveUpRight },
   { mode: "hline", label: "Horizontal", Icon: AlignHorizontalDistributeCenter },
   { mode: "vline", label: "Vertical", Icon: AlignVerticalJustifyCenter },
   { mode: "rectangle", label: "Rectangle", Icon: Square },
   { mode: "fib", label: "Fib Retr.", Icon: Sigma },
+  { mode: "measure", label: "Measure", Icon: Ruler },
+  { mode: "long", label: "Long Position", Icon: TrendingUp },
+  { mode: "short", label: "Short Position", Icon: TrendingDown },
   { mode: "text", label: "Text", Icon: TypeIcon },
   { mode: "brush", label: "Brush", Icon: Brush },
   { mode: "eraser", label: "Eraser", Icon: Eraser },
@@ -74,8 +93,31 @@ export default function Charts() {
   const [fullscreen, setFullscreen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [chartType, setChartType] = useState<ChartType>("candles");
+  const [chartTypeOpen, setChartTypeOpen] = useState(false);
   const { drawings, setDrawings } = useChartDrawings(symbol);
   const { indicators, setIndicators } = useChartIndicators(symbol);
+  const { alerts, setAlerts } = usePriceAlerts(symbol);
+  const lastPrice = candles[candles.length - 1]?.close;
+
+  // Fire alert toasts
+  useEffect(() => {
+    if (lastPrice == null) return;
+    let changed = false;
+    const next = alerts.map((a) => {
+      if (a.triggered) return a;
+      const hit =
+        (a.direction === "above" && lastPrice >= a.price) ||
+        (a.direction === "below" && lastPrice <= a.price);
+      if (hit) {
+        changed = true;
+        toast.success(`${symbol} ${a.direction} ${a.price.toFixed(2)} — now ${lastPrice.toFixed(2)}`);
+        return { ...a, triggered: true };
+      }
+      return a;
+    });
+    if (changed) setAlerts(next);
+  }, [lastPrice, alerts, symbol, setAlerts]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -219,7 +261,37 @@ export default function Charts() {
             )}
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <div className="relative">
+              <button
+                onClick={() => setChartTypeOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-lg border border-border/50 bg-card/60 px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
+                title="Chart type"
+              >
+                <CandlestickChart className="h-3.5 w-3.5" />
+                {CHART_TYPES.find((t) => t.value === chartType)?.label}
+                <ChevronDown className="h-3 w-3 opacity-60" />
+              </button>
+              {chartTypeOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setChartTypeOpen(false)} />
+                  <div className="absolute right-0 top-full z-50 mt-1 w-40 rounded-xl border border-border/60 bg-popover p-1 shadow-2xl">
+                    {CHART_TYPES.map((t) => (
+                      <button
+                        key={t.value}
+                        onClick={() => { setChartType(t.value); setChartTypeOpen(false); }}
+                        className={`block w-full rounded-md px-3 py-1.5 text-left text-xs hover:bg-muted/50 ${
+                          chartType === t.value ? "bg-muted/40 font-semibold text-primary" : ""
+                        }`}
+                      >
+                        {t.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <IndicatorsMenu indicators={indicators} setIndicators={setIndicators} />
+            <AlertsMenu symbol={symbol} currentPrice={lastPrice} alerts={alerts} setAlerts={setAlerts} />
             <button
               onClick={() => setFullscreen(true)}
               className="rounded-md p-2 hover:bg-muted/40"
@@ -262,7 +334,7 @@ export default function Charts() {
 
       {/* Chart */}
       <div className="relative flex-1 overflow-hidden">
-        <TradingChart symbol={symbol} candles={candles} mode={mode} color={color} magnet={magnet} indicators={indicators} />
+        <TradingChart symbol={symbol} candles={candles} mode={mode} color={color} magnet={magnet} indicators={indicators} chartType={chartType} alerts={alerts} />
 
         {fullscreen && (
           <button

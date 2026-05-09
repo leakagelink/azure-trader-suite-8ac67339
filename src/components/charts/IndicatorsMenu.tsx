@@ -7,7 +7,7 @@ interface Props {
   setIndicators: React.Dispatch<React.SetStateAction<IndicatorConfig[]>>;
 }
 
-const KINDS: IndicatorKind[] = ["sma", "ema", "bb", "rsi", "macd"];
+const KINDS: IndicatorKind[] = ["sma", "ema", "bb", "vwap", "rsi", "stoch", "macd", "atr"];
 
 export default function IndicatorsMenu({ indicators, setIndicators }: Props) {
   const [open, setOpen] = useState(false);
