@@ -1,0 +1,1 @@
+UPDATE payment_settings SET setting_value = 'true' WHERE setting_key IN ('commodities_momentum_enabled', 'forex_momentum_enabled');
