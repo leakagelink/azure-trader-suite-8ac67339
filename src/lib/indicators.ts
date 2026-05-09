@@ -144,3 +144,92 @@ export function macd(candles: Candle[], fast: number, slow: number, signalP: num
   }
   return { macdLine, signal, hist };
 }
+
+export function vwap(candles: Candle[]): SeriesPoint[] {
+  const out: SeriesPoint[] = [];
+  let cumPV = 0, cumV = 0;
+  for (const c of candles) {
+    const tp = (c.high + c.low + c.close) / 3;
+    const v = c.volume ?? 0;
+    cumPV += tp * v;
+    cumV += v;
+    out.push({ time: c.time, value: cumV ? cumPV / cumV : tp });
+  }
+  return out;
+}
+
+export function stochastic(candles: Candle[], period: number, smoothK: number, smoothD: number) {
+  const raw: number[] = [];
+  for (let i = 0; i < candles.length; i++) {
+    if (i < period - 1) { raw.push(NaN); continue; }
+    let hh = -Infinity, ll = Infinity;
+    for (let j = i - period + 1; j <= i; j++) {
+      hh = Math.max(hh, candles[j].high);
+      ll = Math.min(ll, candles[j].low);
+    }
+    const c = candles[i].close;
+    raw.push(hh === ll ? 50 : ((c - ll) / (hh - ll)) * 100);
+  }
+  const smooth = (arr: number[], p: number) => {
+    const o: number[] = [];
+    for (let i = 0; i < arr.length; i++) {
+      if (i < p - 1) { o.push(NaN); continue; }
+      let s = 0, n = 0;
+      for (let j = i - p + 1; j <= i; j++) {
+        if (!isNaN(arr[j])) { s += arr[j]; n++; }
+      }
+      o.push(n ? s / n : NaN);
+    }
+    return o;
+  };
+  const k = smooth(raw, smoothK);
+  const d = smooth(k, smoothD);
+  const kPts: SeriesPoint[] = [], dPts: SeriesPoint[] = [];
+  for (let i = 0; i < candles.length; i++) {
+    if (!isNaN(k[i])) kPts.push({ time: candles[i].time, value: k[i] });
+    if (!isNaN(d[i])) dPts.push({ time: candles[i].time, value: d[i] });
+  }
+  return { k: kPts, d: dPts };
+}
+
+export function atr(candles: Candle[], period: number): SeriesPoint[] {
+  if (candles.length < 2) return [];
+  const tr: number[] = [0];
+  for (let i = 1; i < candles.length; i++) {
+    const c = candles[i], p = candles[i - 1];
+    tr.push(Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close)));
+  }
+  const out: SeriesPoint[] = [];
+  let prev = 0;
+  for (let i = 0; i < candles.length; i++) {
+    if (i < period) {
+      if (i === period - 1) {
+        let s = 0;
+        for (let j = 0; j < period; j++) s += tr[j];
+        prev = s / period;
+        out.push({ time: candles[i].time, value: prev });
+      }
+      continue;
+    }
+    prev = (prev * (period - 1) + tr[i]) / period;
+    out.push({ time: candles[i].time, value: prev });
+  }
+  return out;
+}
+
+export function heikinAshi(candles: Candle[]): Candle[] {
+  if (!candles.length) return [];
+  const out: Candle[] = [];
+  let prevOpen = candles[0].open;
+  let prevClose = candles[0].close;
+  for (const c of candles) {
+    const haClose = (c.open + c.high + c.low + c.close) / 4;
+    const haOpen = out.length === 0 ? (c.open + c.close) / 2 : (prevOpen + prevClose) / 2;
+    const haHigh = Math.max(c.high, haOpen, haClose);
+    const haLow = Math.min(c.low, haOpen, haClose);
+    out.push({ time: c.time, open: haOpen, high: haHigh, low: haLow, close: haClose, volume: c.volume });
+    prevOpen = haOpen;
+    prevClose = haClose;
+  }
+  return out;
+}
