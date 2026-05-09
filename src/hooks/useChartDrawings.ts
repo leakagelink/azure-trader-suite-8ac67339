@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 export type DrawingMode =
   | "cursor"
+  | "select"
   | "trendline"
   | "hline"
   | "vline"

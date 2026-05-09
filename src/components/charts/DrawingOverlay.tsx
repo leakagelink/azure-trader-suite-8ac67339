@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { IChartApi, ISeriesApi, Time } from "lightweight-charts";
 import type { DrawingLine, DrawingMode } from "@/hooks/useChartDrawings";
+import type { Candle } from "@/components/charts/TradingChart";
 
 interface Props {
   chart: IChartApi | null;
@@ -10,10 +11,14 @@ interface Props {
   color: string;
   drawings: DrawingLine[];
   setDrawings: React.Dispatch<React.SetStateAction<DrawingLine[]>>;
+  candles?: Candle[];
+  magnet?: boolean;
 }
 
 const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
 const FIB_COLORS = ["#ef4444", "#f97316", "#f59e0b", "#10b981", "#06b6d4", "#3b82f6", "#a855f7"];
+const HANDLE = 6;
+const HIT_RADIUS = 12;
 
 export default function DrawingOverlay({
   chart,
@@ -23,10 +28,23 @@ export default function DrawingOverlay({
   color,
   drawings,
   setDrawings,
+  candles = [],
+  magnet = false,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const draftRef = useRef<DrawingLine | null>(null);
-  const drawingIdRef = useRef<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const dragRef = useRef<
+    | null
+    | {
+        id: string;
+        kind: "body" | "handle";
+        handleIdx?: number;
+        startTime: number;
+        startPrice: number;
+        original: { time: number; price: number }[];
+      }
+  >(null);
 
   // resize canvas
   useEffect(() => {
@@ -45,6 +63,50 @@ export default function DrawingOverlay({
     ro.observe(cont);
     return () => ro.disconnect();
   }, [containerRef]);
+
+  // deselect when mode changes away from select
+  useEffect(() => {
+    if (mode !== "select") setSelectedId(null);
+  }, [mode]);
+
+  // delete key
+  useEffect(() => {
+    if (mode !== "select" || !selectedId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        setDrawings((prev) => prev.filter((d) => d.id !== selectedId));
+        setSelectedId(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mode, selectedId, setDrawings]);
+
+  // magnet snap helper
+  const snap = (pt: { time: number; price: number }) => {
+    if (!magnet || !candles.length) return pt;
+    // nearest candle by time
+    let nearest = candles[0];
+    let best = Math.abs(candles[0].time - pt.time);
+    for (const c of candles) {
+      const d = Math.abs(c.time - pt.time);
+      if (d < best) {
+        best = d;
+        nearest = c;
+      }
+    }
+    const ohlc = [nearest.open, nearest.high, nearest.low, nearest.close];
+    let p = ohlc[0];
+    let bestP = Math.abs(ohlc[0] - pt.price);
+    for (const v of ohlc) {
+      const d = Math.abs(v - pt.price);
+      if (d < bestP) {
+        bestP = d;
+        p = v;
+      }
+    }
+    return { time: nearest.time, price: p };
+  };
 
   // render loop
   useEffect(() => {
@@ -68,9 +130,10 @@ export default function DrawingOverlay({
       const all = draftRef.current ? [...drawings, draftRef.current] : drawings;
 
       for (const d of all) {
+        const isSel = d.id === selectedId;
         ctx.strokeStyle = d.color;
         ctx.fillStyle = d.color;
-        ctx.lineWidth = d.lineWidth;
+        ctx.lineWidth = isSel ? d.lineWidth + 1.5 : d.lineWidth;
         ctx.beginPath();
 
         if (d.type === "hline" && d.points[0]) {
@@ -118,7 +181,7 @@ export default function DrawingOverlay({
             if (y == null) return;
             ctx.strokeStyle = FIB_COLORS[i];
             ctx.fillStyle = FIB_COLORS[i];
-            ctx.lineWidth = 1;
+            ctx.lineWidth = isSel ? 2 : 1;
             ctx.beginPath();
             ctx.moveTo(left, y);
             ctx.lineTo(right, y);
@@ -141,16 +204,33 @@ export default function DrawingOverlay({
           const x = toX(d.points[0].time);
           const y = toY(d.points[0].price);
           if (x == null || y == null) continue;
-          ctx.font = "13px sans-serif";
+          ctx.font = isSel ? "bold 13px sans-serif" : "13px sans-serif";
           ctx.fillText(d.text || "Text", x, y);
+        }
+
+        // selection handles
+        if (isSel && d.type !== "brush") {
+          ctx.fillStyle = "#3b82f6";
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 1.5;
+          for (const p of d.points) {
+            const hx = toX(p.time);
+            const hy = toY(p.price);
+            if (hx == null || hy == null) continue;
+            ctx.beginPath();
+            ctx.rect(hx - HANDLE / 2, hy - HANDLE / 2, HANDLE, HANDLE);
+            ctx.fill();
+            ctx.stroke();
+          }
         }
       }
 
+      // magnet crosshair tag
       raf = requestAnimationFrame(render);
     };
     raf = requestAnimationFrame(render);
     return () => cancelAnimationFrame(raf);
-  }, [chart, series, drawings, containerRef]);
+  }, [chart, series, drawings, containerRef, selectedId]);
 
   // pointer events
   useEffect(() => {
@@ -159,38 +239,125 @@ export default function DrawingOverlay({
     if (mode === "cursor") return;
 
     const ts = chart.timeScale();
-    const fromEvt = (e: PointerEvent) => {
+    const fromEvt = (e: PointerEvent, doSnap = true) => {
       const rect = c.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       const time = ts.coordinateToTime(x);
       const price = series.coordinateToPrice(y);
       if (time == null || price == null) return null;
-      return { time: Number(time), price: Number(price) };
+      const pt = { time: Number(time), price: Number(price) };
+      return doSnap ? snap(pt) : pt;
     };
 
+    const localXY = (e: PointerEvent) => {
+      const rect = c.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+
+    // SELECT mode
+    if (mode === "select") {
+      const onDown = (e: PointerEvent) => {
+        const { x: px, y: py } = localXY(e);
+        // 1) handle hit on currently selected
+        if (selectedId) {
+          const sel = drawings.find((d) => d.id === selectedId);
+          if (sel) {
+            for (let i = 0; i < sel.points.length; i++) {
+              const hx = ts.timeToCoordinate(sel.points[i].time as Time);
+              const hy = series.priceToCoordinate(sel.points[i].price);
+              if (hx == null || hy == null) continue;
+              if (Math.hypot(hx - px, hy - py) < HIT_RADIUS) {
+                const pt = fromEvt(e, false);
+                if (!pt) return;
+                c.setPointerCapture(e.pointerId);
+                dragRef.current = {
+                  id: sel.id,
+                  kind: "handle",
+                  handleIdx: i,
+                  startTime: pt.time,
+                  startPrice: pt.price,
+                  original: sel.points.map((p) => ({ ...p })),
+                };
+                return;
+              }
+            }
+          }
+        }
+        // 2) body hit on any drawing
+        for (let i = drawings.length - 1; i >= 0; i--) {
+          const d = drawings[i];
+          if (hitTest(d, px, py, ts, series)) {
+            const pt = fromEvt(e, false);
+            if (!pt) return;
+            setSelectedId(d.id);
+            c.setPointerCapture(e.pointerId);
+            dragRef.current = {
+              id: d.id,
+              kind: "body",
+              startTime: pt.time,
+              startPrice: pt.price,
+              original: d.points.map((p) => ({ ...p })),
+            };
+            return;
+          }
+        }
+        // 3) miss: deselect
+        setSelectedId(null);
+      };
+      const onMove = (e: PointerEvent) => {
+        const drag = dragRef.current;
+        if (!drag) return;
+        const pt = fromEvt(e, false);
+        if (!pt) return;
+        const dt = pt.time - drag.startTime;
+        const dp = pt.price - drag.startPrice;
+        setDrawings((prev) =>
+          prev.map((d) => {
+            if (d.id !== drag.id) return d;
+            if (drag.kind === "handle" && drag.handleIdx != null) {
+              const newPoints = drag.original.map((p) => ({ ...p }));
+              const target = magnet ? snap(pt) : pt;
+              newPoints[drag.handleIdx] = target;
+              return { ...d, points: newPoints };
+            }
+            // body move
+            return {
+              ...d,
+              points: drag.original.map((p) => ({ time: p.time + dt, price: p.price + dp })),
+            };
+          }),
+        );
+      };
+      const onUp = () => {
+        dragRef.current = null;
+      };
+      c.addEventListener("pointerdown", onDown);
+      c.addEventListener("pointermove", onMove);
+      c.addEventListener("pointerup", onUp);
+      c.addEventListener("pointercancel", onUp);
+      return () => {
+        c.removeEventListener("pointerdown", onDown);
+        c.removeEventListener("pointermove", onMove);
+        c.removeEventListener("pointerup", onUp);
+        c.removeEventListener("pointercancel", onUp);
+      };
+    }
+
+    // DRAW modes
     const onDown = (e: PointerEvent) => {
       const pt = fromEvt(e);
       if (!pt) return;
       c.setPointerCapture(e.pointerId);
       const id = `d_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-      drawingIdRef.current = id;
 
       if (mode === "eraser") {
-        // remove top-most drawing near point
-        const rect = c.getBoundingClientRect();
-        const px = e.clientX - rect.left;
-        const py = e.clientY - rect.top;
+        const { x: px, y: py } = localXY(e);
         setDrawings((prev) => {
           for (let i = prev.length - 1; i >= 0; i--) {
-            const d = prev[i];
-            const hit = d.points.some((p) => {
-              const x = ts.timeToCoordinate(p.time as Time);
-              const y = series.priceToCoordinate(p.price);
-              if (x == null || y == null) return false;
-              return Math.hypot(x - px, y - py) < 14;
-            });
-            if (hit) return prev.filter((_, k) => k !== i);
+            if (hitTest(prev[i], px, py, ts, series)) {
+              return prev.filter((_, k) => k !== i);
+            }
           }
           return prev;
         });
@@ -202,7 +369,6 @@ export default function DrawingOverlay({
           ...prev,
           { id, type: mode, points: [pt], color, lineWidth: 1.5 },
         ]);
-        drawingIdRef.current = null;
         return;
       }
 
@@ -214,7 +380,6 @@ export default function DrawingOverlay({
             { id, type: "text", points: [pt], color, lineWidth: 1, text },
           ]);
         }
-        drawingIdRef.current = null;
         return;
       }
 
@@ -244,7 +409,6 @@ export default function DrawingOverlay({
         draftRef.current = null;
         setDrawings((prev) => [...prev, d]);
       }
-      drawingIdRef.current = null;
     };
 
     c.addEventListener("pointerdown", onDown);
@@ -257,7 +421,7 @@ export default function DrawingOverlay({
       c.removeEventListener("pointerup", onUp);
       c.removeEventListener("pointercancel", onUp);
     };
-  }, [chart, series, mode, color, setDrawings]);
+  }, [chart, series, mode, color, setDrawings, drawings, selectedId, magnet, candles]);
 
   const interactive = mode !== "cursor";
   return (
@@ -266,9 +430,81 @@ export default function DrawingOverlay({
       className="absolute inset-0"
       style={{
         pointerEvents: interactive ? "auto" : "none",
-        cursor: interactive ? "crosshair" : "default",
+        cursor: mode === "select" ? "default" : interactive ? "crosshair" : "default",
         touchAction: interactive ? "none" : "auto",
       }}
     />
   );
+}
+
+// Hit-test a drawing against pixel coords
+function hitTest(
+  d: DrawingLine,
+  px: number,
+  py: number,
+  ts: ReturnType<IChartApi["timeScale"]>,
+  series: ISeriesApi<"Candlestick">,
+): boolean {
+  const toX = (t: number) => ts.timeToCoordinate(t as Time);
+  const toY = (p: number) => series.priceToCoordinate(p);
+  const TOL = 6;
+
+  if (d.type === "hline" && d.points[0]) {
+    const y = toY(d.points[0].price);
+    return y != null && Math.abs(y - py) < TOL;
+  }
+  if (d.type === "vline" && d.points[0]) {
+    const x = toX(d.points[0].time);
+    return x != null && Math.abs(x - px) < TOL;
+  }
+  if ((d.type === "trendline" || d.type === "fib") && d.points.length >= 2) {
+    const x1 = toX(d.points[0].time);
+    const y1 = toY(d.points[0].price);
+    const x2 = toX(d.points[1].time);
+    const y2 = toY(d.points[1].price);
+    if (x1 == null || y1 == null || x2 == null || y2 == null) return false;
+    return distToSegment(px, py, x1, y1, x2, y2) < TOL;
+  }
+  if (d.type === "rectangle" && d.points.length >= 2) {
+    const x1 = toX(d.points[0].time);
+    const y1 = toY(d.points[0].price);
+    const x2 = toX(d.points[1].time);
+    const y2 = toY(d.points[1].price);
+    if (x1 == null || y1 == null || x2 == null || y2 == null) return false;
+    const minX = Math.min(x1, x2), maxX = Math.max(x1, x2);
+    const minY = Math.min(y1, y2), maxY = Math.max(y1, y2);
+    // edge hit
+    const onEdge =
+      ((Math.abs(px - minX) < TOL || Math.abs(px - maxX) < TOL) && py >= minY - TOL && py <= maxY + TOL) ||
+      ((Math.abs(py - minY) < TOL || Math.abs(py - maxY) < TOL) && px >= minX - TOL && px <= maxX + TOL);
+    return onEdge;
+  }
+  if (d.type === "brush" && d.points.length >= 2) {
+    for (let i = 1; i < d.points.length; i++) {
+      const x1 = toX(d.points[i - 1].time);
+      const y1 = toY(d.points[i - 1].price);
+      const x2 = toX(d.points[i].time);
+      const y2 = toY(d.points[i].price);
+      if (x1 == null || y1 == null || x2 == null || y2 == null) continue;
+      if (distToSegment(px, py, x1, y1, x2, y2) < TOL) return true;
+    }
+    return false;
+  }
+  if (d.type === "text" && d.points[0]) {
+    const x = toX(d.points[0].time);
+    const y = toY(d.points[0].price);
+    if (x == null || y == null) return false;
+    return px >= x - 4 && px <= x + 80 && py >= y - 14 && py <= y + 4;
+  }
+  return false;
+}
+
+function distToSegment(px: number, py: number, x1: number, y1: number, x2: number, y2: number) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  if (len2 === 0) return Math.hypot(px - x1, py - y1);
+  let t = ((px - x1) * dx + (py - y1) * dy) / len2;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 }

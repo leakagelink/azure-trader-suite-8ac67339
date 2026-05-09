@@ -17,9 +17,10 @@ interface Props {
   candles: Candle[];
   mode: DrawingMode;
   color: string;
+  magnet?: boolean;
 }
 
-export default function TradingChart({ symbol, candles, mode, color }: Props) {
+export default function TradingChart({ symbol, candles, mode, color, magnet }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [series, setSeries] = useState<ISeriesApi<"Candlestick"> | null>(null);
@@ -102,6 +103,8 @@ export default function TradingChart({ symbol, candles, mode, color }: Props) {
         color={color}
         drawings={drawings}
         setDrawings={setDrawings}
+        candles={candles}
+        magnet={magnet}
       />
       {last && (
         <div className="absolute left-3 top-3 z-10 rounded-lg border border-border/40 bg-background/70 px-3 py-1.5 text-xs backdrop-blur-md">
