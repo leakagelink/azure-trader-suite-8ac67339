@@ -75,6 +75,7 @@ export default function Charts() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { drawings, setDrawings } = useChartDrawings(symbol);
+  const { indicators, setIndicators } = useChartIndicators(symbol);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
