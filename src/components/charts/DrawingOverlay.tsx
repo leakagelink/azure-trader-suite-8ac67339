@@ -215,10 +215,10 @@ export default function DrawingOverlay({
           // extend to right edge
           const dx = x2 - x1, dy = y2 - y1;
           const W = cont.clientWidth;
-          let xe = x2, ye = y2;
+          let xe: number = x2 as number, ye: number = y2 as number;
           if (dx !== 0) {
-            const t = (W - x1) / dx;
-            if (t > 1) { xe = W; ye = y1 + dy * t; }
+            const t = (W - (x1 as number)) / dx;
+            if (t > 1) { xe = W; ye = (y1 as number) + dy * t; }
           }
           ctx.moveTo(x1, y1);
           ctx.lineTo(xe, ye);
