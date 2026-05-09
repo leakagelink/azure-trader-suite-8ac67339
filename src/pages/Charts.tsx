@@ -9,6 +9,10 @@ import {
   MousePointerClick,
   Magnet,
   Minus,
+  MoveUpRight,
+  Ruler,
+  TrendingUp,
+  TrendingDown,
   AlignHorizontalDistributeCenter,
   AlignVerticalJustifyCenter,
   Square,
@@ -19,28 +23,43 @@ import {
   Undo2,
   Trash2,
   Search,
+  CandlestickChart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
-import TradingChart, { type Candle } from "@/components/charts/TradingChart";
+import TradingChart, { type Candle, type ChartType } from "@/components/charts/TradingChart";
 import { useChartDrawings, type DrawingMode } from "@/hooks/useChartDrawings";
 import { useChartIndicators } from "@/hooks/useChartIndicators";
 import IndicatorsMenu from "@/components/charts/IndicatorsMenu";
+import AlertsMenu from "@/components/charts/AlertsMenu";
+import { usePriceAlerts } from "@/hooks/usePriceAlerts";
 import BottomNav from "@/components/BottomNav";
 import { toast } from "sonner";
 
 const TIMEFRAMES = ["1m", "5m", "15m", "1h", "4h", "1d", "1w"] as const;
 type Tf = (typeof TIMEFRAMES)[number];
 
+const CHART_TYPES: { value: ChartType; label: string }[] = [
+  { value: "candles", label: "Candles" },
+  { value: "heikin", label: "Heikin Ashi" },
+  { value: "line", label: "Line" },
+  { value: "area", label: "Area" },
+  { value: "bars", label: "Bars" },
+];
+
 const TOOLS: { mode: DrawingMode; label: string; Icon: any }[] = [
   { mode: "cursor", label: "Cursor", Icon: MousePointer2 },
   { mode: "select", label: "Select / Move", Icon: MousePointerClick },
   { mode: "trendline", label: "Trend Line", Icon: Minus },
+  { mode: "ray", label: "Ray", Icon: MoveUpRight },
   { mode: "hline", label: "Horizontal", Icon: AlignHorizontalDistributeCenter },
   { mode: "vline", label: "Vertical", Icon: AlignVerticalJustifyCenter },
   { mode: "rectangle", label: "Rectangle", Icon: Square },
   { mode: "fib", label: "Fib Retr.", Icon: Sigma },
+  { mode: "measure", label: "Measure", Icon: Ruler },
+  { mode: "long", label: "Long Position", Icon: TrendingUp },
+  { mode: "short", label: "Short Position", Icon: TrendingDown },
   { mode: "text", label: "Text", Icon: TypeIcon },
   { mode: "brush", label: "Brush", Icon: Brush },
   { mode: "eraser", label: "Eraser", Icon: Eraser },
