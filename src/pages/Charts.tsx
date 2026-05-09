@@ -258,7 +258,7 @@ export default function Charts() {
 
       {/* Chart */}
       <div className="relative flex-1 overflow-hidden">
-        <TradingChart symbol={symbol} candles={candles} mode={mode} color={color} />
+        <TradingChart symbol={symbol} candles={candles} mode={mode} color={color} magnet={magnet} />
 
         {fullscreen && (
           <button
