@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, TrendingUp, TrendingDown, RefreshCcw, Activity, ChevronLeft, ChevronRight, ShoppingCart, DollarSign, ExternalLink, Coins } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, RefreshCcw, Activity, ChevronLeft, ChevronRight, ShoppingCart, DollarSign, ExternalLink, Coins, Maximize2 } from "lucide-react";
 import { Tabs as InputTabs, TabsList as InputTabsList, TabsTrigger as InputTabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -1147,15 +1147,14 @@ const Trading = () => {
             </div>
 
             <div className="mt-4 flex justify-center">
-              <a
-                href={getTradingViewUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => navigate(`/charts?symbol=${encodeURIComponent((symbol || 'BTC').toUpperCase())}`)}
                 className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 hover:from-primary/25 hover:via-accent/20 hover:to-primary/25 border border-primary/30 text-primary font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/20"
               >
-                <ExternalLink className="h-4 w-4 transition-transform group-hover:rotate-12" />
-                View Full Chart on TradingView
-              </a>
+                <Maximize2 className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                View Full Chart
+              </button>
             </div>
           </div>
         </Card>

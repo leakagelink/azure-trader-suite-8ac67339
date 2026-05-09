@@ -25,7 +25,7 @@ import {
   Search,
   CandlestickChart,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
 import TradingChart, { type Candle, type ChartType } from "@/components/charts/TradingChart";
@@ -83,7 +83,25 @@ const POPULAR = [
 
 export default function Charts() {
   const navigate = useNavigate();
-  const [symbol, setSymbol] = useState<string>("BTC");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSymbol = (searchParams.get("symbol") || "BTC").toUpperCase();
+  const [symbol, setSymbol] = useState<string>(initialSymbol);
+
+  // Sync symbol changes back to URL
+  useEffect(() => {
+    const current = (searchParams.get("symbol") || "").toUpperCase();
+    if (current !== symbol) {
+      setSearchParams({ symbol }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [symbol]);
+
+  // React to URL symbol changes (e.g., back/forward)
+  useEffect(() => {
+    const urlSym = (searchParams.get("symbol") || "").toUpperCase();
+    if (urlSym && urlSym !== symbol) setSymbol(urlSym);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
   const [tf, setTf] = useState<Tf>("1h");
   const [candles, setCandles] = useState<Candle[]>([]);
   const [loading, setLoading] = useState(false);
