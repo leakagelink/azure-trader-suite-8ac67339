@@ -302,6 +302,17 @@ export default function Charts() {
               className="h-7 w-7 cursor-pointer rounded-md border border-border/40 bg-transparent"
             />
             <button
+              onClick={() => setMagnet((v) => !v)}
+              title={magnet ? "Magnet: ON (snap to OHLC)" : "Magnet: OFF"}
+              className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                magnet
+                  ? "bg-amber-500/20 text-amber-400"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+              }`}
+            >
+              <Magnet className="h-4 w-4" />
+            </button>
+            <button
               onClick={undo}
               title="Undo"
               disabled={!drawings.length}
