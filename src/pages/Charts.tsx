@@ -93,8 +93,31 @@ export default function Charts() {
   const [fullscreen, setFullscreen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [chartType, setChartType] = useState<ChartType>("candles");
+  const [chartTypeOpen, setChartTypeOpen] = useState(false);
   const { drawings, setDrawings } = useChartDrawings(symbol);
   const { indicators, setIndicators } = useChartIndicators(symbol);
+  const { alerts, setAlerts } = usePriceAlerts(symbol);
+  const lastPrice = candles[candles.length - 1]?.close;
+
+  // Fire alert toasts
+  useEffect(() => {
+    if (lastPrice == null) return;
+    let changed = false;
+    const next = alerts.map((a) => {
+      if (a.triggered) return a;
+      const hit =
+        (a.direction === "above" && lastPrice >= a.price) ||
+        (a.direction === "below" && lastPrice <= a.price);
+      if (hit) {
+        changed = true;
+        toast.success(`${symbol} ${a.direction} ${a.price.toFixed(2)} — now ${lastPrice.toFixed(2)}`);
+        return { ...a, triggered: true };
+      }
+      return a;
+    });
+    if (changed) setAlerts(next);
+  }, [lastPrice, alerts, symbol, setAlerts]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
