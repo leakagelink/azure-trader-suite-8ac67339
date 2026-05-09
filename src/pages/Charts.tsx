@@ -33,6 +33,7 @@ type Tf = (typeof TIMEFRAMES)[number];
 
 const TOOLS: { mode: DrawingMode; label: string; Icon: any }[] = [
   { mode: "cursor", label: "Cursor", Icon: MousePointer2 },
+  { mode: "select", label: "Select / Move", Icon: MousePointerClick },
   { mode: "trendline", label: "Trend Line", Icon: Minus },
   { mode: "hline", label: "Horizontal", Icon: AlignHorizontalDistributeCenter },
   { mode: "vline", label: "Vertical", Icon: AlignVerticalJustifyCenter },
