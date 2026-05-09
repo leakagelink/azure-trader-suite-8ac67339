@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useBinanceKlineStream } from "@/hooks/useBinanceKlineStream";
 import {
   ArrowLeft,
   ChevronDown,
