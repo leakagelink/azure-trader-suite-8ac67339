@@ -1,10 +1,26 @@
 import { useEffect, useRef, useState } from "react";
-import { createChart, CandlestickSeries, HistogramSeries, type IChartApi, type ISeriesApi } from "lightweight-charts";
+import {
+  createChart,
+  CandlestickSeries,
+  HistogramSeries,
+  LineSeries,
+  type IChartApi,
+  type ISeriesApi,
+} from "lightweight-charts";
 import DrawingOverlay from "./DrawingOverlay";
 import { useChartDrawings, type DrawingMode } from "@/hooks/useChartDrawings";
+import {
+  bb as calcBB,
+  ema as calcEMA,
+  macd as calcMACD,
+  rsi as calcRSI,
+  sma as calcSMA,
+  type IndicatorConfig,
+  DEFAULTS,
+} from "@/lib/indicators";
 
 export interface Candle {
-  time: number; // unix seconds
+  time: number;
   open: number;
   high: number;
   low: number;
@@ -18,13 +34,15 @@ interface Props {
   mode: DrawingMode;
   color: string;
   magnet?: boolean;
+  indicators?: IndicatorConfig[];
 }
 
-export default function TradingChart({ symbol, candles, mode, color, magnet }: Props) {
+export default function TradingChart({ symbol, candles, mode, color, magnet, indicators = [] }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [chart, setChart] = useState<IChartApi | null>(null);
   const [series, setSeries] = useState<ISeriesApi<"Candlestick"> | null>(null);
   const [volSeries, setVolSeries] = useState<ISeriesApi<"Histogram"> | null>(null);
+  const indSeriesRef = useRef<ISeriesApi<any>[]>([]);
   const { drawings, setDrawings } = useChartDrawings(symbol);
 
   useEffect(() => {
@@ -33,6 +51,7 @@ export default function TradingChart({ symbol, candles, mode, color, magnet }: P
       layout: {
         background: { color: "#0B0F1A" },
         textColor: "#cbd5e1",
+        panes: { separatorColor: "rgba(255,255,255,0.08)", separatorHoverColor: "rgba(59,130,246,0.4)" },
       },
       grid: {
         vertLines: { color: "rgba(255,255,255,0.04)" },
@@ -65,6 +84,7 @@ export default function TradingChart({ symbol, candles, mode, color, magnet }: P
       setChart(null);
       setSeries(null);
       setVolSeries(null);
+      indSeriesRef.current = [];
     };
   }, []);
 
@@ -85,8 +105,69 @@ export default function TradingChart({ symbol, candles, mode, color, magnet }: P
         color: k.close >= k.open ? "rgba(16,185,129,0.35)" : "rgba(239,68,68,0.35)",
       })),
     );
-    chart?.timeScale().fitContent();
-  }, [candles, series, volSeries, chart]);
+  }, [candles, series, volSeries]);
+
+  // Indicators
+  useEffect(() => {
+    if (!chart || !candles.length) return;
+    // tear down previous
+    for (const s of indSeriesRef.current) {
+      try { chart.removeSeries(s); } catch {}
+    }
+    indSeriesRef.current = [];
+
+    let nextPane = 1; // pane 0 = price
+
+    const addLine = (
+      points: { time: number; value: number }[],
+      color: string,
+      pane = 0,
+      lineWidth: 1 | 2 = 2,
+    ) => {
+      const s = chart.addSeries(
+        LineSeries,
+        { color, lineWidth, priceLineVisible: false, lastValueVisible: false },
+        pane,
+      );
+      s.setData(points.map((p) => ({ time: p.time as any, value: p.value })));
+      indSeriesRef.current.push(s);
+    };
+
+    for (const ind of indicators) {
+      const def = DEFAULTS[ind.kind] || {};
+      const color = ind.color || def.color || "#888";
+      if (ind.kind === "sma") {
+        addLine(calcSMA(candles, ind.period ?? def.period ?? 20), color);
+      } else if (ind.kind === "ema") {
+        addLine(calcEMA(candles, ind.period ?? def.period ?? 21), color);
+      } else if (ind.kind === "bb") {
+        const r = calcBB(candles, ind.period ?? 20, ind.stdDev ?? 2);
+        addLine(r.mid, color, 0, 1);
+        addLine(r.upper, color, 0, 1);
+        addLine(r.lower, color, 0, 1);
+      } else if (ind.kind === "rsi") {
+        const pane = nextPane++;
+        addLine(calcRSI(candles, ind.period ?? 14), color, pane);
+        // 30 / 70 reference lines
+        const t0 = candles[0].time, tN = candles[candles.length - 1].time;
+        addLine([{ time: t0, value: 70 }, { time: tN, value: 70 }], "rgba(239,68,68,0.5)", pane, 1);
+        addLine([{ time: t0, value: 30 }, { time: tN, value: 30 }], "rgba(16,185,129,0.5)", pane, 1);
+      } else if (ind.kind === "macd") {
+        const pane = nextPane++;
+        const r = calcMACD(candles, ind.fast ?? 12, ind.slow ?? 26, ind.signal ?? 9);
+        addLine(r.macdLine, color, pane);
+        addLine(r.signal, "#f97316", pane, 1);
+        const hs = chart.addSeries(
+          HistogramSeries,
+          { priceLineVisible: false, lastValueVisible: false },
+          pane,
+        );
+        hs.setData(r.hist.map((h) => ({ time: h.time as any, value: h.value, color: h.color })));
+        indSeriesRef.current.push(hs);
+      }
+    }
+    chart.timeScale().fitContent();
+  }, [chart, candles, indicators]);
 
   const last = candles[candles.length - 1];
   const prev = candles[candles.length - 2] ?? last;
