@@ -1,15 +1,17 @@
 import type { Candle } from "@/components/charts/TradingChart";
 
-export type IndicatorKind = "sma" | "ema" | "bb" | "rsi" | "macd";
+export type IndicatorKind = "sma" | "ema" | "bb" | "rsi" | "macd" | "vwap" | "stoch" | "atr";
 
 export interface IndicatorConfig {
   id: string;
   kind: IndicatorKind;
-  period?: number; // SMA/EMA/RSI/BB
-  stdDev?: number; // BB
-  fast?: number;   // MACD
+  period?: number;
+  stdDev?: number;
+  fast?: number;
   slow?: number;
   signal?: number;
+  smoothK?: number;
+  smoothD?: number;
   color?: string;
 }
 
@@ -19,6 +21,9 @@ export const DEFAULTS: Record<IndicatorKind, Partial<IndicatorConfig>> = {
   bb: { period: 20, stdDev: 2, color: "#a855f7" },
   rsi: { period: 14, color: "#06b6d4" },
   macd: { fast: 12, slow: 26, signal: 9, color: "#10b981" },
+  vwap: { color: "#facc15" },
+  stoch: { period: 14, smoothK: 3, smoothD: 3, color: "#06b6d4" },
+  atr: { period: 14, color: "#f97316" },
 };
 
 export const LABEL: Record<IndicatorKind, string> = {
@@ -27,6 +32,9 @@ export const LABEL: Record<IndicatorKind, string> = {
   bb: "Bollinger Bands",
   rsi: "RSI",
   macd: "MACD",
+  vwap: "VWAP",
+  stoch: "Stochastic",
+  atr: "ATR",
 };
 
 export type SeriesPoint = { time: number; value: number };
