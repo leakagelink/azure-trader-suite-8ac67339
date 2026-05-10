@@ -24,6 +24,13 @@ import {
   Trash2,
   Search,
   CandlestickChart,
+  Pencil,
+  Activity,
+  Bell,
+  Sparkles,
+  Pin,
+  LineChart as LineChartIcon,
+  X,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -114,6 +121,7 @@ export default function Charts() {
   const [query, setQuery] = useState("");
   const [chartType, setChartType] = useState<ChartType>("candles");
   const [chartTypeOpen, setChartTypeOpen] = useState(false);
+  const [drawOpen, setDrawOpen] = useState(false);
   const { drawings, setDrawings } = useChartDrawings(symbol);
   const { indicators, setIndicators } = useChartIndicators(symbol);
   const { alerts, setAlerts } = usePriceAlerts(symbol);
@@ -325,20 +333,31 @@ export default function Charts() {
 
       {/* Timeframes */}
       {!fullscreen && (
-        <div className="flex items-center gap-1 overflow-x-auto border-b border-border/30 px-3 py-1.5">
-          {TIMEFRAMES.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTf(t)}
-              className={`shrink-0 rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
-                tf === t
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted/40"
-              }`}
-            >
-              {t.toUpperCase()}
-            </button>
-          ))}
+        <div className="flex items-center gap-1.5 overflow-x-auto border-b border-border/30 bg-gradient-to-b from-background to-background/60 px-3 py-2.5">
+          {TIMEFRAMES.map((t) => {
+            const active = tf === t;
+            return (
+              <button
+                key={t}
+                onClick={() => setTf(t)}
+                className={`shrink-0 rounded-xl px-4 py-2 text-sm font-bold tracking-wide transition-all ${
+                  active
+                    ? "bg-gradient-to-br from-teal-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105"
+                    : "text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                }`}
+              >
+                {t.toUpperCase()}
+              </button>
+            );
+          })}
+          <button
+            onClick={() => setFullscreen(true)}
+            className="ml-auto shrink-0 rounded-xl border border-border/60 bg-card/60 p-2 hover:bg-muted/40"
+            aria-label="Fullscreen"
+            title="Fullscreen"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </button>
           {loading && <span className="ml-2 text-xs text-muted-foreground">loading…</span>}
           {isCrypto && live && !loading && (
             <span className="ml-2 flex items-center gap-1 text-[10px] font-semibold uppercase text-emerald-400">
@@ -359,71 +378,155 @@ export default function Charts() {
         {fullscreen && (
           <button
             onClick={() => setFullscreen(false)}
-            className="absolute right-3 top-3 z-20 rounded-lg border border-border/50 bg-background/80 p-2 backdrop-blur-md"
+            className="absolute right-3 top-3 z-20 rounded-xl border border-border/50 bg-background/80 p-2 backdrop-blur-md"
             aria-label="Exit fullscreen"
           >
             <Minimize2 className="h-4 w-4" />
           </button>
         )}
 
-        {/* Bottom tool dock */}
+        {/* Floating left quick-tool dock */}
+        <div className="absolute left-3 top-3 z-20 flex flex-col gap-2">
+          {[
+            { mode: "cursor" as DrawingMode, Icon: Pin, label: "Cursor" },
+            { mode: "trendline" as DrawingMode, Icon: TrendingUp, label: "Trend Line" },
+            { mode: "hline" as DrawingMode, Icon: Minus, label: "Horizontal Line" },
+            { mode: "brush" as DrawingMode, Icon: Activity, label: "Brush" },
+          ].map((t) => {
+            const active = mode === t.mode;
+            return (
+              <button
+                key={t.mode}
+                onClick={() => setMode(t.mode)}
+                title={t.label}
+                className={`flex h-11 w-11 items-center justify-center rounded-2xl border shadow-lg backdrop-blur-md transition-all ${
+                  active
+                    ? "border-teal-500/40 bg-teal-500/15 text-teal-400 shadow-teal-500/20"
+                    : "border-border/40 bg-background/70 text-foreground/80 hover:bg-muted/60"
+                }`}
+              >
+                <t.Icon className="h-4 w-4" />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Expandable Draw toolbar (full TOOLS palette) */}
+        {drawOpen && (
+          <div
+            className="absolute left-1/2 z-30 -translate-x-1/2 rounded-2xl border border-border/60 bg-background/90 p-2 shadow-2xl backdrop-blur-xl"
+            style={{ bottom: `calc(${fullscreen ? "84px" : "152px"} + env(safe-area-inset-bottom))` }}
+          >
+            <div className="mb-1 flex items-center justify-between px-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Drawing Tools</span>
+              <button onClick={() => setDrawOpen(false)} className="rounded-md p-1 hover:bg-muted/40">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            <div className="flex max-w-[92vw] flex-wrap items-center gap-1">
+              {TOOLS.map((t) => {
+                const active = mode === t.mode;
+                return (
+                  <button
+                    key={t.mode}
+                    onClick={() => setMode(t.mode)}
+                    title={t.label}
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                    }`}
+                  >
+                    <t.Icon className="h-4 w-4" />
+                  </button>
+                );
+              })}
+              <div className="mx-1 h-6 w-px bg-border/50" />
+              <input
+                type="color"
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                title="Color"
+                className="h-7 w-7 cursor-pointer rounded-md border border-border/40 bg-transparent"
+              />
+              <button
+                onClick={undo}
+                title="Undo"
+                disabled={!drawings.length}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground disabled:opacity-30"
+              >
+                <Undo2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom labeled action bar */}
         <div
-          className="absolute left-1/2 z-20 -translate-x-1/2 rounded-2xl border border-border/50 bg-background/80 p-1.5 shadow-2xl backdrop-blur-xl"
+          className="absolute left-2 right-2 z-20 rounded-2xl border border-border/50 bg-background/85 px-2 py-2 shadow-2xl backdrop-blur-xl"
           style={{ bottom: `calc(${fullscreen ? "12px" : "76px"} + env(safe-area-inset-bottom))` }}
         >
-          <div className="flex items-center gap-0.5">
-            {TOOLS.map((t) => {
-              const active = mode === t.mode;
-              return (
-                <button
-                  key={t.mode}
-                  onClick={() => setMode(t.mode)}
-                  title={t.label}
-                  className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
-                    active
-                      ? "bg-primary text-primary-foreground"
+          <div className="flex items-stretch justify-around gap-1">
+            {[
+              {
+                key: "draw",
+                label: "Draw",
+                Icon: Pencil,
+                active: drawOpen,
+                onClick: () => setDrawOpen((v) => !v),
+              },
+              {
+                key: "indicators",
+                label: "Indicators",
+                Icon: LineChartIcon,
+                active: indicators.length > 0,
+                onClick: () => document.getElementById("__charts_indicators_trigger")?.click(),
+              },
+              {
+                key: "alerts",
+                label: "Alerts",
+                Icon: Bell,
+                active: alerts.some((a) => !a.triggered),
+                onClick: () => document.getElementById("__charts_alerts_trigger")?.click(),
+              },
+              {
+                key: "magnet",
+                label: "Magnet",
+                Icon: Magnet,
+                active: magnet,
+                onClick: () => setMagnet((v) => !v),
+              },
+              {
+                key: "patterns",
+                label: "Patterns",
+                Icon: Sparkles,
+                active: false,
+                onClick: () => toast.info("Pattern detection coming soon"),
+              },
+              {
+                key: "clear",
+                label: "Clear",
+                Icon: Trash2,
+                active: false,
+                onClick: clearAll,
+                danger: true,
+              },
+            ].map((b: any) => (
+              <button
+                key={b.key}
+                onClick={b.onClick}
+                className={`flex flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-2 py-1.5 transition-all ${
+                  b.active
+                    ? "bg-gradient-to-br from-teal-500/15 to-blue-500/15 text-teal-300"
+                    : b.danger
+                      ? "text-muted-foreground hover:bg-red-500/10 hover:text-red-400"
                       : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                  }`}
-                >
-                  <t.Icon className="h-4 w-4" />
-                </button>
-              );
-            })}
-            <div className="mx-1 h-6 w-px bg-border/50" />
-            <input
-              type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              title="Color"
-              className="h-7 w-7 cursor-pointer rounded-md border border-border/40 bg-transparent"
-            />
-            <button
-              onClick={() => setMagnet((v) => !v)}
-              title={magnet ? "Magnet: ON (snap to OHLC)" : "Magnet: OFF"}
-              className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
-                magnet
-                  ? "bg-amber-500/20 text-amber-400"
-                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-              }`}
-            >
-              <Magnet className="h-4 w-4" />
-            </button>
-            <button
-              onClick={undo}
-              title="Undo"
-              disabled={!drawings.length}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground disabled:opacity-30"
-            >
-              <Undo2 className="h-4 w-4" />
-            </button>
-            <button
-              onClick={clearAll}
-              title="Delete all"
-              disabled={!drawings.length}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-500/10 hover:text-red-400 disabled:opacity-30"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+                }`}
+              >
+                <b.Icon className="h-[18px] w-[18px]" />
+                <span className="text-[10px] font-semibold tracking-wide">{b.label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>

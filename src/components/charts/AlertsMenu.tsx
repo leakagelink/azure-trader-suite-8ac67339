@@ -40,6 +40,7 @@ export default function AlertsMenu({ symbol, currentPrice, alerts, setAlerts }: 
   return (
     <div className="relative">
       <button
+        id="__charts_alerts_trigger"
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-1.5 rounded-lg border border-border/50 bg-card/60 px-3 py-1.5 text-xs font-semibold hover:bg-muted/40"
       >
