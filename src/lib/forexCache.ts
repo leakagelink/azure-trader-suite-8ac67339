@@ -14,12 +14,15 @@ type Entry<T> = { value: T; expiresAt: number };
 
 const FOREX_DATA_TTL_MS = 20_000; // snapshot prices
 const FOREX_CHART_TTL_MS = 25_000; // OHLC candles
+const COMMODITIES_DATA_TTL_MS = 12_000; // commodities snapshot
 
 const dataCache = new Map<string, Entry<any>>();
 const chartCache = new Map<string, Entry<any>>();
+const commoditiesCache = new Map<string, Entry<any>>();
 
 const dataInflight = new Map<string, Promise<any>>();
 const chartInflight = new Map<string, Promise<any>>();
+const commoditiesInflight = new Map<string, Promise<any>>();
 
 function getFresh<T>(cache: Map<string, Entry<T>>, key: string): T | null {
   const hit = cache.get(key);
@@ -105,8 +108,43 @@ export async function invokeForexChartData(
   }
 }
 
+/** Throttled + cached call to `fetch-commodities-data`. */
+export async function getCommoditiesData(opts?: { force?: boolean }): Promise<any> {
+  const key = "all";
+  if (!opts?.force) {
+    const cached = getFresh(commoditiesCache, key);
+    if (cached) return cached;
+  }
+  const inflight = commoditiesInflight.get(key);
+  if (inflight) return inflight;
+
+  const p = (async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke("fetch-commodities-data");
+      if (error) throw error;
+      commoditiesCache.set(key, { value: data, expiresAt: Date.now() + COMMODITIES_DATA_TTL_MS });
+      return data;
+    } finally {
+      commoditiesInflight.delete(key);
+    }
+  })();
+  commoditiesInflight.set(key, p);
+  return p;
+}
+
+/** Drop-in replacement for `supabase.functions.invoke('fetch-commodities-data')`. */
+export async function invokeCommoditiesData(): Promise<{ data: any; error: any }> {
+  try {
+    const data = await getCommoditiesData();
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 /** Manually invalidate caches (e.g. after a Broker action). */
 export function invalidateForexCaches() {
   dataCache.clear();
   chartCache.clear();
+  commoditiesCache.clear();
 }
