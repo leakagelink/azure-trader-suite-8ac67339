@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeForexChartData } from "@/lib/forexCache";
 import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
 import TradingChart, { type Candle, type ChartType } from "@/components/charts/TradingChart";
 import { useChartDrawings, type DrawingMode } from "@/hooks/useChartDrawings";
@@ -151,10 +152,11 @@ export default function Charts() {
       setLoading(true);
       try {
         const isForex = isForexSymbol(symbol);
-        const fnName = isForex ? "fetch-forex-chart-data" : "fetch-taapi-data";
-        const { data, error } = await supabase.functions.invoke(fnName, {
-          body: { symbol: symbol.toUpperCase(), interval: tf },
-        });
+        const { data, error } = isForex
+          ? await invokeForexChartData(symbol.toUpperCase(), tf)
+          : await supabase.functions.invoke("fetch-taapi-data", {
+              body: { symbol: symbol.toUpperCase(), interval: tf },
+            });
         if (error) throw error;
         if (cancelled) return;
         const raw = (data?.candles || []) as any[];

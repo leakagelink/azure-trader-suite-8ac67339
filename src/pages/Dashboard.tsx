@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeForexData } from "@/lib/forexCache";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,7 @@ const Dashboard = () => {
   const fetchForexData = async (isBackgroundRefresh = false) => {
     try {
       if (!isBackgroundRefresh) setForexLoading(true);
-      const { data, error } = await supabase.functions.invoke('fetch-forex-data');
+      const { data, error } = await invokeForexData();
       
       if (error) {
         console.error('Error fetching forex data:', error);

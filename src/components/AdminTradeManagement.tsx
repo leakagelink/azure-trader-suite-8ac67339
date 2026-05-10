@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeForexData } from "@/lib/forexCache";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -262,7 +263,7 @@ export const AdminTradeManagement = () => {
             if (commodity) price = parseFloat(commodity.price);
           }
         } else if (assetType === 'forex') {
-          const { data, error } = await supabase.functions.invoke('fetch-forex-data');
+          const { data, error } = await invokeForexData();
           if (!error && data?.forexData) {
             const forex = data.forexData.find((f: any) => f.name?.toUpperCase() === symbol.toUpperCase() || f.symbol?.toUpperCase() === symbol.toUpperCase());
             if (forex) price = parseFloat(forex.price);
@@ -327,7 +328,7 @@ export const AdminTradeManagement = () => {
             ? supabase.functions.invoke('fetch-crypto-data', { body: { symbols: cryptoSymbols } })
             : Promise.resolve({ data: null, error: null }),
           livePositions.some((p) => isForexSymbol(p.symbol))
-            ? supabase.functions.invoke('fetch-forex-data')
+            ? invokeForexData()
             : Promise.resolve({ data: null, error: null }),
           livePositions.some((p) => isCommoditySymbol(p.symbol))
             ? supabase.functions.invoke('fetch-commodities-data')
@@ -734,7 +735,7 @@ export const AdminTradeManagement = () => {
           
         } else if (assetType === 'forex') {
           // Fetch forex prices
-          const response = await supabase.functions.invoke('fetch-forex-data');
+          const response = await invokeForexData();
           priceData = response.data;
           priceError = response.error;
           

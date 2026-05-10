@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { invokeForexData } from "@/lib/forexCache";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -207,7 +208,7 @@ const Positions = () => {
             ? supabase.functions.invoke("fetch-crypto-data", { body: { symbols: cryptoSymbols } })
             : Promise.resolve({ data: null, error: null }),
           livePositions.some((p) => isForexSymbol(p.symbol))
-            ? supabase.functions.invoke("fetch-forex-data")
+            ? invokeForexData()
             : Promise.resolve({ data: null, error: null }),
           livePositions.some((p) => isCommoditySymbol(p.symbol))
             ? supabase.functions.invoke("fetch-commodities-data")
@@ -617,7 +618,7 @@ const Positions = () => {
             ? supabase.functions.invoke('fetch-crypto-data', { body: { symbols: cryptoSyms } })
             : Promise.resolve({ data: null, error: null }),
           symbols.some(s => isForexSymbol(s))
-            ? supabase.functions.invoke('fetch-forex-data')
+            ? invokeForexData()
             : Promise.resolve({ data: null, error: null }),
           symbols.some(s => isCommoditySymbol(s))
             ? supabase.functions.invoke('fetch-commodities-data')
