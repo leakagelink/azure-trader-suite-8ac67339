@@ -82,6 +82,29 @@ export async function getForexChartData(
   return p;
 }
 
+/** Drop-in replacement for `supabase.functions.invoke('fetch-forex-data')`. */
+export async function invokeForexData(): Promise<{ data: any; error: any }> {
+  try {
+    const data = await getForexData();
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
+/** Drop-in replacement for `supabase.functions.invoke('fetch-forex-chart-data', { body })`. */
+export async function invokeForexChartData(
+  symbol: string,
+  interval: string,
+): Promise<{ data: any; error: any }> {
+  try {
+    const data = await getForexChartData(symbol, interval);
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
 /** Manually invalidate caches (e.g. after a Broker action). */
 export function invalidateForexCaches() {
   dataCache.clear();
