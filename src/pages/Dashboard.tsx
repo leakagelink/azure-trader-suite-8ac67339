@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { invokeForexData } from "@/lib/forexCache";
+import { invokeForexData, invokeCommoditiesData } from "@/lib/forexCache";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,7 @@ const Dashboard = () => {
   const fetchCommoditiesData = async (isBackgroundRefresh = false) => {
     try {
       if (!isBackgroundRefresh) setCommoditiesLoading(true);
-      const { data, error } = await supabase.functions.invoke('fetch-commodities-data');
+      const { data, error } = await invokeCommoditiesData();
       
       if (error) {
         console.error('Error fetching commodities data:', error);
@@ -154,15 +154,21 @@ const Dashboard = () => {
         )
         .subscribe();
       
-      // Auto-refresh every 30 seconds
+      // Auto-refresh every 30 seconds for crypto + forex
       const refreshInterval = setInterval(() => {
         fetchCryptoData(true);
         fetchForexData(true);
         fetchCommoditiesData(true);
       }, 30000);
 
+      // Faster commodities-only refresh (every 15s) so the table stays live
+      const commoditiesInterval = setInterval(() => {
+        fetchCommoditiesData(true);
+      }, 15000);
+
       return () => {
         clearInterval(refreshInterval);
+        clearInterval(commoditiesInterval);
         supabase.removeChannel(walletChannel);
       };
     } catch (error) {
