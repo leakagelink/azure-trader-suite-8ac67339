@@ -9,23 +9,22 @@ const EXCHANGERATE_HOST_KEY = '9a730bf18b3dbe6bceedb04fea11c39f';
 
 async function fetchRateFromYahoo(symbol: string): Promise<number | null> {
   try {
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=USD${symbol.toUpperCase()}=X`;
-    console.log('Fetching rate from Yahoo for', symbol);
-    const response = await fetch(url, {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/USD${symbol.toUpperCase()}=X?interval=1d&range=2d`;
+    const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'application/json',
       },
     });
-    if (!response.ok) {
-      console.error('Yahoo HTTP error:', response.status);
+    if (!res.ok) {
+      console.error('Yahoo chart HTTP error:', res.status);
       return null;
     }
-    const data = await response.json();
-    const price = data?.quoteResponse?.result?.[0]?.regularMarketPrice;
+    const data = await res.json();
+    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
     return typeof price === 'number' ? price : null;
   } catch (e) {
-    console.error('Yahoo fetch error:', e);
+    console.error('Yahoo chart fetch error:', e);
     return null;
   }
 }

@@ -38,60 +38,59 @@ const COMMODITIES_CONFIG = [
   { name: "Brent Oil", symbol: "BRENT", apiSymbol: "BRENT", icon: "🛢️", fullName: "Brent Crude Oil" },
 ];
 
-// Yahoo Finance unofficial endpoint - no API key, near real-time futures quotes
-async function fetchFromYahooFinance(): Promise<any[]> {
+// Yahoo Finance chart endpoint (no API key, no auth crumb required)
+async function fetchOneCommodityFromYahoo(meta: { yahoo: string; symbol: string; name: string; icon: string; fullName: string }): Promise<any | null> {
   try {
-    const symbolMap = [
-      { yahoo: 'GC=F', symbol: 'XAU', name: 'Gold', icon: '🥇', fullName: 'Gold' },
-      { yahoo: 'SI=F', symbol: 'XAG', name: 'Silver', icon: '🥈', fullName: 'Silver' },
-      { yahoo: 'PL=F', symbol: 'XPT', name: 'Platinum', icon: '💎', fullName: 'Platinum' },
-      { yahoo: 'PA=F', symbol: 'XPD', name: 'Palladium', icon: '⬜', fullName: 'Palladium' },
-      { yahoo: 'HG=F', symbol: 'XCU', name: 'Copper', icon: '🔶', fullName: 'Copper' },
-      { yahoo: 'CL=F', symbol: 'WTI', name: 'Crude Oil', icon: '🛢️', fullName: 'Crude Oil WTI' },
-      { yahoo: 'BZ=F', symbol: 'BRENT', name: 'Brent Oil', icon: '🛢️', fullName: 'Brent Crude Oil' },
-      { yahoo: 'NG=F', symbol: 'NG', name: 'Natural Gas', icon: '🔥', fullName: 'Natural Gas' },
-    ];
-    const symbols = symbolMap.map((s) => s.yahoo).join(',');
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbols}`;
-    console.log('Fetching commodities from Yahoo Finance:', url);
-    const response = await fetch(url, {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(meta.yahoo)}?interval=1d&range=2d`;
+    const res = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         'Accept': 'application/json',
       },
     });
-    if (!response.ok) {
-      console.error('Yahoo Finance HTTP error:', response.status);
-      return [];
+    if (!res.ok) {
+      console.error(`Yahoo chart ${meta.yahoo} HTTP error:`, res.status);
+      return null;
     }
-    const data = await response.json();
-    const quotes = data?.quoteResponse?.result;
-    if (!Array.isArray(quotes)) return [];
-
-    const results: any[] = [];
-    for (const q of quotes) {
-      const meta = symbolMap.find((s) => s.yahoo === q.symbol);
-      if (!meta) continue;
-      const price = q.regularMarketPrice;
-      const changePct = q.regularMarketChangePercent ?? 0;
-      if (typeof price !== 'number') continue;
-      results.push({
-        name: meta.name,
-        symbol: meta.symbol,
-        price: price.toFixed(2),
-        change: `${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%`,
-        isPositive: changePct >= 0,
-        icon: meta.icon,
-        currencySymbol: '$',
-        fullName: meta.fullName,
-      });
-    }
-    console.log(`Yahoo Finance returned ${results.length} commodities`);
-    return results;
+    const data = await res.json();
+    const m = data?.chart?.result?.[0]?.meta;
+    const price = m?.regularMarketPrice;
+    const prevClose = m?.chartPreviousClose ?? m?.previousClose;
+    if (typeof price !== 'number') return null;
+    const changePct = typeof prevClose === 'number' && prevClose > 0
+      ? ((price - prevClose) / prevClose) * 100
+      : 0;
+    return {
+      name: meta.name,
+      symbol: meta.symbol,
+      price: price.toFixed(2),
+      change: `${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%`,
+      isPositive: changePct >= 0,
+      icon: meta.icon,
+      currencySymbol: '$',
+      fullName: meta.fullName,
+    };
   } catch (e) {
-    console.error('Yahoo Finance fetch error:', e);
-    return [];
+    console.error(`Yahoo chart ${meta.yahoo} error:`, e);
+    return null;
   }
+}
+
+async function fetchFromYahooFinance(): Promise<any[]> {
+  const symbolMap = [
+    { yahoo: 'GC=F', symbol: 'XAU', name: 'Gold', icon: '🥇', fullName: 'Gold' },
+    { yahoo: 'SI=F', symbol: 'XAG', name: 'Silver', icon: '🥈', fullName: 'Silver' },
+    { yahoo: 'PL=F', symbol: 'XPT', name: 'Platinum', icon: '💎', fullName: 'Platinum' },
+    { yahoo: 'PA=F', symbol: 'XPD', name: 'Palladium', icon: '⬜', fullName: 'Palladium' },
+    { yahoo: 'HG=F', symbol: 'XCU', name: 'Copper', icon: '🔶', fullName: 'Copper' },
+    { yahoo: 'CL=F', symbol: 'WTI', name: 'Crude Oil', icon: '🛢️', fullName: 'Crude Oil WTI' },
+    { yahoo: 'BZ=F', symbol: 'BRENT', name: 'Brent Oil', icon: '🛢️', fullName: 'Brent Crude Oil' },
+    { yahoo: 'NG=F', symbol: 'NG', name: 'Natural Gas', icon: '🔥', fullName: 'Natural Gas' },
+  ];
+  const results = await Promise.all(symbolMap.map(fetchOneCommodityFromYahoo));
+  const filtered = results.filter((r) => r !== null);
+  console.log(`Yahoo Finance returned ${filtered.length}/${symbolMap.length} commodities`);
+  return filtered;
 }
 
 // Fetch commodity prices from CoinGecko (FREE - no API key needed)
