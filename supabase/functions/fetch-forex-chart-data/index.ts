@@ -7,6 +7,29 @@ const corsHeaders = {
 
 const EXCHANGERATE_HOST_KEY = '9a730bf18b3dbe6bceedb04fea11c39f';
 
+async function fetchRateFromYahoo(symbol: string): Promise<number | null> {
+  try {
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=USD${symbol.toUpperCase()}=X`;
+    console.log('Fetching rate from Yahoo for', symbol);
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      console.error('Yahoo HTTP error:', response.status);
+      return null;
+    }
+    const data = await response.json();
+    const price = data?.quoteResponse?.result?.[0]?.regularMarketPrice;
+    return typeof price === 'number' ? price : null;
+  } catch (e) {
+    console.error('Yahoo fetch error:', e);
+    return null;
+  }
+}
+
 async function fetchRateFromExchangerateHost(symbol: string): Promise<number | null> {
   try {
     const url = `https://api.exchangerate.host/live?access_key=${EXCHANGERATE_HOST_KEY}&source=USD&currencies=${symbol}`;
@@ -71,14 +94,25 @@ serve(async (req) => {
     
     let currentRate: number | null = null;
     let source = 'fallback';
-    
-    // Try exchangerate.host first
-    currentRate = await fetchRateFromExchangerateHost(symbol);
+
+    // Try Yahoo Finance first (free, no key, near real-time)
+    currentRate = await fetchRateFromYahoo(symbol);
     if (currentRate !== null) {
-      source = 'exchangerate.host';
-      console.log(`Got ${symbol} rate from exchangerate.host: ${currentRate}`);
-    } else {
-      // Fallback to Frankfurter
+      source = 'yahoo';
+      console.log(`Got ${symbol} rate from Yahoo: ${currentRate}`);
+    }
+
+    // Fallback to exchangerate.host
+    if (currentRate === null) {
+      currentRate = await fetchRateFromExchangerateHost(symbol);
+      if (currentRate !== null) {
+        source = 'exchangerate.host';
+        console.log(`Got ${symbol} rate from exchangerate.host: ${currentRate}`);
+      }
+    }
+
+    // Fallback to Frankfurter
+    if (currentRate === null) {
       currentRate = await fetchRateFromFrankfurter(symbol);
       if (currentRate !== null) {
         source = 'frankfurter';
