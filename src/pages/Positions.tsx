@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import BottomNav from "@/components/BottomNav";
 import { isCommoditySymbol, isForexSymbol } from "@/lib/marketSymbols";
+import { modeLogger } from "@/lib/modeEventLogger";
 
 interface Position {
   id: string;
