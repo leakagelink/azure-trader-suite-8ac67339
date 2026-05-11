@@ -41,7 +41,7 @@ interface Position {
   take_profit?: number | null;
 }
 
-const PRICE_POLL_INTERVAL_MS = 3000;
+const PRICE_POLL_INTERVAL_MS = 50;
 const PRICE_FLASH_DURATION_MS = 1200;
 const MARKET_SETTINGS_CACHE_MS = 30000;
 
