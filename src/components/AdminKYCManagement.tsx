@@ -337,7 +337,7 @@ export const AdminKYCManagement = () => {
           </div>
         ) : (
           <div className="rounded-lg border overflow-x-auto">
-            <Table>
+            <div className="overflow-x-auto -mx-2 px-2"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>User</TableHead>
@@ -395,7 +395,7 @@ export const AdminKYCManagement = () => {
                   );
                 })}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
         )}
       </CardContent>

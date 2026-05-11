@@ -894,7 +894,7 @@ const AdminPanel = () => {
   const pendingWithdrawalsCount = withdrawalRequests.filter((w: any) => w.status === "pending").length;
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={typeof window !== "undefined" ? window.innerWidth >= 1024 : true}>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-background via-background to-primary/5">
         {/* Decorative animated background orbs */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
@@ -915,20 +915,29 @@ const AdminPanel = () => {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Premium Header */}
           <header className="border-b border-border/40 backdrop-blur-xl bg-background/70 sticky top-0 z-40 shadow-sm">
-            <div className="flex items-center justify-between px-4 py-3 gap-4">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors rounded-lg" />
-                <div className="hidden md:flex items-center gap-2">
-                  <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary to-accent" />
-                  <div>
-                    <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent capitalize">
+            <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors rounded-lg shrink-0" />
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary to-accent shrink-0" />
+                  <div className="min-w-0">
+                    <h1 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent capitalize truncate">
                       {activeTab === "api" ? "API Keys" : activeTab}
                     </h1>
-                    <p className="text-[11px] text-muted-foreground">Broker management console</p>
+                    <p className="hidden sm:block text-[11px] text-muted-foreground">Broker management console</p>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={fetchAllData}
+                  className="h-9 w-9 sm:hidden border-primary/30 hover:bg-primary/10"
+                  aria-label="Refresh"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -942,16 +951,16 @@ const AdminPanel = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/dashboard")}
-                  className="hover:bg-primary/10 hover:text-primary transition-colors"
+                  className="hover:bg-primary/10 hover:text-primary transition-colors px-2 sm:px-3"
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  <ChevronLeft className="h-4 w-4 sm:mr-1" />
                   <span className="hidden sm:inline">Dashboard</span>
                 </Button>
               </div>
             </div>
           </header>
 
-          <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8 overflow-x-hidden">
+          <main className="flex-1 px-2 py-3 sm:px-4 sm:py-6 lg:px-8 lg:py-8 overflow-x-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full animate-fade-in">
               {/* TabsList hidden — navigation handled by sidebar */}
               <TabsList className="sr-only">
@@ -998,6 +1007,7 @@ const AdminPanel = () => {
                     {pendingUsers.length > 0 && (
                       <div>
                         <h3 className="text-sm font-semibold mb-3 text-amber-600">Pending Approval ({pendingUsers.length})</h3>
+                        <div className="overflow-x-auto -mx-2 px-2">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -1044,12 +1054,14 @@ const AdminPanel = () => {
                             ))}
                           </TableBody>
                         </Table>
+                        </div>
                       </div>
                     )}
                     
                     {/* Active Users */}
                     <div>
                       <h3 className="text-sm font-semibold mb-3 text-green-600">Active Users ({users.filter(u => u.is_approved).length})</h3>
+                      <div className="overflow-x-auto -mx-2 px-2">
                       <Table>
                         <TableHeader>
                           <TableRow>
@@ -1090,6 +1102,7 @@ const AdminPanel = () => {
                           ))}
                         </TableBody>
                       </Table>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1348,7 +1361,7 @@ const AdminPanel = () => {
                 ) : depositRequests.length === 0 ? (
                   <p className="text-center py-8 text-muted-foreground">No deposit requests</p>
                 ) : (
-                  <Table>
+                  <div className="overflow-x-auto -mx-2 px-2"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>User</TableHead>
@@ -1439,7 +1452,7 @@ const AdminPanel = () => {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 )}
               </CardContent>
             </Card>
@@ -1468,7 +1481,7 @@ const AdminPanel = () => {
                 ) : withdrawalRequests.length === 0 ? (
                   <p className="text-center py-8 text-muted-foreground">No withdrawal requests</p>
                 ) : (
-                  <Table>
+                  <div className="overflow-x-auto -mx-2 px-2"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>User</TableHead>
@@ -1566,7 +1579,7 @@ const AdminPanel = () => {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 )}
               </CardContent>
             </Card>

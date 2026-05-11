@@ -205,7 +205,7 @@ export function AdminAuditLog() {
           <p className="text-center py-8 text-muted-foreground">No audit entries match your filters.</p>
         ) : (
           <div className="border rounded-md overflow-x-auto">
-            <Table>
+            <div className="overflow-x-auto -mx-2 px-2"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Time</TableHead>
@@ -280,7 +280,7 @@ export function AdminAuditLog() {
                   );
                 })}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
         )}
       </CardContent>

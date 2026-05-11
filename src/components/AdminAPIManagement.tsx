@@ -167,7 +167,7 @@ export const AdminAPIManagement = () => {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Current {SERVICE_NAMES[service]} Keys</h3>
           {serviceKeys.length > 0 ? (
-            <Table>
+            <div className="overflow-x-auto -mx-2 px-2"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Priority</TableHead>
@@ -207,7 +207,7 @@ export const AdminAPIManagement = () => {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </Table></div>
           ) : (
             <p className="text-muted-foreground">No API keys configured</p>
           )}

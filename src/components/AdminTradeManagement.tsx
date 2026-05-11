@@ -1364,7 +1364,7 @@ export const AdminTradeManagement = () => {
                 <p className="text-muted-foreground text-center py-8">No open trades</p>
               ) : (
                 <>
-                  <Table>
+                  <div className="overflow-x-auto -mx-2 px-2"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Symbol</TableHead>
@@ -1536,7 +1536,7 @@ export const AdminTradeManagement = () => {
                         );
                       })}
                     </TableBody>
-                  </Table>
+                  </Table></div>
 
                   {/* Pagination for open trades */}
                   {totalPages > 1 && (
@@ -1578,7 +1578,7 @@ export const AdminTradeManagement = () => {
                 <p className="text-muted-foreground text-center py-8">No closed trades</p>
               ) : (
                 <>
-                  <Table>
+                  <div className="overflow-x-auto -mx-2 px-2"><Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Symbol</TableHead>
@@ -1652,7 +1652,7 @@ export const AdminTradeManagement = () => {
                         );
                       })}
                     </TableBody>
-                  </Table>
+                  </Table></div>
 
                   {/* Pagination for closed trades */}
                   {displayTotalPages > 1 && (

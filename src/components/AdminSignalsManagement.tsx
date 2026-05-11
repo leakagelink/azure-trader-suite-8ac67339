@@ -178,7 +178,7 @@ export const AdminSignalsManagement = () => {
           <p className="text-center text-muted-foreground py-10">No signals yet. Add your first signal.</p>
         ) : (
           <div className="overflow-x-auto">
-            <Table>
+            <div className="overflow-x-auto -mx-2 px-2"><Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Order</TableHead>
@@ -228,7 +228,7 @@ export const AdminSignalsManagement = () => {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+            </Table></div>
           </div>
         )}
       </CardContent>

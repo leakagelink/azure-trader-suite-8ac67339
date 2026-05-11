@@ -147,7 +147,7 @@ const Admin = () => {
               </div>
             ) : (
               <div className="rounded-md border overflow-x-auto">
-                <Table>
+                <div className="overflow-x-auto -mx-2 px-2"><Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
@@ -189,7 +189,7 @@ const Admin = () => {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                </Table></div>
               </div>
             )}
           </CardContent>
