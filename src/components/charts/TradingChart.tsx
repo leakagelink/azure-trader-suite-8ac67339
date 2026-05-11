@@ -269,3 +269,18 @@ function TradingChart({
     </div>
   );
 }
+
+export default memo(TradingChart, (prev, next) => {
+  if (prev.symbol !== next.symbol) return false;
+  if (prev.mode !== next.mode) return false;
+  if (prev.color !== next.color) return false;
+  if (prev.magnet !== next.magnet) return false;
+  if (prev.chartType !== next.chartType) return false;
+  if (prev.indicators !== next.indicators) return false;
+  if (prev.alerts !== next.alerts) return false;
+  if (prev.candles === next.candles) return true;
+  if (prev.candles.length !== next.candles.length) return false;
+  const a = prev.candles[prev.candles.length - 1];
+  const b = next.candles[next.candles.length - 1];
+  return !!a && !!b && a.time === b.time && a.close === b.close;
+});
