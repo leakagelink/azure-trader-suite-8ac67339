@@ -107,8 +107,17 @@ export default {
           "100%": { backgroundPosition: "200% 0" },
         },
         "glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(350 65% 35% / 0.3)" },
-          "50%": { boxShadow: "0 0 40px hsl(350 65% 35% / 0.6)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(152 92% 55% / 0.35)" },
+          "50%": { boxShadow: "0 0 50px hsl(158 84% 42% / 0.65)" },
+        },
+        "shine": {
+          "0%": { backgroundPosition: "-200% center" },
+          "100%": { backgroundPosition: "200% center" },
+        },
+        "tilt": {
+          "0%, 50%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(0.5deg)" },
+          "75%": { transform: "rotate(-0.5deg)" },
         },
         "spin-slow": {
           "0%": { transform: "rotate(0deg)" },
@@ -150,6 +159,8 @@ export default {
         "scale-pulse": "scale-pulse 2s ease-in-out infinite",
         "slide-up": "slide-up 0.5s ease-out",
         "blob": "blob 10s infinite",
+        "shine": "shine 3s linear infinite",
+        "tilt": "tilt 10s infinite linear",
       },
     },
   },
