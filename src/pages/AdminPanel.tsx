@@ -1314,6 +1314,11 @@ const AdminPanel = () => {
             <AdminSignalsManagement />
           </TabsContent>
 
+          {/* Audit Log Tab */}
+          <TabsContent value="audit">
+            <AdminAuditLog />
+          </TabsContent>
+
           {/* API Keys Tab */}
           <TabsContent value="api">
             <AdminAPIManagement />
