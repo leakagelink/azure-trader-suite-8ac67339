@@ -505,7 +505,7 @@ export default function Charts() {
       )}
 
       {/* Chart */}
-      <div className="relative flex-1 overflow-hidden">
+      <div className="relative w-full min-w-0 flex-1 overflow-hidden">
         <TradingChart symbol={symbol} candles={candles} mode={mode} color={color} magnet={magnet} indicators={indicators} chartType={chartType} alerts={alerts} />
 
         {/* Loading overlay (only when no data yet) */}
