@@ -177,7 +177,7 @@ const KYC = () => {
       });
       if (insertErr) throw insertErr;
 
-      toast({ title: "KYC submitted!", description: "Your KYC has been sent to the broker for review." });
+      toast({ title: t("kyc.toast.submittedTitle"), description: t("kyc.toast.submittedDesc") });
       setExisting({
         status: "pending",
         rejection_reason: null,
@@ -186,7 +186,7 @@ const KYC = () => {
         last_name: form.last_name,
       });
     } catch (err: any) {
-      toast({ title: "Submission failed", description: err.message, variant: "destructive" });
+      toast({ title: t("kyc.toast.submissionFailed"), description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
