@@ -517,7 +517,7 @@ export default function Charts() {
                   key={t.mode}
                   onClick={() => setMode(t.mode)}
                   title={t.label}
-                  className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
+                  className={`flex h-9 w-9 shrink-0 snap-start items-center justify-center rounded-lg transition-colors ${
                     active
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
