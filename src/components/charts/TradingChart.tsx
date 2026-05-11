@@ -49,7 +49,7 @@ interface Props {
   alerts?: PriceAlert[];
 }
 
-export default function TradingChart({
+function TradingChart({
   symbol,
   candles,
   mode,
