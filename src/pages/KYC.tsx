@@ -254,7 +254,7 @@ const KYC = () => {
             <CardContent className="space-y-3">
               {existing.status === "pending" && (
                 <p className="text-sm text-muted-foreground">
-                  Aapki KYC submit ho chuki hai. Broker review karke aapko email pe inform karenge. Yeh process 24-48 hours le sakta hai.
+                  Your KYC has been submitted. The broker will review it and notify you by email. This process can take 24–48 hours.
                 </p>
               )}
               {existing.status === "approved" && (
