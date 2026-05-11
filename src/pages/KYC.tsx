@@ -217,15 +217,15 @@ const KYC = () => {
       <header className="border-b border-border/40 backdrop-blur-xl bg-background/70 sticky top-0 z-40">
         <div className="container max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
           <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="hover:bg-primary/10">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            <ArrowLeft className="h-4 w-4 mr-1" /> {t("common.back")}
           </Button>
           <div className="flex items-center gap-2">
             <img src={logo} alt="TradixoFX" className="h-8 w-auto object-contain" />
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              KYC Verification
+              {t("kyc.title")}
             </span>
           </div>
-          <div className="w-16" />
+          <LanguageSwitcher />
         </div>
       </header>
 
