@@ -677,29 +677,34 @@ const Index = () => {
       {/* Trusted Worldwide section hidden */}
 
       {/* CTA Section */}
-      <section className="py-12 sm:py-28 bg-gradient-to-br from-primary via-[hsl(15_75%_28%)] to-accent relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-10" />
-        <div className="absolute top-20 left-20 w-40 sm:w-96 h-40 sm:h-96 bg-accent/30 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-40 sm:w-96 h-40 sm:h-96 bg-primary/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        {/* Gold accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent to-transparent" />
-        
+      <section className="py-14 sm:py-28 bg-primary relative overflow-hidden">
+        {/* Subtle matte texture */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.07]" />
+        {/* Top & bottom accent rules */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-white/15" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-white/15" />
+
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center text-primary-foreground">
-            <Badge className="mb-4 sm:mb-6 bg-white/15 text-white border-accent/40 backdrop-blur-md px-3 py-1.5 text-xs sm:text-sm font-bold">
-              <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 text-accent" /> Limited Time Offer
+          <div className="max-w-4xl mx-auto text-center">
+            <Badge className="mb-5 sm:mb-7 bg-white text-primary border-0 px-4 py-2 text-xs sm:text-sm font-bold shadow-lg uppercase tracking-wider">
+              <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 text-primary" /> Limited Time Offer
             </Badge>
-            <h2 className="text-2xl sm:text-5xl md:text-7xl font-black mb-4 sm:mb-8 leading-[1.05] tracking-tight">
-              Ready to Start <span className="block gold-text mt-1 sm:mt-2">Trading?</span>
+            <h2 className="text-3xl sm:text-5xl md:text-7xl font-black mb-5 sm:mb-8 leading-[1.05] tracking-tight text-white">
+              Ready to Start
+              <span className="block mt-2 sm:mt-3 text-white">
+                <span className="relative inline-block">
+                  Trading?
+                  <span className="absolute left-0 right-0 -bottom-1 sm:-bottom-2 h-1 sm:h-1.5 bg-white/80 rounded-full" />
+                </span>
+              </span>
             </h2>
-            <p className="text-sm sm:text-xl md:text-2xl mb-6 sm:mb-12 opacity-95 leading-relaxed max-w-2xl mx-auto px-2">
+            <p className="text-base sm:text-xl md:text-2xl mb-7 sm:mb-12 text-white/90 leading-relaxed max-w-2xl mx-auto px-2">
               Join 50,000+ successful traders who trust TradixoFX. Start with a free account today.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
               <Button 
                 size="lg" 
-                className="w-full sm:w-auto bg-white text-primary hover:bg-white/95 text-sm sm:text-xl px-6 sm:px-12 py-4 sm:py-7 rounded-xl font-bold shadow-2xl hover:scale-105 hover:shadow-accent/30 transition-all duration-300 group"
+                className="w-full sm:w-auto bg-white text-primary hover:bg-white/95 text-sm sm:text-xl px-6 sm:px-12 py-4 sm:py-7 rounded-xl font-bold shadow-xl hover:scale-[1.03] transition-all duration-300 group"
                 onClick={() => navigate("/auth")}
               >
                 Create Free Account 
@@ -708,14 +713,14 @@ const Index = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="w-full sm:w-auto text-sm sm:text-xl px-6 sm:px-12 py-4 sm:py-7 rounded-xl border-2 border-white/40 bg-white/5 text-white hover:bg-white/15 hover:border-accent/60 backdrop-blur-sm hover:scale-105 transition-all duration-300"
+                className="w-full sm:w-auto text-sm sm:text-xl px-6 sm:px-12 py-4 sm:py-7 rounded-xl border-2 border-white/70 bg-transparent text-white hover:bg-white hover:text-primary font-semibold transition-all duration-300"
               >
                 <Shield className="mr-2 h-4 w-4 sm:h-6 sm:w-6" />
                 Learn About Security
               </Button>
             </div>
-            <p className="mt-4 sm:mt-8 text-xs sm:text-base text-white/85 flex items-center justify-center gap-2">
-              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-accent" /> No credit card required • Start in 2 minutes
+            <p className="mt-5 sm:mt-8 text-xs sm:text-base text-white/90 flex items-center justify-center gap-2 font-medium">
+              <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" /> No credit card required • Start in 2 minutes
             </p>
           </div>
         </div>
