@@ -190,11 +190,24 @@ export default function Charts() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return POPULAR;
-    return POPULAR.filter(
-      (s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q),
-    ).slice(0, 60);
-  }, [query]);
+    const base = q
+      ? POPULAR.filter(
+          (s) => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q),
+        )
+      : POPULAR;
+    // Ensure currently selected symbol is always present in the list
+    const upper = symbol.toUpperCase();
+    const hasCurrent = base.some((s) => s.symbol.toUpperCase() === upper);
+    if (!hasCurrent && upper) {
+      const market = isCommoditySymbol(upper)
+        ? "Commodity"
+        : isForexSymbol(upper)
+        ? "Forex"
+        : "Crypto";
+      return [{ symbol: upper, name: upper, market }, ...base].slice(0, 60);
+    }
+    return base.slice(0, 60);
+  }, [query, symbol]);
 
   useEffect(() => {
     let cancelled = false;
