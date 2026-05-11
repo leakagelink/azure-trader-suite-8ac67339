@@ -350,7 +350,7 @@ export default function Charts() {
     <div className="flex h-[100dvh] flex-col bg-background text-foreground">
       {/* Header */}
       {!fullscreen && (
-        <header className="flex h-14 items-center gap-2 border-b border-border/40 bg-background/80 px-3 backdrop-blur-md">
+        <header className="relative z-50 flex h-14 items-center gap-2 border-b border-border/40 bg-background/80 px-3 backdrop-blur-md">
           <button
             onClick={() => navigate("/dashboard")}
             className="rounded-md p-2 hover:bg-muted/40"
