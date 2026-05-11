@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +15,7 @@ import {
   ArrowLeft, ArrowRight, CheckCircle2, Clock, ShieldCheck, Upload, XCircle, Loader2, FileText, User as UserIcon, MapPin, Briefcase, FileCheck2,
 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import logo from "@/assets/logo.png";
 
 type KycStatus = "pending" | "approved" | "rejected";
@@ -26,12 +28,12 @@ interface ExistingKyc {
   last_name: string;
 }
 
-const STEPS = [
-  { id: 1, title: "Personal Info", icon: UserIcon },
-  { id: 2, title: "Address", icon: MapPin },
-  { id: 3, title: "Occupation", icon: Briefcase },
-  { id: 4, title: "Document", icon: FileCheck2 },
-];
+const STEP_KEYS = [
+  { id: 1, key: "personal", icon: UserIcon },
+  { id: 2, key: "address", icon: MapPin },
+  { id: 3, key: "occupation", icon: Briefcase },
+  { id: 4, key: "document", icon: FileCheck2 },
+] as const;
 
 const personalSchema = z.object({
   first_name: z.string().trim().min(1, "First name required").max(60),
@@ -57,6 +59,7 @@ const occupationSchema = z.object({
 const KYC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(1);
@@ -129,19 +132,19 @@ const KYC = () => {
       }
       setStep((s) => Math.min(4, s + 1));
     } catch (err: any) {
-      const msg = err?.errors?.[0]?.message || "Please complete all required fields";
-      toast({ title: "Missing info", description: msg, variant: "destructive" });
+      const msg = err?.errors?.[0]?.message || t("kyc.toast.missingInfoFallback");
+      toast({ title: t("kyc.toast.missingInfoTitle"), description: msg, variant: "destructive" });
     }
   };
 
   const handleSubmit = async () => {
     if (!userId) return;
     if (!docFile) {
-      toast({ title: "Document required", description: "Please upload your ID document", variant: "destructive" });
+      toast({ title: t("kyc.toast.documentRequiredTitle"), description: t("kyc.toast.documentRequiredDesc"), variant: "destructive" });
       return;
     }
     if (docFile.size > 10 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 10MB allowed", variant: "destructive" });
+      toast({ title: t("kyc.toast.fileTooLargeTitle"), description: t("kyc.toast.fileTooLargeDesc"), variant: "destructive" });
       return;
     }
 
@@ -174,7 +177,7 @@ const KYC = () => {
       });
       if (insertErr) throw insertErr;
 
-      toast({ title: "KYC submitted!", description: "Your KYC has been sent to the broker for review." });
+      toast({ title: t("kyc.toast.submittedTitle"), description: t("kyc.toast.submittedDesc") });
       setExisting({
         status: "pending",
         rejection_reason: null,
@@ -183,7 +186,7 @@ const KYC = () => {
         last_name: form.last_name,
       });
     } catch (err: any) {
-      toast({ title: "Submission failed", description: err.message, variant: "destructive" });
+      toast({ title: t("kyc.toast.submissionFailed"), description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -214,15 +217,15 @@ const KYC = () => {
       <header className="border-b border-border/40 backdrop-blur-xl bg-background/70 sticky top-0 z-40">
         <div className="container max-w-3xl mx-auto flex items-center justify-between px-4 py-3">
           <Button variant="ghost" size="sm" onClick={() => navigate("/profile")} className="hover:bg-primary/10">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            <ArrowLeft className="h-4 w-4 mr-1" /> {t("common.back")}
           </Button>
           <div className="flex items-center gap-2">
             <img src={logo} alt="TradixoFX" className="h-8 w-auto object-contain" />
             <span className="text-sm font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              KYC Verification
+              {t("kyc.title")}
             </span>
           </div>
-          <div className="w-16" />
+          <LanguageSwitcher />
         </div>
       </header>
 
@@ -253,22 +256,18 @@ const KYC = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {existing.status === "pending" && (
-                <p className="text-sm text-muted-foreground">
-                  Your KYC has been submitted. The broker will review it and notify you by email. This process can take 24–48 hours.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("kyc.status.pendingMsg")}</p>
               )}
               {existing.status === "approved" && (
-                <p className="text-sm text-muted-foreground">
-                  Congratulations! Your KYC is verified. You can now use all features.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("kyc.status.approvedMsg")}</p>
               )}
               {existing.status === "rejected" && (
                 <>
                   <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                    <p className="text-xs font-semibold text-destructive mb-1">Rejection reason:</p>
-                    <p className="text-sm">{existing.rejection_reason || "Documents could not be verified"}</p>
+                    <p className="text-xs font-semibold text-destructive mb-1">{t("kyc.status.rejectionReason")}</p>
+                    <p className="text-sm">{existing.rejection_reason || t("kyc.status.rejectionFallback")}</p>
                   </div>
-                  <Button onClick={handleResubmit} className="w-full">Resubmit KYC</Button>
+                  <Button onClick={handleResubmit} className="w-full">{t("kyc.status.resubmit")}</Button>
                 </>
               )}
             </CardContent>
@@ -282,13 +281,13 @@ const KYC = () => {
               <div className="flex items-center justify-between mb-3">
                 <CardTitle className="flex items-center gap-2">
                   <ShieldCheck className="h-5 w-5 text-primary" />
-                  Step {step} of 4 — {STEPS[step - 1].title}
+                  {t("kyc.stepOf", { step, total: 4, name: t(`kyc.steps.${STEP_KEYS[step - 1].key}`) })}
                 </CardTitle>
                 <Badge variant="outline">{Math.round((step / 4) * 100)}%</Badge>
               </div>
               <Progress value={(step / 4) * 100} className="h-2" />
               <div className="flex justify-between mt-3">
-                {STEPS.map((s) => {
+                {STEP_KEYS.map((s) => {
                   const Icon = s.icon;
                   const active = step === s.id;
                   const done = step > s.id;
@@ -306,7 +305,7 @@ const KYC = () => {
                         {done ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
                       </div>
                       <span className={`text-[10px] hidden sm:block ${active ? "text-foreground font-semibold" : "text-muted-foreground"}`}>
-                        {s.title}
+                        {t(`kyc.steps.${s.key}`)}
                       </span>
                     </div>
                   );

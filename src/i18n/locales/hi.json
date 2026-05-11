@@ -1,0 +1,54 @@
+{
+  "common": {
+    "back": "वापस",
+    "next": "आगे",
+    "submit": "सबमिट करें",
+    "cancel": "रद्द करें",
+    "save": "सहेजें",
+    "loading": "लोड हो रहा है…",
+    "yes": "हाँ",
+    "no": "नहीं",
+    "close": "बंद करें",
+    "language": "भाषा"
+  },
+  "languages": {
+    "en": "English",
+    "hi": "हिन्दी"
+  },
+  "kyc": {
+    "title": "KYC सत्यापन",
+    "stepOf": "चरण {{step}} / {{total}} — {{name}}",
+    "steps": {
+      "personal": "व्यक्तिगत जानकारी",
+      "address": "पता",
+      "occupation": "व्यवसाय",
+      "document": "दस्तावेज़"
+    },
+    "status": {
+      "pendingTitle": "KYC लंबित",
+      "pendingMsg": "आपकी KYC जमा हो गई है। ब्रोकर समीक्षा के बाद आपको ईमेल पर सूचित करेंगे। इस प्रक्रिया में 24–48 घंटे लग सकते हैं।",
+      "approvedMsg": "बधाई हो! आपकी KYC सत्यापित हो गई है। अब आप सभी सुविधाओं का उपयोग कर सकते हैं।",
+      "rejectionReason": "अस्वीकृति का कारण:",
+      "rejectionFallback": "दस्तावेज़ों की पुष्टि नहीं हो सकी",
+      "resubmit": "KYC पुनः सबमिट करें"
+    },
+    "toast": {
+      "submittedTitle": "KYC सबमिट हो गई!",
+      "submittedDesc": "आपकी KYC समीक्षा के लिए ब्रोकर को भेज दी गई है।",
+      "missingInfoTitle": "जानकारी अधूरी है",
+      "missingInfoFallback": "कृपया सभी आवश्यक फ़ील्ड भरें",
+      "documentRequiredTitle": "दस्तावेज़ आवश्यक है",
+      "documentRequiredDesc": "कृपया अपना पहचान दस्तावेज़ अपलोड करें",
+      "fileTooLargeTitle": "फ़ाइल बहुत बड़ी है",
+      "fileTooLargeDesc": "अधिकतम 10MB की अनुमति है",
+      "submissionFailed": "सबमिशन असफल"
+    },
+    "fields": {
+      "firstName": "पहला नाम",
+      "lastName": "उपनाम",
+      "asPerId": "ID के अनुसार",
+      "dob": "जन्म तिथि",
+      "ageHint": "सत्यापन के लिए 18+ होना ज़रूरी है"
+    }
+  }
+}
