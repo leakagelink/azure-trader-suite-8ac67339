@@ -92,7 +92,7 @@ const WithdrawalModal = ({ open, onOpenChange, onSuccess, availableBalance }: Wi
 
       toast({
         title: "Success!",
-        description: "Withdrawal request submitted successfully. Awaiting admin approval.",
+        description: "Withdrawal request submitted successfully.",
       });
 
       // Reset form
