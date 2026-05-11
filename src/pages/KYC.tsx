@@ -259,7 +259,7 @@ const KYC = () => {
               )}
               {existing.status === "approved" && (
                 <p className="text-sm text-muted-foreground">
-                  Badhai! Aapki KYC verified ho chuki hai. Ab aap saare features istemaal kar sakte hain.
+                  Congratulations! Your KYC is verified. You can now use all features.
                 </p>
               )}
               {existing.status === "rejected" && (
