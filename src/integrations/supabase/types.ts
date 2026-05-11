@@ -734,6 +734,26 @@ export type Database = {
         Args: { transaction_ref?: string; withdrawal_id: string }
         Returns: undefined
       }
+      check_edited_positions_consistency: {
+        Args: never
+        Returns: {
+          amount: number
+          current_price: number
+          entry_price: number
+          expected_pnl: number
+          issues: string[]
+          momentum_active: boolean
+          momentum_direction: string
+          momentum_target_price: number
+          pnl_drift: number
+          position_id: string
+          position_type: string
+          seconds_since_update: number
+          stored_pnl: number
+          symbol: string
+          user_id: string
+        }[]
+      }
       drift_edited_positions: { Args: never; Returns: undefined }
       generate_client_id: { Args: never; Returns: string }
       get_active_api_key: { Args: { p_service_name: string }; Returns: string }

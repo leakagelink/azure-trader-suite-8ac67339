@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { History, RefreshCw, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
+import { EditedTradesReconciliation } from "./EditedTradesReconciliation";
 
 interface AuditEntry {
   id: string;
@@ -140,7 +141,9 @@ export function AdminAuditLog() {
   };
 
   return (
-    <Card>
+    <div className="space-y-4">
+      <EditedTradesReconciliation />
+      <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
@@ -278,5 +281,6 @@ export function AdminAuditLog() {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }
