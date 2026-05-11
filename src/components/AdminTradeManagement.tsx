@@ -1059,6 +1059,49 @@ export const AdminTradeManagement = () => {
     }
   };
 
+  // State guardrail: only valid path to restart live feed on an edited trade.
+  // Clears momentum metadata atomically and gates on price_mode='edited' so it
+  // never mutates a trade that's already live or has been changed concurrently.
+  const handleResetToLive = async (position: Position) => {
+    if (position.price_mode !== 'edited') {
+      toast.error("This trade is not in Edited mode");
+      return;
+    }
+    const ok = window.confirm(
+      `Reset ${position.symbol} to LIVE feed?\n\n` +
+      `• Cron drift will stop\n` +
+      `• Live market price will resume on next tick\n` +
+      `• PnL will recalculate from live price`
+    );
+    if (!ok) return;
+
+    try {
+      const { error, count } = await (supabase
+        .from('positions')
+        .update({
+          price_mode: 'live',
+          momentum_active: false,
+          momentum_target_price: null,
+          momentum_direction: null,
+          updated_at: new Date().toISOString(),
+        }, { count: 'exact' }) as any)
+        .eq('id', position.id)
+        .eq('status', 'open')
+        .eq('price_mode', 'edited'); // guard: prevents racing with concurrent toggles
+
+      if (error) throw error;
+      if (!count) {
+        toast.error("Trade is no longer in Edited mode — refresh the table");
+        fetchPositions();
+        return;
+      }
+      toast.success(`${position.symbol} reset to LIVE feed`);
+      fetchPositions();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
   const openEditDialog = (position: Position) => {
     setSelectedPosition(position);
     setAmount(position.amount.toString());
