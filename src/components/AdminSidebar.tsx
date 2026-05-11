@@ -10,6 +10,7 @@ import {
   LogOut,
   LayoutDashboard,
   Zap,
+  History,
 } from "lucide-react";
 import {
   Sidebar,
