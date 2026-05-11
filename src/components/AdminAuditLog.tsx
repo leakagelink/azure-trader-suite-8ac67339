@@ -141,7 +141,9 @@ export function AdminAuditLog() {
   };
 
   return (
-    <Card>
+    <div className="space-y-4">
+      <EditedTradesReconciliation />
+      <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
