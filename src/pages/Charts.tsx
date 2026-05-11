@@ -270,6 +270,18 @@ export default function Charts() {
         const map = new Map<number, Candle>();
         mapped.forEach((c) => map.set(c.time, c));
         const next = Array.from(map.values()).sort((a, b) => a.time - b.time);
+        if (next.length === 0) {
+          setError(`No price data available for ${symbol}`);
+          setCandles([]);
+          return;
+        }
+        const lastClose = next[next.length - 1]?.close;
+        if (!Number.isFinite(lastClose)) {
+          setError(`Invalid price data for ${symbol}`);
+          setCandles([]);
+          return;
+        }
+        setError(null);
         setCandles((prev) => {
           if (prev.length === next.length && prev.length > 0) {
             const a = prev[prev.length - 1];
@@ -282,7 +294,7 @@ export default function Charts() {
         console.error("Chart load failed:", e);
         if (!cancelled && myReq === reqIdRef.current) {
           setCandles([]);
-          toast.error(`Failed to load chart for ${symbol}`);
+          setError(e?.message || `Failed to load chart for ${symbol}`);
         }
       } finally {
         if (!cancelled && myReq === reqIdRef.current) setLoading(false);
@@ -298,7 +310,7 @@ export default function Charts() {
       clearTimeout(debounce);
       clearInterval(id);
     };
-  }, [symbol, tf]);
+  }, [symbol, tf, retryTick]);
 
   const isCrypto = !isForexSymbol(symbol) && !isCommoditySymbol(symbol);
   const [live, setLive] = useState(false);
