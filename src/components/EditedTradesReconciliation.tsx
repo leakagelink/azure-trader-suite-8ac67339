@@ -53,11 +53,11 @@ export function EditedTradesReconciliation() {
     try {
       const [{ data: issues, error }, { count }] = await Promise.all([
         supabase.rpc("check_edited_positions_consistency" as any),
-        supabase
+        (supabase
           .from("positions")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "open" as any)
-          .eq("price_mode" as any, "edited"),
+          .select("id", { count: "exact", head: true }) as any)
+          .eq("status", "open")
+          .eq("price_mode", "edited"),
       ]);
 
       if (error) {
