@@ -256,22 +256,18 @@ const KYC = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               {existing.status === "pending" && (
-                <p className="text-sm text-muted-foreground">
-                  Your KYC has been submitted. The broker will review it and notify you by email. This process can take 24–48 hours.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("kyc.status.pendingMsg")}</p>
               )}
               {existing.status === "approved" && (
-                <p className="text-sm text-muted-foreground">
-                  Congratulations! Your KYC is verified. You can now use all features.
-                </p>
+                <p className="text-sm text-muted-foreground">{t("kyc.status.approvedMsg")}</p>
               )}
               {existing.status === "rejected" && (
                 <>
                   <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                    <p className="text-xs font-semibold text-destructive mb-1">Rejection reason:</p>
-                    <p className="text-sm">{existing.rejection_reason || "Documents could not be verified"}</p>
+                    <p className="text-xs font-semibold text-destructive mb-1">{t("kyc.status.rejectionReason")}</p>
+                    <p className="text-sm">{existing.rejection_reason || t("kyc.status.rejectionFallback")}</p>
                   </div>
-                  <Button onClick={handleResubmit} className="w-full">Resubmit KYC</Button>
+                  <Button onClick={handleResubmit} className="w-full">{t("kyc.status.resubmit")}</Button>
                 </>
               )}
             </CardContent>
