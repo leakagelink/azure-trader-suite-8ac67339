@@ -44,12 +44,12 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
-    /* Matte gradients - flat, no glossy shimmer */
-    --gradient-primary: linear-gradient(135deg, hsl(220 70% 22%), hsl(220 65% 28%));
-    --gradient-accent: linear-gradient(135deg, hsl(220 65% 32%), hsl(220 70% 22%));
-    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 25% 97%) 60%, hsl(220 30% 92%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(220 65% 32%), hsl(220 70% 22%), hsl(220 75% 18%));
-    --gradient-radial: radial-gradient(ellipse at top, hsl(220 70% 22% / 0.06), transparent 60%);
+    /* Flat solid colors - no gradients */
+    --gradient-primary: hsl(220 70% 22%);
+    --gradient-accent: hsl(220 65% 32%);
+    --gradient-hero: hsl(0 0% 100%);
+    --gradient-gold: hsl(220 70% 22%);
+    --gradient-radial: none;
 
     /* Matte shadows - soft, neutral, no glow */
     --shadow-card: 0 1px 2px hsl(220 30% 20% / 0.04), 0 2px 8px hsl(220 30% 20% / 0.05);
@@ -149,23 +149,18 @@ All colors MUST be HSL.
     border-color: hsl(220 18% 88%);
   }
 
-  /* Shimmer effect - subtle */
+  /* Shimmer disabled - flat matte */
   .shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsl(var(--primary) / 0.06) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s linear infinite;
+    background: transparent;
+    animation: none;
   }
 
-  /* Gradient text - matte navy */
+  /* Gradient text - flat solid navy */
   .gradient-text {
-    @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
-    background-size: 200% auto;
-    animation: gradient-x 3s ease infinite;
+    color: hsl(var(--primary));
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    animation: none;
   }
 
   /* Solid navy text - matte */
@@ -274,5 +269,17 @@ All colors MUST be HSL.
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
     opacity: 0.03;
     pointer-events: none;
+  }
+
+  /* Global flat-matte override: kill ALL Tailwind gradient utilities */
+  [class*="bg-gradient-"],
+  [class*="bg-clip-text"][class*="text-transparent"] {
+    background-image: none !important;
+  }
+
+  /* Restore solid color for gradient-text spans */
+  .bg-clip-text.text-transparent {
+    -webkit-text-fill-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary)) !important;
   }
 }
