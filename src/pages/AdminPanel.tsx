@@ -998,6 +998,7 @@ const AdminPanel = () => {
                     {pendingUsers.length > 0 && (
                       <div>
                         <h3 className="text-sm font-semibold mb-3 text-amber-600">Pending Approval ({pendingUsers.length})</h3>
+                        <div className="overflow-x-auto -mx-2 px-2">
                         <Table>
                           <TableHeader>
                             <TableRow>
@@ -1044,6 +1045,7 @@ const AdminPanel = () => {
                             ))}
                           </TableBody>
                         </Table>
+                        </div>
                       </div>
                     )}
                     
