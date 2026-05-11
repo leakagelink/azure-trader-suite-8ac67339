@@ -45,6 +45,7 @@ import { AdminTradeManagement } from "@/components/AdminTradeManagement";
 import { AdminAPIManagement } from "@/components/AdminAPIManagement";
 import { AdminKYCManagement } from "@/components/AdminKYCManagement";
 import { AdminSignalsManagement } from "@/components/AdminSignalsManagement";
+import { AdminAuditLog } from "@/components/AdminAuditLog";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -963,6 +964,7 @@ const AdminPanel = () => {
                 <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
                 <TabsTrigger value="kyc">KYC</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
+                <TabsTrigger value="audit">Audit Log</TabsTrigger>
               </TabsList>
 
           {/* User Approvals Tab */}
@@ -1311,6 +1313,11 @@ const AdminPanel = () => {
           {/* Signals Tab */}
           <TabsContent value="signals">
             <AdminSignalsManagement />
+          </TabsContent>
+
+          {/* Audit Log Tab */}
+          <TabsContent value="audit">
+            <AdminAuditLog />
           </TabsContent>
 
           {/* API Keys Tab */}

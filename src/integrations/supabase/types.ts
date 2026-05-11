@@ -279,6 +279,51 @@ export type Database = {
           },
         ]
       }
+      position_audit_log: {
+        Row: {
+          change_type: string
+          changed_by: string | null
+          created_at: string
+          field_name: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          position_id: string
+          position_type: string | null
+          source: string | null
+          symbol: string | null
+          user_id: string
+        }
+        Insert: {
+          change_type: string
+          changed_by?: string | null
+          created_at?: string
+          field_name: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          position_id: string
+          position_type?: string | null
+          source?: string | null
+          symbol?: string | null
+          user_id: string
+        }
+        Update: {
+          change_type?: string
+          changed_by?: string | null
+          created_at?: string
+          field_name?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          position_id?: string
+          position_type?: string | null
+          source?: string | null
+          symbol?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       positions: {
         Row: {
           amount: number
