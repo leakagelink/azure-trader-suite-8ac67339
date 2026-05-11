@@ -281,5 +281,6 @@ export function AdminAuditLog() {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }
