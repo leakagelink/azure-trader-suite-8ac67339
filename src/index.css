@@ -261,3 +261,11 @@ All colors MUST be HSL.
     pointer-events: none;
   }
 }
+
+/* Global flatten — neutralize ALL Tailwind/inline gradients across the app */
+@layer utilities {
+  [class*="bg-gradient-"] {
+    background-image: none !important;
+  }
+}
+
