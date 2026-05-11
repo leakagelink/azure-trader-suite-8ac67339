@@ -68,7 +68,7 @@ const PendingApproval = () => {
         <CardContent className="space-y-6">
           <div className="text-center space-y-2">
             <p className="text-muted-foreground">
-              Your account has been created successfully and is currently under review by our broker team.
+              Your account has been created successfully and is currently under review.
             </p>
             <p className="text-sm text-muted-foreground">
               You will be able to access your account once it's approved. This typically takes up to 24 hours.
