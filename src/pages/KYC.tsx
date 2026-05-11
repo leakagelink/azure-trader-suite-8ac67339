@@ -174,7 +174,7 @@ const KYC = () => {
       });
       if (insertErr) throw insertErr;
 
-      toast({ title: "KYC submitted!", description: "Aapki KYC review ke liye broker ke paas chali gayi hai." });
+      toast({ title: "KYC submitted!", description: "Your KYC has been sent to the broker for review." });
       setExisting({
         status: "pending",
         rejection_reason: null,
