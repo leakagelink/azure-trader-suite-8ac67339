@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { History, RefreshCw, ArrowRight } from "lucide-react";
 import { format } from "date-fns";
 import { EditedTradesReconciliation } from "./EditedTradesReconciliation";
+import { PriceModeStressTest } from "./PriceModeStressTest";
 
 interface AuditEntry {
   id: string;
@@ -143,6 +144,7 @@ export function AdminAuditLog() {
   return (
     <div className="space-y-4">
       <EditedTradesReconciliation />
+      <PriceModeStressTest />
       <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">

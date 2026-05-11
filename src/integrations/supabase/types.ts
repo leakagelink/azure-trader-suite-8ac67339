@@ -782,6 +782,19 @@ export type Database = {
         Args: { reason?: string; withdrawal_id: string }
         Returns: undefined
       }
+      stress_test_price_mode_toggling: {
+        Args: { p_iterations?: number }
+        Returns: {
+          drift_violations: number
+          duration_ms: number
+          failed: number
+          guard_violations: number
+          iterations: number
+          passed: number
+          pnl_violations: number
+          sample_violations: string[]
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
