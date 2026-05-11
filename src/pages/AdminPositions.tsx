@@ -145,12 +145,26 @@ const AdminPositions = () => {
               current_price: currentPrice,
               pnl: pnl,
               updated_at: new Date().toISOString()
-            })
+            }, { count: 'exact' } as any)
             .eq('id', position.id)
             .eq('status', 'open')
             .eq('price_mode', position.price_mode as any)
-            .then(({ error }) => {
-              if (error) console.error('Error updating position:', error);
+            .then(({ error, count }) => {
+              if (error) {
+                modeLogger.error("AdminPositions.tsx/livefeed", "db_update",
+                  `Admin live tick write failed: ${error.message}`,
+                  { position_id: position.id, symbol: position.symbol, price_mode: position.price_mode });
+                console.error('Error updating position:', error);
+              } else if (count === 0) {
+                modeLogger.warn("AdminPositions.tsx/livefeed", "db_guard_block",
+                  `Admin live write blocked — price_mode changed mid-flight`,
+                  { position_id: position.id, symbol: position.symbol, price_mode: position.price_mode });
+              } else {
+                modeLogger.debug("AdminPositions.tsx/livefeed", "db_update",
+                  `Admin live tick written (${position.price_mode})`,
+                  { position_id: position.id, symbol: position.symbol, price_mode: position.price_mode,
+                    data: { current_price: currentPrice, pnl } });
+              }
             });
 
           // Track price changes for visual indicators
