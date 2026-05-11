@@ -270,4 +270,16 @@ All colors MUST be HSL.
     opacity: 0.03;
     pointer-events: none;
   }
+
+  /* Global flat-matte override: kill ALL Tailwind gradient utilities */
+  [class*="bg-gradient-"],
+  [class*="bg-clip-text"][class*="text-transparent"] {
+    background-image: none !important;
+  }
+
+  /* Restore solid color for gradient-text spans */
+  .bg-clip-text.text-transparent {
+    -webkit-text-fill-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary)) !important;
+  }
 }
