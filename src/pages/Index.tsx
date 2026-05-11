@@ -580,19 +580,18 @@ const Index = () => {
             {features.map((feature, index) => (
               <Card 
                 key={index} 
-                className="group relative p-3 sm:p-8 hover:shadow-2xl transition-all duration-500 border border-border/60 hover:border-accent/50 bg-gradient-to-br from-card to-card/40 backdrop-blur-sm rounded-xl sm:rounded-2xl animate-in fade-in slide-in-from-bottom-4 hover:-translate-y-1 overflow-hidden"
+                className="group relative p-3 sm:p-8 hover:shadow-2xl transition-all duration-500 border border-primary/40 hover:border-white/40 bg-primary text-white rounded-xl sm:rounded-2xl animate-in fade-in slide-in-from-bottom-4 hover:-translate-y-1 overflow-hidden"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {/* Index number watermark */}
-                <span className="absolute top-2 right-3 sm:top-4 sm:right-5 text-3xl sm:text-6xl font-black text-accent/10 group-hover:text-accent/20 transition-colors leading-none select-none">
+                <span className="absolute top-2 right-3 sm:top-4 sm:right-5 text-3xl sm:text-6xl font-black text-white/10 group-hover:text-white/20 transition-colors leading-none select-none">
                   0{index + 1}
                 </span>
-                <div className="relative h-10 w-10 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary/15 via-accent/10 to-accent/20 flex items-center justify-center mb-3 sm:mb-6 group-hover:scale-110 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-accent/20">
-                  <feature.icon className="h-5 w-5 sm:h-8 sm:w-8 text-primary group-hover:text-accent transition-colors" />
-                  <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-accent/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative h-10 w-10 sm:h-16 sm:w-16 rounded-xl sm:rounded-2xl bg-white/15 flex items-center justify-center mb-3 sm:mb-6 group-hover:scale-110 transition-all duration-300 ring-1 ring-white/20">
+                  <feature.icon className="h-5 w-5 sm:h-8 sm:w-8 text-white transition-colors" />
                 </div>
-                <h3 className="text-sm sm:text-2xl font-bold mb-1 sm:mb-3 group-hover:text-primary transition-colors relative z-10">{feature.title}</h3>
-                <p className="text-xs sm:text-base text-muted-foreground leading-relaxed line-clamp-3 sm:line-clamp-none relative z-10">{feature.description}</p>
+                <h3 className="text-sm sm:text-2xl font-bold mb-1 sm:mb-3 text-white relative z-10">{feature.title}</h3>
+                <p className="text-xs sm:text-base text-white/80 leading-relaxed line-clamp-3 sm:line-clamp-none relative z-10">{feature.description}</p>
               </Card>
             ))}
           </div>
