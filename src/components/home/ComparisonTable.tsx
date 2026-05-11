@@ -20,13 +20,13 @@ const features = [
 const renderCell = (val: any, isUs: boolean) => {
   if (typeof val === "boolean") {
     return val ? (
-      <Check className={`h-5 w-5 mx-auto ${isUs ? "text-green-500" : "text-green-500/60"}`} />
+      <Check className={`h-5 w-5 mx-auto ${isUs ? "text-green-300" : "text-green-300/70"}`} />
     ) : (
-      <X className={`h-5 w-5 mx-auto ${isUs ? "text-red-500" : "text-red-500/60"}`} />
+      <X className={`h-5 w-5 mx-auto ${isUs ? "text-red-300" : "text-red-300/70"}`} />
     );
   }
   return (
-    <span className={`text-sm font-semibold ${isUs ? "text-primary" : "text-muted-foreground"}`}>{val}</span>
+    <span className={`text-sm font-semibold ${isUs ? "text-white" : "text-white/70"}`}>{val}</span>
   );
 };
 
@@ -46,20 +46,20 @@ export const ComparisonTable = () => {
           </p>
         </div>
 
-        <Card className="max-w-4xl mx-auto overflow-hidden bg-card/60 backdrop-blur border-border/40">
+        <Card className="max-w-4xl mx-auto overflow-hidden bg-primary text-white border-primary/40">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-gradient-to-r from-muted/40 via-primary/10 to-muted/40 border-b border-border/40">
-                  <th className="text-left p-4 text-sm font-bold">Feature</th>
+                <tr className="bg-white/10 border-b border-white/20">
+                  <th className="text-left p-4 text-sm font-bold text-white">Feature</th>
                   <th className="text-center p-4 min-w-[140px]">
                     <div className="flex flex-col items-center gap-1">
-                      <Badge className="bg-gradient-to-r from-primary to-accent text-primary-foreground border-0">
+                      <Badge className="bg-white text-primary border-0 font-bold">
                         <Trophy className="h-3 w-3 mr-1" /> TradixoFX
                       </Badge>
                     </div>
                   </th>
-                  <th className="text-center p-4 min-w-[140px] text-sm font-semibold text-muted-foreground">
+                  <th className="text-center p-4 min-w-[140px] text-sm font-semibold text-white/80">
                     Other Brokers
                   </th>
                 </tr>
@@ -68,12 +68,12 @@ export const ComparisonTable = () => {
                 {features.map((f, i) => (
                   <tr
                     key={i}
-                    className={`border-b border-border/20 hover:bg-muted/20 transition-colors ${
-                      i % 2 === 0 ? "bg-muted/5" : ""
+                    className={`border-b border-white/10 hover:bg-white/5 transition-colors ${
+                      i % 2 === 0 ? "bg-white/[0.03]" : ""
                     }`}
                   >
-                    <td className="p-4 text-sm font-medium">{f.feature}</td>
-                    <td className="p-4 text-center bg-primary/5">
+                    <td className="p-4 text-sm font-medium text-white">{f.feature}</td>
+                    <td className="p-4 text-center bg-white/10">
                       {renderCell((f as any).customUs ?? f.us, true)}
                     </td>
                     <td className="p-4 text-center">
