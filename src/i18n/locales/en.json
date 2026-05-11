@@ -1,0 +1,54 @@
+{
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "loading": "Loading…",
+    "yes": "Yes",
+    "no": "No",
+    "close": "Close",
+    "language": "Language"
+  },
+  "languages": {
+    "en": "English",
+    "hi": "हिन्दी"
+  },
+  "kyc": {
+    "title": "KYC Verification",
+    "stepOf": "Step {{step}} of {{total}} — {{name}}",
+    "steps": {
+      "personal": "Personal Info",
+      "address": "Address",
+      "occupation": "Occupation",
+      "document": "Document"
+    },
+    "status": {
+      "pendingTitle": "KYC Pending",
+      "pendingMsg": "Your KYC has been submitted. The broker will review it and notify you by email. This process can take 24–48 hours.",
+      "approvedMsg": "Congratulations! Your KYC is verified. You can now use all features.",
+      "rejectionReason": "Rejection reason:",
+      "rejectionFallback": "Documents could not be verified",
+      "resubmit": "Resubmit KYC"
+    },
+    "toast": {
+      "submittedTitle": "KYC submitted!",
+      "submittedDesc": "Your KYC has been sent to the broker for review.",
+      "missingInfoTitle": "Missing info",
+      "missingInfoFallback": "Please complete all required fields",
+      "documentRequiredTitle": "Document required",
+      "documentRequiredDesc": "Please upload your ID document",
+      "fileTooLargeTitle": "File too large",
+      "fileTooLargeDesc": "Max 10MB allowed",
+      "submissionFailed": "Submission failed"
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "asPerId": "As per ID",
+      "dob": "Date of Birth",
+      "ageHint": "You must be 18+ to verify"
+    }
+  }
+}
