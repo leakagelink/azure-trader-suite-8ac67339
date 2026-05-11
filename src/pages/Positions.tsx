@@ -263,28 +263,19 @@ const Positions = () => {
             (isCommodity && (isWeekend || !commoditiesMomentumEnabled));
 
           if (position.price_mode === "edited") {
-            if (isMarketFrozen) {
-              return { ...position };
+            // Edited trades are fully driven by server-side cron (drift_edited_positions)
+            // and delivered via realtime. Skip live feed, skip client drift, skip DB write.
+            // Track price-flash from DB-delivered current_price only.
+            const prev = previousPricesRef.current[position.id];
+            if (prev !== undefined && prev !== position.current_price) {
+              const direction = position.current_price > prev ? "up" : "down";
+              setPriceChanges((p) => ({ ...p, [position.id]: { direction, flash: true } }));
+              setTimeout(() => {
+                setPriceChanges((p) => ({ ...p, [position.id]: { ...p[position.id], flash: false } }));
+              }, PRICE_FLASH_DURATION_MS);
             }
-
-            if (basePnlRef.current[position.id] === undefined) {
-              basePnlRef.current[position.id] = position.pnl || 0;
-            }
-
-            const basePnl = basePnlRef.current[position.id];
-            const basePnlPercent = position.margin > 0 ? (basePnl / position.margin) * 100 : 0;
-            // Small slow momentum: 0.05-0.3% drift in PnL direction
-            const momentumOffset = Math.random() * 0.25 + 0.05;
-            const adjustedPnlPercent = basePnl >= 0
-              ? basePnlPercent + momentumOffset
-              : basePnlPercent - momentumOffset;
-
-            pnl = (adjustedPnlPercent / 100) * position.margin;
-            currentPrice = position.position_type === "long"
-              ? position.entry_price + (quantity > 0 ? pnl / quantity : 0)
-              : position.entry_price - (quantity > 0 ? pnl / quantity : 0);
-
-            currentPrice = Math.max(0.0001, currentPrice);
+            previousPricesRef.current[position.id] = position.current_price;
+            return { ...position };
           } else if (position.price_mode === "manual") {
             if (isMarketFrozen) {
               return { ...position };
