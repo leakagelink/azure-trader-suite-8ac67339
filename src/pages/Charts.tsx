@@ -439,14 +439,36 @@ export default function Charts() {
         </header>
       )}
 
+      {/* Quick instrument selector (mobile-friendly snap scroll) */}
+      {!fullscreen && (
+        <div className="flex snap-x snap-mandatory items-center gap-1.5 overflow-x-auto scroll-smooth border-b border-border/30 px-2 py-1.5 scrollbar-hide [-webkit-overflow-scrolling:touch]">
+          {POPULAR.map((s) => {
+            const active = s.symbol.toUpperCase() === symbol.toUpperCase();
+            return (
+              <button
+                key={s.symbol}
+                onClick={() => setSymbol(s.symbol.toUpperCase())}
+                className={`shrink-0 snap-start rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors ${
+                  active
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border/50 bg-card/50 text-muted-foreground hover:bg-muted/40"
+                }`}
+              >
+                {s.symbol}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Timeframes */}
       {!fullscreen && (
-        <div className="flex items-center gap-1 overflow-x-auto border-b border-border/30 px-3 py-1.5">
+        <div className="flex snap-x snap-mandatory items-center gap-1 overflow-x-auto scroll-smooth border-b border-border/30 px-3 py-1.5 scrollbar-hide [-webkit-overflow-scrolling:touch]">
           {TIMEFRAMES.map((t) => (
             <button
               key={t}
               onClick={() => setTf(t)}
-              className={`shrink-0 rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
+              className={`shrink-0 snap-start rounded-md px-3 py-1 text-xs font-semibold transition-colors ${
                 tf === t
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:bg-muted/40"
@@ -455,9 +477,9 @@ export default function Charts() {
               {t.toUpperCase()}
             </button>
           ))}
-          {loading && <span className="ml-2 text-xs text-muted-foreground">loading…</span>}
+          {loading && <span className="ml-2 shrink-0 text-xs text-muted-foreground">loading…</span>}
           {isCrypto && live && !loading && (
-            <span className="ml-2 flex items-center gap-1 text-[10px] font-semibold uppercase text-emerald-400">
+            <span className="ml-2 flex shrink-0 items-center gap-1 text-[10px] font-semibold uppercase text-emerald-400">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
