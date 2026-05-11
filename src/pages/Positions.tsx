@@ -344,6 +344,7 @@ const Positions = () => {
               })
               .eq("id", position.id)
               .eq("status", "open")
+              .neq("price_mode", "edited")
               .then(({ error }) => {
                 if (error) console.error("Error updating position:", error);
               });
