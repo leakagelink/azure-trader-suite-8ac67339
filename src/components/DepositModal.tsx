@@ -288,7 +288,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
         title: "Success!",
         description: isAutoLocked 
           ? "Transaction ID submitted. Your deposit is in locked balance awaiting admin confirmation."
-          : "Deposit request submitted successfully. Awaiting admin approval.",
+          : "Deposit request submitted successfully.",
       });
 
       setAmount("");
