@@ -951,7 +951,7 @@ const AdminPanel = () => {
             </div>
           </header>
 
-          <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8 overflow-x-hidden">
+          <main className="flex-1 px-2 py-3 sm:px-4 sm:py-6 lg:px-8 lg:py-8 overflow-x-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full animate-fade-in">
               {/* TabsList hidden — navigation handled by sidebar */}
               <TabsList className="sr-only">
