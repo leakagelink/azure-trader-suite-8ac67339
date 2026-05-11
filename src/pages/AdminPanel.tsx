@@ -915,20 +915,29 @@ const AdminPanel = () => {
         <div className="flex-1 flex flex-col min-w-0">
           {/* Premium Header */}
           <header className="border-b border-border/40 backdrop-blur-xl bg-background/70 sticky top-0 z-40 shadow-sm">
-            <div className="flex items-center justify-between px-4 py-3 gap-4">
-              <div className="flex items-center gap-3">
-                <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors rounded-lg" />
-                <div className="hidden md:flex items-center gap-2">
-                  <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary to-accent" />
-                  <div>
-                    <h1 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent capitalize">
+            <div className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <SidebarTrigger className="hover:bg-primary/10 hover:text-primary transition-colors rounded-lg shrink-0" />
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="h-8 w-1 rounded-full bg-gradient-to-b from-primary to-accent shrink-0" />
+                  <div className="min-w-0">
+                    <h1 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent capitalize truncate">
                       {activeTab === "api" ? "API Keys" : activeTab}
                     </h1>
-                    <p className="text-[11px] text-muted-foreground">Broker management console</p>
+                    <p className="hidden sm:block text-[11px] text-muted-foreground">Broker management console</p>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={fetchAllData}
+                  className="h-9 w-9 sm:hidden border-primary/30 hover:bg-primary/10"
+                  aria-label="Refresh"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"
@@ -942,9 +951,9 @@ const AdminPanel = () => {
                   variant="ghost"
                   size="sm"
                   onClick={() => navigate("/dashboard")}
-                  className="hover:bg-primary/10 hover:text-primary transition-colors"
+                  className="hover:bg-primary/10 hover:text-primary transition-colors px-2 sm:px-3"
                 >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  <ChevronLeft className="h-4 w-4 sm:mr-1" />
                   <span className="hidden sm:inline">Dashboard</span>
                 </Button>
               </div>
