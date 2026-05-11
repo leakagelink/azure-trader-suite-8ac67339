@@ -8,101 +8,102 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Light theme tuned to logo: deep maroon #7a1f2a + golden #d4a017 */
-    --background: 40 35% 97%;
-    --foreground: 352 35% 12%;
+    /* Emerald + Dark theme — premium fintech / trading vibe */
+    --background: 165 30% 5%;
+    --foreground: 150 20% 96%;
 
-    --card: 40 40% 99%;
-    --card-foreground: 352 35% 12%;
+    --card: 165 26% 8%;
+    --card-foreground: 150 20% 96%;
 
-    --popover: 40 40% 99%;
-    --popover-foreground: 352 35% 12%;
+    --popover: 165 28% 7%;
+    --popover-foreground: 150 20% 96%;
 
-    /* Deep Maroon from logo (#7a1f2a) */
-    --primary: 352 60% 30%;
-    --primary-foreground: 44 60% 97%;
+    /* Emerald primary */
+    --primary: 158 84% 42%;
+    --primary-foreground: 165 40% 6%;
 
-    /* Warm Orange bridge between maroon & gold */
-    --secondary: 24 88% 52%;
-    --secondary-foreground: 0 0% 100%;
+    /* Deep teal bridge */
+    --secondary: 172 70% 32%;
+    --secondary-foreground: 150 20% 96%;
 
-    --muted: 40 28% 93%;
-    --muted-foreground: 352 14% 36%;
+    --muted: 165 20% 12%;
+    --muted-foreground: 150 12% 65%;
 
-    /* Golden Accent from logo (#d4a017) */
-    --accent: 44 80% 46%;
-    --accent-foreground: 352 40% 12%;
+    /* Bright lime-emerald accent */
+    --accent: 152 92% 55%;
+    --accent-foreground: 165 40% 6%;
 
-    --destructive: 0 75% 48%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 22% 86%;
-    --input: 40 22% 86%;
-    --ring: 352 60% 30%;
+    --success: 142 76% 45%;
+    --warning: 38 95% 55%;
+
+    --border: 165 22% 16%;
+    --input: 165 22% 14%;
+    --ring: 158 84% 42%;
 
     --radius: 1rem;
 
-    /* Premium Warm Gradients tuned to logo */
-    --gradient-primary: linear-gradient(135deg, hsl(352 60% 30%), hsl(24 88% 52%));
-    --gradient-accent: linear-gradient(135deg, hsl(24 88% 52%), hsl(44 80% 46%));
-    --gradient-hero: linear-gradient(135deg, hsl(352 60% 26%) 0%, hsl(18 78% 44%) 55%, hsl(44 85% 50%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(44 80% 46%), hsl(48 92% 58%));
+    /* Premium Emerald Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(158 84% 42%), hsl(172 70% 38%));
+    --gradient-accent: linear-gradient(135deg, hsl(152 92% 55%), hsl(165 88% 45%));
+    --gradient-hero: linear-gradient(135deg, hsl(165 50% 8%) 0%, hsl(168 70% 18%) 45%, hsl(152 90% 38%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(152 92% 55%), hsl(168 90% 50%), hsl(180 85% 55%));
+    --gradient-radial: radial-gradient(ellipse at top, hsl(158 84% 42% / 0.18), transparent 60%);
 
-    /* Refined Shadows */
-    --shadow-card: 0 4px 12px -2px hsl(352 60% 30% / 0.10), 0 2px 6px -2px hsl(352 60% 30% / 0.06);
-    --shadow-elevated: 0 16px 32px -8px hsl(352 60% 30% / 0.20), 0 6px 12px -4px hsl(44 80% 46% / 0.14);
-    --shadow-glow: 0 0 40px hsl(44 80% 46% / 0.40);
+    /* Refined Shadows with emerald glow */
+    --shadow-card: 0 4px 14px -2px hsl(158 84% 42% / 0.12), 0 2px 6px -2px hsl(0 0% 0% / 0.40);
+    --shadow-elevated: 0 18px 40px -10px hsl(158 84% 42% / 0.28), 0 8px 16px -6px hsl(152 92% 55% / 0.18);
+    --shadow-glow: 0 0 50px hsl(152 92% 55% / 0.45);
 
-    --sidebar-background: 40 28% 96%;
-    --sidebar-foreground: 352 22% 20%;
-    --sidebar-primary: 352 60% 30%;
-    --sidebar-primary-foreground: 44 60% 97%;
-    --sidebar-accent: 40 30% 91%;
-    --sidebar-accent-foreground: 352 26% 14%;
-    --sidebar-border: 40 22% 86%;
-    --sidebar-ring: 352 60% 30%;
+    --sidebar-background: 165 32% 4%;
+    --sidebar-foreground: 150 15% 88%;
+    --sidebar-primary: 158 84% 42%;
+    --sidebar-primary-foreground: 165 40% 6%;
+    --sidebar-accent: 165 22% 10%;
+    --sidebar-accent-foreground: 152 92% 55%;
+    --sidebar-border: 165 22% 14%;
+    --sidebar-ring: 152 92% 55%;
   }
 
   .dark {
-    /* Dark theme: deep maroon background, golden accent */
-    --background: 352 30% 8%;
-    --foreground: 44 30% 95%;
+    --background: 165 32% 4%;
+    --foreground: 150 20% 96%;
 
-    --card: 352 28% 12%;
-    --card-foreground: 44 30% 95%;
+    --card: 165 28% 7%;
+    --card-foreground: 150 20% 96%;
 
-    --popover: 352 28% 12%;
-    --popover-foreground: 44 30% 95%;
+    --popover: 165 30% 6%;
+    --popover-foreground: 150 20% 96%;
 
-    /* Maroon brightened for dark bg */
-    --primary: 352 65% 42%;
-    --primary-foreground: 44 60% 97%;
+    --primary: 158 88% 48%;
+    --primary-foreground: 165 40% 6%;
 
-    --secondary: 24 88% 54%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 172 70% 36%;
+    --secondary-foreground: 150 20% 96%;
 
-    --muted: 352 18% 16%;
-    --muted-foreground: 44 15% 68%;
+    --muted: 165 22% 11%;
+    --muted-foreground: 150 12% 70%;
 
-    /* Golden accent (#d4a017) slightly brighter */
-    --accent: 44 85% 52%;
-    --accent-foreground: 352 40% 10%;
+    --accent: 152 95% 60%;
+    --accent-foreground: 165 40% 6%;
 
-    --destructive: 0 65% 40%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 352 20% 20%;
-    --input: 352 20% 20%;
-    --ring: 44 85% 52%;
+    --border: 165 22% 15%;
+    --input: 165 22% 13%;
+    --ring: 152 95% 60%;
 
-    --sidebar-background: 352 32% 6%;
-    --sidebar-foreground: 44 20% 90%;
-    --sidebar-primary: 352 65% 42%;
-    --sidebar-primary-foreground: 44 60% 97%;
-    --sidebar-accent: 352 22% 14%;
-    --sidebar-accent-foreground: 44 25% 92%;
-    --sidebar-border: 352 20% 18%;
-    --sidebar-ring: 44 85% 52%;
+    --sidebar-background: 165 35% 3%;
+    --sidebar-foreground: 150 15% 90%;
+    --sidebar-primary: 158 88% 48%;
+    --sidebar-primary-foreground: 165 40% 6%;
+    --sidebar-accent: 165 22% 9%;
+    --sidebar-accent-foreground: 152 95% 60%;
+    --sidebar-border: 165 22% 13%;
+    --sidebar-ring: 152 95% 60%;
   }
 }
 
@@ -164,14 +165,35 @@ All colors MUST be HSL.
     animation: gradient-x 3s ease infinite;
   }
 
-  /* Metallic gold text - premium accent */
+  /* Metallic emerald text - premium accent (kept class name for compatibility) */
   .gold-text {
-    background: linear-gradient(135deg, hsl(45 100% 60%), hsl(38 96% 52%), hsl(32 92% 48%), hsl(45 100% 65%));
+    background: linear-gradient(135deg, hsl(152 95% 65%), hsl(165 90% 55%), hsl(180 85% 60%), hsl(152 95% 70%));
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     animation: gradient-x 4s ease infinite;
+    filter: drop-shadow(0 0 24px hsl(152 92% 55% / 0.35));
+  }
+
+  .emerald-text {
+    background: linear-gradient(135deg, hsl(152 95% 65%), hsl(168 90% 55%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Glass card - premium emerald-tinted */
+  .glass-card {
+    @apply backdrop-blur-2xl border;
+    background: linear-gradient(135deg, hsl(165 30% 10% / 0.6), hsl(165 30% 6% / 0.4));
+    border-color: hsl(152 92% 55% / 0.12);
+    box-shadow: 0 8px 32px -8px hsl(0 0% 0% / 0.5), inset 0 1px 0 hsl(152 92% 55% / 0.08);
+  }
+
+  .glass-card:hover {
+    border-color: hsl(152 92% 55% / 0.30);
+    box-shadow: 0 12px 40px -8px hsl(158 84% 42% / 0.25), inset 0 1px 0 hsl(152 92% 55% / 0.15);
   }
 
   /* Section divider with gradient line */
@@ -194,7 +216,11 @@ All colors MUST be HSL.
   }
 
   .glow-gold {
-    box-shadow: 0 0 30px hsl(38 96% 52% / 0.4), 0 0 60px hsl(38 96% 52% / 0.2);
+    box-shadow: 0 0 30px hsl(152 92% 55% / 0.45), 0 0 60px hsl(158 84% 42% / 0.25);
+  }
+
+  .glow-emerald {
+    box-shadow: 0 0 30px hsl(152 92% 55% / 0.45), 0 0 60px hsl(158 84% 42% / 0.25);
   }
 
   /* Floating particles container */
