@@ -45,6 +45,7 @@ import { AdminTradeManagement } from "@/components/AdminTradeManagement";
 import { AdminAPIManagement } from "@/components/AdminAPIManagement";
 import { AdminKYCManagement } from "@/components/AdminKYCManagement";
 import { AdminSignalsManagement } from "@/components/AdminSignalsManagement";
+import { AdminAuditLog } from "@/components/AdminAuditLog";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
