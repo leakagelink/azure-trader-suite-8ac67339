@@ -1570,7 +1570,7 @@ const AdminPanel = () => {
                         </TableRow>
                       ))}
                     </TableBody>
-                  </Table>
+                  </Table></div>
                 )}
               </CardContent>
             </Card>
