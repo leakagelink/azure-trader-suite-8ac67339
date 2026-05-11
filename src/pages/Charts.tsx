@@ -209,71 +209,91 @@ export default function Charts() {
     return base.slice(0, 60);
   }, [query, symbol]);
 
+  const reqIdRef = useRef(0);
+  const inflightRef = useRef<Map<string, Promise<any>>>(new Map());
+
   useEffect(() => {
     let cancelled = false;
+    const myReq = ++reqIdRef.current;
+    const upper = symbol.toUpperCase();
+    const isForex = isForexSymbol(upper);
+    const isCommodity = isCommoditySymbol(upper);
+    const key = `${upper}:${tf}`;
+
+    const fetchOnce = (): Promise<any> => {
+      if (isCommodity) {
+        return getCommoditiesData().then((snap) => {
+          const row = (snap?.commoditiesData || []).find(
+            (c: any) => c.symbol?.toUpperCase() === upper,
+          );
+          const price = row ? parseFloat(row.price) : NaN;
+          if (!Number.isFinite(price)) throw new Error("No commodity price");
+          return { data: { candles: synthesizeCandles(price, tf) }, error: null };
+        });
+      }
+      if (isForex) {
+        return invokeForexChartData(normalizeForexForChart(upper), tf);
+      }
+      return supabase.functions.invoke("fetch-taapi-data", {
+        body: { symbol: upper, interval: tf },
+      });
+    };
+
     const load = async () => {
-      setLoading(true);
       try {
-        const upper = symbol.toUpperCase();
-        const isForex = isForexSymbol(upper);
-        const isCommodity = isCommoditySymbol(upper);
-        let data: any = null;
-        let error: any = null;
-
-        if (isCommodity) {
-          // No dedicated commodity-chart endpoint — use snapshot price + synthesize OHLC.
-          try {
-            const snap = await getCommoditiesData();
-            const row = (snap?.commoditiesData || []).find(
-              (c: any) => c.symbol?.toUpperCase() === upper,
-            );
-            const price = row ? parseFloat(row.price) : NaN;
-            if (!Number.isFinite(price)) throw new Error("No commodity price");
-            data = { candles: synthesizeCandles(price, tf) };
-          } catch (e) {
-            error = e;
-          }
-        } else if (isForex) {
-          const forexSym = normalizeForexForChart(upper);
-          const res = await invokeForexChartData(forexSym, tf);
-          data = res.data;
-          error = res.error;
-        } else {
-          const res = await supabase.functions.invoke("fetch-taapi-data", {
-            body: { symbol: upper, interval: tf },
+        let promise = inflightRef.current.get(key);
+        if (!promise) {
+          promise = fetchOnce().finally(() => {
+            // small delay so concurrent callers can dedupe
+            setTimeout(() => inflightRef.current.delete(key), 50);
           });
-          data = res.data;
-          error = res.error;
+          inflightRef.current.set(key, promise);
         }
-
+        const res = await promise;
+        // Stale request — ignore
+        if (cancelled || myReq !== reqIdRef.current) return;
+        const { data, error } = res || {};
         if (error) throw error;
-        if (cancelled) return;
         const raw = (data?.candles || []) as any[];
-        const mapped: Candle[] = raw.map((k: any) => ({
-          time: Math.floor((k.timestamp ?? k.time ?? 0) / (k.timestamp > 1e12 ? 1000 : 1)),
-          open: Number(k.open),
-          high: Number(k.high),
-          low: Number(k.low),
-          close: Number(k.close),
-          volume: Number(k.volume ?? 0),
-        })).filter((k) => Number.isFinite(k.open) && k.time > 0);
+        const mapped: Candle[] = raw
+          .map((k: any) => ({
+            time: Math.floor((k.timestamp ?? k.time ?? 0) / (k.timestamp > 1e12 ? 1000 : 1)),
+            open: Number(k.open),
+            high: Number(k.high),
+            low: Number(k.low),
+            close: Number(k.close),
+            volume: Number(k.volume ?? 0),
+          }))
+          .filter((k) => Number.isFinite(k.open) && k.time > 0);
         const map = new Map<number, Candle>();
         mapped.forEach((c) => map.set(c.time, c));
-        setCandles(Array.from(map.values()).sort((a, b) => a.time - b.time));
+        const next = Array.from(map.values()).sort((a, b) => a.time - b.time);
+        setCandles((prev) => {
+          if (prev.length === next.length && prev.length > 0) {
+            const a = prev[prev.length - 1];
+            const b = next[next.length - 1];
+            if (a.time === b.time && a.close === b.close && a.open === b.open) return prev;
+          }
+          return next;
+        });
       } catch (e: any) {
         console.error("Chart load failed:", e);
-        if (!cancelled) {
+        if (!cancelled && myReq === reqIdRef.current) {
           setCandles([]);
           toast.error(`Failed to load chart for ${symbol}`);
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && myReq === reqIdRef.current) setLoading(false);
       }
     };
-    load();
+
+    setLoading(true);
+    // Debounce rapid switches (timeframe spam, symbol changes)
+    const debounce = setTimeout(load, 120);
     const id = setInterval(load, 30_000);
     return () => {
       cancelled = true;
+      clearTimeout(debounce);
       clearInterval(id);
     };
   }, [symbol, tf]);
