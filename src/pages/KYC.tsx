@@ -140,11 +140,11 @@ const KYC = () => {
   const handleSubmit = async () => {
     if (!userId) return;
     if (!docFile) {
-      toast({ title: "Document required", description: "Please upload your ID document", variant: "destructive" });
+      toast({ title: t("kyc.toast.documentRequiredTitle"), description: t("kyc.toast.documentRequiredDesc"), variant: "destructive" });
       return;
     }
     if (docFile.size > 10 * 1024 * 1024) {
-      toast({ title: "File too large", description: "Max 10MB allowed", variant: "destructive" });
+      toast({ title: t("kyc.toast.fileTooLargeTitle"), description: t("kyc.toast.fileTooLargeDesc"), variant: "destructive" });
       return;
     }
 
