@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, TrendingUp, TrendingDown, X, RefreshCcw, Search, ArrowUp, ArrowDown } from "lucide-react";
 import { toast } from "sonner";
+import { modeLogger } from "@/lib/modeEventLogger";
 import {
   AlertDialog,
   AlertDialogAction,
