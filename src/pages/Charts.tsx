@@ -27,8 +27,58 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { invokeForexChartData } from "@/lib/forexCache";
+import { invokeForexChartData, getCommoditiesData } from "@/lib/forexCache";
 import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
+
+// Synthesize OHLC candles from a single current price (used for commodities and as fallback)
+function synthesizeCandles(currentPrice: number, interval: string, count = 80) {
+  const minutesMap: Record<string, number> = {
+    "1m": 1, "5m": 5, "15m": 15, "30m": 30, "1h": 60, "2h": 120, "4h": 240, "1d": 1440, "1w": 10080,
+  };
+  const volMap: Record<string, number> = {
+    "1m": 0.0008, "5m": 0.0014, "15m": 0.002, "30m": 0.0028, "1h": 0.004, "2h": 0.0055, "4h": 0.008, "1d": 0.015, "1w": 0.03,
+  };
+  const minutes = minutesMap[interval] ?? 60;
+  const vol = volMap[interval] ?? 0.005;
+  const start = Date.now() - minutes * count * 60_000;
+  const out: any[] = [];
+  let price = currentPrice * (1 - vol * 2);
+  for (let i = 0; i < count; i++) {
+    const ts = start + i * minutes * 60_000;
+    const open = price;
+    const change = (Math.random() - 0.48) * vol * price;
+    const close = open + change;
+    const range = Math.abs(change) * (Math.random() * 0.6 + 0.6);
+    const high = Math.max(open, close) + range;
+    const low = Math.min(open, close) - range;
+    out.push({
+      timestamp: Math.floor(ts / 1000),
+      open: +open.toFixed(6),
+      high: +high.toFixed(6),
+      low: +low.toFixed(6),
+      close: +close.toFixed(6),
+      volume: Math.floor(Math.random() * 500000),
+    });
+    price = close;
+  }
+  // anchor last candle to current price
+  const last = out[out.length - 1];
+  last.close = currentPrice;
+  last.high = Math.max(last.high, currentPrice);
+  last.low = Math.min(last.low, currentPrice);
+  return out;
+}
+
+// Forex fn expects a single currency (the quote vs USD). Convert "EUR/USD" → "EUR".
+function normalizeForexForChart(sym: string): string {
+  const s = sym.toUpperCase();
+  if (s.includes("/")) {
+    const [base, quote] = s.split("/");
+    if (base === "USD") return quote;
+    return base;
+  }
+  return s;
+}
 import TradingChart, { type Candle, type ChartType } from "@/components/charts/TradingChart";
 import { useChartDrawings, type DrawingMode } from "@/hooks/useChartDrawings";
 import { useChartIndicators } from "@/hooks/useChartIndicators";
@@ -151,12 +201,38 @@ export default function Charts() {
     const load = async () => {
       setLoading(true);
       try {
-        const isForex = isForexSymbol(symbol);
-        const { data, error } = isForex
-          ? await invokeForexChartData(symbol.toUpperCase(), tf)
-          : await supabase.functions.invoke("fetch-taapi-data", {
-              body: { symbol: symbol.toUpperCase(), interval: tf },
-            });
+        const upper = symbol.toUpperCase();
+        const isForex = isForexSymbol(upper);
+        const isCommodity = isCommoditySymbol(upper);
+        let data: any = null;
+        let error: any = null;
+
+        if (isCommodity) {
+          // No dedicated commodity-chart endpoint — use snapshot price + synthesize OHLC.
+          try {
+            const snap = await getCommoditiesData();
+            const row = (snap?.commoditiesData || []).find(
+              (c: any) => c.symbol?.toUpperCase() === upper,
+            );
+            const price = row ? parseFloat(row.price) : NaN;
+            if (!Number.isFinite(price)) throw new Error("No commodity price");
+            data = { candles: synthesizeCandles(price, tf) };
+          } catch (e) {
+            error = e;
+          }
+        } else if (isForex) {
+          const forexSym = normalizeForexForChart(upper);
+          const res = await invokeForexChartData(forexSym, tf);
+          data = res.data;
+          error = res.error;
+        } else {
+          const res = await supabase.functions.invoke("fetch-taapi-data", {
+            body: { symbol: upper, interval: tf },
+          });
+          data = res.data;
+          error = res.error;
+        }
+
         if (error) throw error;
         if (cancelled) return;
         const raw = (data?.candles || []) as any[];
@@ -168,13 +244,15 @@ export default function Charts() {
           close: Number(k.close),
           volume: Number(k.volume ?? 0),
         })).filter((k) => Number.isFinite(k.open) && k.time > 0);
-        // dedupe & sort
         const map = new Map<number, Candle>();
         mapped.forEach((c) => map.set(c.time, c));
         setCandles(Array.from(map.values()).sort((a, b) => a.time - b.time));
       } catch (e: any) {
-        console.error(e);
-        toast.error("Failed to load chart data");
+        console.error("Chart load failed:", e);
+        if (!cancelled) {
+          setCandles([]);
+          toast.error(`Failed to load chart for ${symbol}`);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -368,10 +446,10 @@ export default function Charts() {
 
         {/* Bottom tool dock */}
         <div
-          className="absolute left-1/2 z-20 -translate-x-1/2 rounded-2xl border border-border/50 bg-background/80 p-1.5 shadow-2xl backdrop-blur-xl"
+          className="absolute left-1/2 z-20 max-w-[calc(100vw-16px)] -translate-x-1/2 overflow-x-auto rounded-2xl border border-border/50 bg-background/80 p-1.5 shadow-2xl backdrop-blur-xl scrollbar-hide"
           style={{ bottom: `calc(${fullscreen ? "12px" : "76px"} + env(safe-area-inset-bottom))` }}
         >
-          <div className="flex items-center gap-0.5">
+          <div className="flex items-center gap-0.5 w-max">
             {TOOLS.map((t) => {
               const active = mode === t.mode;
               return (
