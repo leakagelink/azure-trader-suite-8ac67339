@@ -479,7 +479,7 @@ const Index = () => {
         <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <div className="max-w-5xl mx-auto">
             <div className="text-center mb-6 sm:mb-12">
-              <Badge className="mb-4 sm:mb-6 bg-gradient-to-r from-primary/10 to-accent/10 text-primary border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold">
+              <Badge className="mb-4 sm:mb-6 bg-primary/10 text-primary border border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold">
                 <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-pulse" /> Real-Time Activity
               </Badge>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-4">
@@ -538,7 +538,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
         <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <div className="text-center mb-8 sm:mb-12">
-            <Badge className="mb-4 sm:mb-6 bg-gradient-to-r from-primary/10 to-accent/10 text-primary border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold animate-bounce-in">
+            <Badge className="mb-4 sm:mb-6 bg-primary/10 text-primary border border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold animate-bounce-in">
               <Newspaper className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-pulse" /> Live Feed
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6 animate-fade-in">
@@ -612,7 +612,7 @@ const Index = () => {
         <div className="absolute inset-0 bg-grid-pattern opacity-5" />
         <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <div className="text-center mb-8 sm:mb-16">
-            <Badge className="mb-4 sm:mb-6 bg-gradient-to-r from-primary/10 to-accent/10 text-primary border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold">
+            <Badge className="mb-4 sm:mb-6 bg-primary/10 text-primary border border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold">
               <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 fill-primary" /> Testimonials
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
@@ -731,7 +731,7 @@ const Index = () => {
         <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8 sm:mb-16">
-              <Badge className="mb-4 sm:mb-6 bg-gradient-to-r from-primary/10 to-accent/10 text-primary border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold">
+              <Badge className="mb-4 sm:mb-6 bg-primary/10 text-primary border border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold">
                 <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> FAQs
               </Badge>
               <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
