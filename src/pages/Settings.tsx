@@ -100,7 +100,7 @@ const Settings = () => {
 
         <Button
           onClick={handleSave}
-          className="w-full h-12 bg-gradient-to-r from-primary via-secondary to-accent hover:opacity-95 text-primary-foreground font-semibold rounded-xl shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] hover:shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.6)] transition-all duration-300"
+          className="w-full h-12 bg-gradient-to-r from-primary via-secondary to-accent hover:opacity-95 text-primary-foreground font-semibold rounded-xl shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] hover:shadow-[0_8px_30px_-4px_hsl(var(--primary)/0.6)] transition-all duration-300 lg:col-span-2"
         >
           Save All Settings
         </Button>
