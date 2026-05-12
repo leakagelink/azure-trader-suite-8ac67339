@@ -909,7 +909,7 @@ const Index = () => {
 
             <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
               <p className="text-xs sm:text-sm text-muted-foreground">
-                © 2024 <span className="font-bold text-foreground">TradixoFX</span>. All rights reserved.
+                © 2007 <span className="font-bold text-foreground">TradixoFX</span>. All rights reserved.
               </p>
               <p className="text-[10px] sm:text-xs text-muted-foreground/80 max-w-md">
                 Trading involves substantial risk and may result in loss of capital. Trade responsibly.
