@@ -65,8 +65,8 @@ export function AdminSidebar({
   pendingWithdrawalsCount = 0,
   pendingKycCount = 0,
 }: AdminSidebarProps) {
-  const { state } = useSidebar();
-  const collapsed = state === "collapsed";
+  const { state, isMobile } = useSidebar();
+  const collapsed = state === "collapsed" && !isMobile;
   const navigate = useNavigate();
 
   const getBadgeCount = (key?: string) => {
