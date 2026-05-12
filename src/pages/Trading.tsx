@@ -998,7 +998,7 @@ const Trading = () => {
         </div>
       </header>
 
-      <main className="container mx-auto p-4 space-y-4">
+      <main className="container mx-auto p-4 lg:px-6 xl:px-8 max-w-screen-2xl space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] lg:gap-6 xl:gap-8 lg:items-start">
         {/* Price Card with Live Animation */}
         <Card className="p-4 bg-gradient-to-br from-card to-muted/50 border-2 border-primary/20">
           <div className="flex items-center justify-between">
@@ -1084,6 +1084,9 @@ const Trading = () => {
             ))}
           </div>
         </Card>
+        </div>
+
+        <div className="min-w-0">
 
         {/* Chart - Premium Glass Container */}
         <Card className="relative overflow-hidden border border-primary/20 bg-card/40 backdrop-blur-xl shadow-2xl shadow-primary/5">
