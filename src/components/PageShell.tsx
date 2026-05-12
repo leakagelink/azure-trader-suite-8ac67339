@@ -11,14 +11,16 @@ interface PageShellProps {
   icon?: LucideIcon;
   headerAction?: ReactNode;
   children: ReactNode;
-  maxWidth?: "2xl" | "4xl" | "6xl" | "7xl";
+  maxWidth?: "2xl" | "4xl" | "6xl" | "7xl" | "wide" | "full";
 }
 
 const maxWidthMap = {
-  "2xl": "max-w-2xl",
-  "4xl": "max-w-4xl",
-  "6xl": "max-w-6xl",
-  "7xl": "max-w-7xl",
+  "2xl": "max-w-2xl lg:max-w-4xl",
+  "4xl": "max-w-4xl lg:max-w-5xl",
+  "6xl": "max-w-6xl lg:max-w-[1500px]",
+  "7xl": "max-w-7xl lg:max-w-[1600px]",
+  "wide": "max-w-7xl lg:max-w-[1700px] xl:max-w-[1800px]",
+  "full": "max-w-full",
 };
 
 const PageShell = ({
@@ -85,7 +87,7 @@ const PageShell = ({
       </header>
 
       {/* Main Content */}
-      <main className={`relative z-10 container mx-auto px-3 sm:px-4 py-6 sm:py-8 ${maxWidthMap[maxWidth]} pb-24`}>
+      <main className={`relative z-10 container mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 py-6 sm:py-8 ${maxWidthMap[maxWidth]} pb-24`}>
         {/* Hero Title */}
         <div className="mb-6 sm:mb-8 animate-fade-in">
           <div className="relative inline-block">
