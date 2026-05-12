@@ -637,7 +637,7 @@ const Index = () => {
                 rating: 5
               },
               {
-                name: "David Kumar",
+                name: "Ajay Singh",
                 role: "Forex Trader",
                 content: "Professional-grade tools at my fingertips. The leverage options and low spreads make this my go-to platform for forex trading.",
                 rating: 5
