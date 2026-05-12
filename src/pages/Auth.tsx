@@ -229,7 +229,7 @@ const Auth = () => {
       </div>
 
       <div className="relative z-10 space-y-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-        <Badge className="bg-gradient-to-r from-primary/20 to-accent/20 text-primary border border-accent/40 px-4 py-2 text-sm font-semibold backdrop-blur-md">
+        <Badge className="bg-primary/10 text-primary border border-primary/30 px-4 py-2 text-sm font-semibold backdrop-blur-md">
           <Sparkles className="h-4 w-4 mr-2 animate-pulse" />
           Trusted by 50,000+ Traders
         </Badge>
@@ -367,7 +367,7 @@ const Auth = () => {
           </div>
 
           <div className="text-center mb-6">
-            <Badge className="bg-gradient-to-r from-primary/15 to-accent/15 text-primary border border-accent/30 mb-3 backdrop-blur-md">
+            <Badge className="bg-primary/10 text-primary border border-primary/30 mb-3 backdrop-blur-md">
               <TrendingUp className="h-3 w-3 mr-1" />
               Premium Access
             </Badge>
