@@ -999,6 +999,7 @@ const Trading = () => {
       </header>
 
       <main className="container mx-auto p-4 lg:px-6 xl:px-8 max-w-screen-2xl space-y-4 lg:space-y-0 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)] lg:gap-6 xl:gap-8 lg:items-start">
+        <div className="space-y-4 lg:sticky lg:top-20">
         {/* Price Card with Live Animation */}
         <Card className="p-4 bg-gradient-to-br from-card to-muted/50 border-2 border-primary/20">
           <div className="flex items-center justify-between">
