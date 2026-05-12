@@ -282,4 +282,23 @@ All colors MUST be HSL.
     -webkit-text-fill-color: hsl(var(--primary)) !important;
     color: hsl(var(--primary)) !important;
   }
+
+  /* Visibility safety net: when matte strips a gradient background but the
+     element relies on white text (text-primary-foreground / text-white),
+     fall back to a solid primary background so the text stays readable. */
+  [class*="bg-gradient-"][class*="text-primary-foreground"]:not([data-state]),
+  [class*="bg-gradient-"][class*="text-white"]:not([data-state]),
+  button[class*="bg-gradient-to-"][class*="text-primary-foreground"],
+  button[class*="bg-gradient-to-"][class*="text-white"] {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
+
+  /* Active tab/segment elements that use gradient + white text need a solid
+     primary bg as well (gradient is stripped, text is white). */
+  [data-state="active"][class*="data-\[state\=active\]\:bg-gradient-"],
+  [data-state="active"][class*="bg-gradient-"] {
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+  }
 }
