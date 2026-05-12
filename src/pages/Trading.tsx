@@ -1160,6 +1160,7 @@ const Trading = () => {
             </div>
           </div>
         </Card>
+        </div>
       </main>
 
       {/* Sticky Bottom Long/Short Bar */}
