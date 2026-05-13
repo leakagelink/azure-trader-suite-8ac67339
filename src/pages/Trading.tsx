@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeForexData, invokeForexChartData } from "@/lib/forexCache";
-import { getContractSize, getLotLabel } from "@/lib/contractSize";
+import { getContractSize, getLotLabel, getLotSpec, validateLotInput } from "@/lib/contractSize";
 import {
   Dialog,
   DialogContent,
