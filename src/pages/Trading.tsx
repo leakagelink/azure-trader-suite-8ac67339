@@ -1592,6 +1592,10 @@ const Trading = () => {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Leverage:</span>
+                <span className="font-semibold">{leverage}x</span>
+              </div>
+              <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Margin Required:</span>
                 <span className="font-semibold">
                   ${inputMode === 'amount'
