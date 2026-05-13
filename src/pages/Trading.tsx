@@ -500,6 +500,8 @@ const Trading = () => {
 
   const contractSize = getContractSize(symbol || '');
   const lotUnitLabel = getLotLabel(symbol || '');
+  const lotSpec = getLotSpec(symbol || '');
+  const lotValidation = lotSize ? validateLotInput(symbol || '', lotSize) : { ok: true as const };
 
   // Generate TradingView URL based on symbol type
   const getTradingViewUrl = () => {
