@@ -495,6 +495,31 @@ const Trading = () => {
     return commoditySymbols.includes(sym.toUpperCase());
   };
 
+  // Standard contract size per 1 lot, by market type
+  const getContractSize = (sym: string): number => {
+    const s = (sym || '').toUpperCase();
+    if (isForexPair(s)) return 100_000; // 1 standard lot = 100,000 units
+    const commodityContracts: Record<string, number> = {
+      XAU: 100,    // Gold: 100 oz
+      XAG: 5_000,  // Silver: 5000 oz
+      XPT: 100,    // Platinum: 100 oz
+      XPD: 100,    // Palladium: 100 oz
+      WTI: 1_000,  // Crude Oil: 1000 barrels
+      BRENT: 1_000,
+      NG: 10_000,  // Natural Gas: 10,000 mmBtu
+      HG: 25_000,  // Copper: 25,000 lbs
+    };
+    if (commodityContracts[s] !== undefined) return commodityContracts[s];
+    return 1; // Crypto / default: 1 lot = 1 unit
+  };
+
+  const contractSize = getContractSize(symbol || '');
+  const lotUnitLabel = isForexPair((symbol || '').toUpperCase())
+    ? `1 lot = ${contractSize.toLocaleString()} units`
+    : isCommodity((symbol || '').toUpperCase())
+      ? `1 lot = ${contractSize.toLocaleString()} ${['NG'].includes((symbol||'').toUpperCase()) ? 'mmBtu' : ['HG'].includes((symbol||'').toUpperCase()) ? 'lbs' : ['WTI','BRENT'].includes((symbol||'').toUpperCase()) ? 'barrels' : 'oz'}`
+      : `1 lot = 1 ${(symbol || '').toUpperCase()}`;
+
   // Generate TradingView URL based on symbol type
   const getTradingViewUrl = () => {
     const sym = symbol?.toUpperCase() || 'BTC';
