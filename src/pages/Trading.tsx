@@ -307,7 +307,7 @@ const Trading = () => {
   const [tradeAmount, setTradeAmount] = useState(""); // USD amount
   const [lotSize, setLotSize] = useState(""); // Lot size (units)
   const [inputMode, setInputMode] = useState<'amount' | 'lotSize'>('amount');
-  const [leverage, setLeverage] = useState(1);
+  const [leverage, setLeverage] = useState(100);
   const [stopLoss, setStopLoss] = useState(""); // Stop loss price
   const [takeProfit, setTakeProfit] = useState(""); // Take profit price
   const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
@@ -747,8 +747,8 @@ const Trading = () => {
   const handleOpenPosition = async (type: 'long' | 'short') => {
     // Leverage validation — block invalid or out-of-range values
     const lev = Number(leverage);
-    if (!Number.isFinite(lev) || isNaN(lev) || lev < 1) {
-      toast.error("Invalid leverage selected. Please choose a value between 1x and " + maxLeverageCap + "x.");
+    if (!Number.isFinite(lev) || isNaN(lev)) {
+      toast.error("Invalid leverage selected. Please choose 100x, 200x, or 500x.");
       return;
     }
     if (lev > maxLeverageCap) {
@@ -756,7 +756,7 @@ const Trading = () => {
       setLeverage(maxLeverageCap);
       return;
     }
-    if (![1, 2, 5, 10, 20, 50, 100].includes(lev)) {
+    if (![100, 200, 500].includes(lev)) {
       toast.error("Unsupported leverage value. Please pick from the dropdown.");
       return;
     }
@@ -1407,18 +1407,18 @@ const Trading = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 5, 10, 20, 50, 100].filter((lev) => lev <= maxLeverageCap).map((lev) => (
+                  {[100, 200, 500].map((lev) => (
                     <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[11px] text-muted-foreground mt-1">Allowed range: 1x – {maxLeverageCap}x</p>
-              {leverage >= 20 && leverage < 50 && (
+              <p className="text-[11px] text-muted-foreground mt-1">Available: 100x / 200x / 500x</p>
+              {leverage >= 100 && leverage < 200 && (
                 <div className="mt-2 p-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 text-xs text-yellow-700 dark:text-yellow-400">
                   ⚠️ High leverage ({leverage}x): small price moves can cause large losses. Trade carefully.
                 </div>
               )}
-              {leverage >= 50 && (
+              {leverage >= 200 && (
                 <div className="mt-2 p-2 rounded-md border border-red-500/50 bg-red-500/10 text-xs text-red-600 dark:text-red-400 font-medium">
                   🚨 Extreme leverage ({leverage}x): a {(100 / leverage).toFixed(2)}% adverse move can liquidate your full margin. Only experienced traders should proceed.
                 </div>
@@ -1626,18 +1626,18 @@ const Trading = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 5, 10, 20, 50, 100].filter((lev) => lev <= maxLeverageCap).map((lev) => (
+                  {[100, 200, 500].map((lev) => (
                     <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-[11px] text-muted-foreground mt-1">Allowed range: 1x – {maxLeverageCap}x</p>
-              {leverage >= 20 && leverage < 50 && (
+              <p className="text-[11px] text-muted-foreground mt-1">Available: 100x / 200x / 500x</p>
+              {leverage >= 100 && leverage < 200 && (
                 <div className="mt-2 p-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 text-xs text-yellow-700 dark:text-yellow-400">
                   ⚠️ High leverage ({leverage}x): small price moves can cause large losses. Trade carefully.
                 </div>
               )}
-              {leverage >= 50 && (
+              {leverage >= 200 && (
                 <div className="mt-2 p-2 rounded-md border border-red-500/50 bg-red-500/10 text-xs text-red-600 dark:text-red-400 font-medium">
                   🚨 Extreme leverage ({leverage}x): a {(100 / leverage).toFixed(2)}% adverse move can liquidate your full margin. Only experienced traders should proceed.
                 </div>
