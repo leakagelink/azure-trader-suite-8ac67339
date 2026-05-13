@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, CheckCircle, Zap, ArrowLeft, CreditCard, Clock, Lock } from "lucide-react";
+import { Copy, CheckCircle, Zap, ArrowLeft, CreditCard, Clock, Lock, Upload, X as XIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,6 +27,8 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   const [paymentMethod, setPaymentMethod] = useState<"upi" | "netbanking">("upi");
   const [amount, setAmount] = useState("");
   const [transactionId, setTransactionId] = useState("");
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_DURATION);
@@ -63,6 +65,8 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       setInstantStep("amount");
       setAmount("");
       setTransactionId("");
+      setPaymentProof(null);
+      setPaymentProofPreview("");
       setCountdown(COUNTDOWN_DURATION);
       setIsAutoLocked(false);
       setDepositRequestId(null);
@@ -248,6 +252,36 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     }
   };
 
+  const handleProofChange = (file: File | null) => {
+    if (!file) {
+      setPaymentProof(null);
+      setPaymentProofPreview("");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 5MB allowed", variant: "destructive" });
+      return;
+    }
+    setPaymentProof(file);
+    if (file.type.startsWith("image/")) {
+      setPaymentProofPreview(URL.createObjectURL(file));
+    } else {
+      setPaymentProofPreview("");
+    }
+  };
+
+  const uploadProof = async (userId: string): Promise<string | null> => {
+    if (!paymentProof) return null;
+    const ext = paymentProof.name.split(".").pop() || "jpg";
+    const path = `${userId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("payment-proofs")
+      .upload(path, paymentProof, { upsert: false });
+    if (error) throw error;
+    const { data } = supabase.storage.from("payment-proofs").getPublicUrl(path);
+    return data.publicUrl;
+  };
+
   const handleSubmit = async () => {
     if (!amount || !transactionId) {
       toast({
@@ -258,16 +292,27 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       return;
     }
 
+    if (!paymentProof) {
+      toast({
+        title: "Payment Proof Required",
+        description: "Please upload a screenshot of your payment",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      const proofUrl = await uploadProof(user.id);
+
       // For instant deposit, update the existing request with transaction ID
       if (depositMode === "instant" && depositRequestId) {
         const { error } = await supabase
           .from("deposit_requests")
-          .update({ transaction_id: transactionId })
+          .update({ transaction_id: transactionId, payment_proof_url: proofUrl })
           .eq('id', depositRequestId);
 
         if (error) throw error;
@@ -279,6 +324,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           currency: "INR",
           payment_method: depositMode === "instant" ? "upi" : paymentMethod,
           transaction_id: transactionId,
+          payment_proof_url: proofUrl,
         });
 
         if (error) throw error;
@@ -293,6 +339,8 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
 
       setAmount("");
       setTransactionId("");
+      setPaymentProof(null);
+      setPaymentProofPreview("");
       setDepositMode("select");
       setInstantStep("amount");
       setIsAutoLocked(false);
@@ -707,11 +755,59 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
         </p>
       </div>
 
+      {/* Payment Proof Upload */}
+      <div className="space-y-2">
+        <Label htmlFor="paymentProof">Payment Proof / Screenshot</Label>
+        {paymentProof ? (
+          <div className="relative border border-border rounded-lg p-3 bg-muted/20">
+            <div className="flex items-center gap-3">
+              {paymentProofPreview ? (
+                <img src={paymentProofPreview} alt="Proof preview" className="h-16 w-16 object-cover rounded" />
+              ) : (
+                <div className="h-16 w-16 rounded bg-muted flex items-center justify-center">
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{paymentProof.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {(paymentProof.size / 1024).toFixed(1)} KB
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleProofChange(null)}
+              >
+                <XIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <label
+            htmlFor="paymentProof"
+            className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary/50 transition-colors bg-muted/10"
+          >
+            <Upload className="h-6 w-6 text-muted-foreground" />
+            <span className="text-sm font-medium">Upload payment screenshot</span>
+            <span className="text-xs text-muted-foreground">JPG, PNG or PDF (max 5MB)</span>
+          </label>
+        )}
+        <Input
+          id="paymentProof"
+          type="file"
+          accept="image/*,application/pdf"
+          className="hidden"
+          onChange={(e) => handleProofChange(e.target.files?.[0] || null)}
+        />
+      </div>
+
       {/* Submit Button */}
       <Button
         className="w-full"
         onClick={handleSubmit}
-        disabled={loading || !amount || !transactionId}
+        disabled={loading || !amount || !transactionId || !paymentProof}
       >
         {loading ? "Submitting..." : "Submit Deposit Request"}
       </Button>
