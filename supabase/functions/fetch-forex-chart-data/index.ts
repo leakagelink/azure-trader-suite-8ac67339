@@ -5,65 +5,102 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const EXCHANGERATE_HOST_KEY = '9a730bf18b3dbe6bceedb04fea11c39f';
+// Map app interval -> Yahoo {interval, range}
+// Yahoo supported intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
+function mapInterval(tf: string): { yInterval: string; yRange: string } {
+  switch (tf) {
+    case '1m':  return { yInterval: '1m',  yRange: '1d'  };
+    case '5m':  return { yInterval: '5m',  yRange: '5d'  };
+    case '15m': return { yInterval: '15m', yRange: '5d'  };
+    case '30m': return { yInterval: '30m', yRange: '1mo' };
+    case '1h':  return { yInterval: '60m', yRange: '1mo' };
+    case '2h':  return { yInterval: '60m', yRange: '3mo' };
+    case '4h':  return { yInterval: '60m', yRange: '3mo' };
+    case '1d':  return { yInterval: '1d',  yRange: '6mo' };
+    case '1w':  return { yInterval: '1wk', yRange: '2y'  };
+    default:    return { yInterval: '60m', yRange: '1mo' };
+  }
+}
 
-async function fetchRateFromYahoo(symbol: string): Promise<number | null> {
-  try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/USD${symbol.toUpperCase()}=X?interval=1d&range=2d`;
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'application/json',
-      },
+// Aggregate N consecutive candles into one (used for 2h/4h from 60m)
+function aggregateCandles(candles: any[], factor: number) {
+  if (factor <= 1) return candles;
+  const out: any[] = [];
+  for (let i = 0; i < candles.length; i += factor) {
+    const chunk = candles.slice(i, i + factor);
+    if (chunk.length === 0) continue;
+    const open = chunk[0].open;
+    const close = chunk[chunk.length - 1].close;
+    let high = chunk[0].high, low = chunk[0].low, vol = 0;
+    for (const c of chunk) {
+      if (c.high > high) high = c.high;
+      if (c.low < low) low = c.low;
+      vol += c.volume || 0;
+    }
+    out.push({
+      timestamp: chunk[0].timestamp,
+      timestampHuman: chunk[0].timestampHuman,
+      open, high, low, close, volume: vol,
     });
-    if (!res.ok) {
-      console.error('Yahoo chart HTTP error:', res.status);
-      return null;
-    }
-    const data = await res.json();
-    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-    return typeof price === 'number' ? price : null;
-  } catch (e) {
-    console.error('Yahoo chart fetch error:', e);
-    return null;
   }
+  return out;
 }
 
-async function fetchRateFromExchangerateHost(symbol: string): Promise<number | null> {
-  try {
-    const url = `https://api.exchangerate.host/live?access_key=${EXCHANGERATE_HOST_KEY}&source=USD&currencies=${symbol}`;
-    console.log('Fetching rate from exchangerate.host for', symbol);
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error('exchangerate.host HTTP error:', response.status);
-      return null;
-    }
-    const data = await response.json();
-    if (!data.success || !data.quotes) {
-      console.error('exchangerate.host response error:', JSON.stringify(data));
-      return null;
-    }
-    const key = `USD${symbol.toUpperCase()}`;
-    const rate = data.quotes[key];
-    return typeof rate === 'number' ? rate : (rate ? parseFloat(rate) : null);
-  } catch (e) {
-    console.error('exchangerate.host fetch error:', e);
+async function fetchYahooCandles(yahooSymbol: string, interval: string) {
+  const { yInterval, yRange } = mapInterval(interval);
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?interval=${yInterval}&range=${yRange}`;
+  const res = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      'Accept': 'application/json',
+    },
+  });
+  if (!res.ok) {
+    console.error('Yahoo chart HTTP error', res.status, yahooSymbol);
     return null;
   }
-}
+  const data = await res.json();
+  const r = data?.chart?.result?.[0];
+  if (!r) return null;
+  const ts: number[] = r.timestamp || [];
+  const q = r.indicators?.quote?.[0];
+  const meta = r.meta;
+  if (!q || ts.length === 0) return null;
 
-async function fetchRateFromFrankfurter(symbol: string): Promise<number | null> {
-  try {
-    const url = `https://api.frankfurter.app/latest?from=USD&to=${symbol.toUpperCase()}`;
-    console.log('Fetching rate from Frankfurter for', symbol);
-    const response = await fetch(url);
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data.rates?.[symbol.toUpperCase()] ?? null;
-  } catch (e) {
-    console.error('Frankfurter fetch error:', e);
-    return null;
+  const candles: any[] = [];
+  for (let i = 0; i < ts.length; i++) {
+    const o = q.open?.[i], h = q.high?.[i], l = q.low?.[i], c = q.close?.[i], v = q.volume?.[i];
+    if (o == null || h == null || l == null || c == null) continue;
+    candles.push({
+      timestamp: ts[i],
+      timestampHuman: new Date(ts[i] * 1000).toISOString(),
+      open: +(+o).toFixed(6),
+      high: +(+h).toFixed(6),
+      low: +(+l).toFixed(6),
+      close: +(+c).toFixed(6),
+      volume: Math.floor(+(v ?? 0)),
+    });
   }
+  if (candles.length === 0) return null;
+
+  // Aggregate where Yahoo doesn't have native interval
+  let out = candles;
+  if (interval === '2h') out = aggregateCandles(candles, 2);
+  if (interval === '4h') out = aggregateCandles(candles, 4);
+
+  // Limit to last 100 candles for chart performance
+  if (out.length > 100) out = out.slice(out.length - 100);
+
+  // Anchor last candle to most recent live price if available
+  const livePrice = meta?.regularMarketPrice;
+  if (typeof livePrice === 'number' && out.length > 0) {
+    const last = out[out.length - 1];
+    last.close = livePrice;
+    if (livePrice > last.high) last.high = livePrice;
+    if (livePrice < last.low) last.low = livePrice;
+  }
+
+  return { candles: out, currentPrice: livePrice ?? out[out.length - 1].close };
 }
 
 serve(async (req) => {
@@ -73,114 +110,33 @@ serve(async (req) => {
 
   try {
     const { symbol, interval } = await req.json();
-    
-    if (!symbol) {
-      throw new Error('Symbol is required');
+    if (!symbol) throw new Error('Symbol is required');
+
+    // symbol is the quote currency vs USD (e.g. "EUR" => USDEUR=X)
+    const yahooSymbol = `USD${symbol.toUpperCase()}=X`;
+    const result = await fetchYahooCandles(yahooSymbol, interval || '1h');
+
+    if (!result) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'No chart data available', candles: [] }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-
-    const intervalMinutes: Record<string, number> = {
-      '1m': 1, '5m': 5, '15m': 15, '1h': 60, '4h': 240, '1d': 1440,
-    };
-
-    const minutes = intervalMinutes[interval] || 60;
-    const candleCount = 50;
-    
-    const fallbackRates: Record<string, number> = {
-      'EUR': 0.92, 'GBP': 0.79, 'JPY': 157.5, 'CHF': 0.90, 'AUD': 1.61,
-      'CAD': 1.44, 'NZD': 1.78, 'INR': 85.5, 'CNY': 7.30, 'SGD': 1.36,
-      'HKD': 7.79, 'MXN': 20.5, 'ZAR': 18.5,
-    };
-    
-    let currentRate: number | null = null;
-    let source = 'fallback';
-
-    // Try Yahoo Finance first (free, no key, near real-time)
-    currentRate = await fetchRateFromYahoo(symbol);
-    if (currentRate !== null) {
-      source = 'yahoo';
-      console.log(`Got ${symbol} rate from Yahoo: ${currentRate}`);
-    }
-
-    // Fallback to exchangerate.host
-    if (currentRate === null) {
-      currentRate = await fetchRateFromExchangerateHost(symbol);
-      if (currentRate !== null) {
-        source = 'exchangerate.host';
-        console.log(`Got ${symbol} rate from exchangerate.host: ${currentRate}`);
-      }
-    }
-
-    // Fallback to Frankfurter
-    if (currentRate === null) {
-      currentRate = await fetchRateFromFrankfurter(symbol);
-      if (currentRate !== null) {
-        source = 'frankfurter';
-        console.log(`Got ${symbol} rate from Frankfurter: ${currentRate}`);
-      }
-    }
-
-    if (currentRate === null) {
-      currentRate = fallbackRates[symbol.toUpperCase()] || 1.0;
-      source = 'fallback';
-      console.log(`Using fallback rate for ${symbol}: ${currentRate}`);
-    }
-
-    // Generate realistic OHLC candles based on current price
-    const startDate = new Date(Date.now() - (minutes * candleCount * 60000));
-    const candles = [];
-    const volatilityMap: Record<string, number> = {
-      '1m': 0.0001, '5m': 0.0002, '15m': 0.0003,
-      '1h': 0.0005, '4h': 0.001, '1d': 0.002,
-    };
-    
-    const volatility = volatilityMap[interval] || 0.0005;
-    let price = currentRate * 0.995;
-    
-    for (let i = 0; i < candleCount; i++) {
-      const timestamp = startDate.getTime() + (i * minutes * 60000);
-      const timestampHuman = new Date(timestamp).toISOString();
-      
-      const open = price;
-      const change = (Math.random() - 0.48) * volatility * price;
-      const close = open + change;
-      
-      const rangeFactor = Math.random() * 0.5 + 0.5;
-      const high = Math.max(open, close) + (Math.abs(change) * rangeFactor);
-      const low = Math.min(open, close) - (Math.abs(change) * rangeFactor);
-      
-      candles.push({
-        timestamp: Math.floor(timestamp / 1000),
-        timestampHuman,
-        open: parseFloat(open.toFixed(6)),
-        high: parseFloat(high.toFixed(6)),
-        low: parseFloat(low.toFixed(6)),
-        close: parseFloat(close.toFixed(6)),
-        volume: Math.floor(Math.random() * 1000000) + 500000,
-      });
-      
-      price = close;
-    }
-    
-    const lastCandle = candles[candles.length - 1];
-    lastCandle.close = currentRate;
-    lastCandle.high = Math.max(lastCandle.high, currentRate);
-    lastCandle.low = Math.min(lastCandle.low, currentRate);
 
     return new Response(
       JSON.stringify({
         success: true,
-        candles,
-        currentPrice: currentRate,
-        source,
+        candles: result.candles,
+        currentPrice: result.currentPrice,
+        source: 'yahoo',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('Error in fetch-forex-chart-data function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: errorMessage, candles: [] }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
