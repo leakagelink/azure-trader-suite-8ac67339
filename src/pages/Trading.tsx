@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeForexData, invokeForexChartData } from "@/lib/forexCache";
-import { getContractSize, getLotLabel } from "@/lib/contractSize";
+import { getContractSize, getLotLabel, getLotSpec, validateLotInput } from "@/lib/contractSize";
 import {
   Dialog,
   DialogContent,
@@ -500,6 +500,8 @@ const Trading = () => {
 
   const contractSize = getContractSize(symbol || '');
   const lotUnitLabel = getLotLabel(symbol || '');
+  const lotSpec = getLotSpec(symbol || '');
+  const lotValidation = lotSize ? validateLotInput(symbol || '', lotSize) : { ok: true as const };
 
   // Generate TradingView URL based on symbol type
   const getTradingViewUrl = () => {
@@ -777,8 +779,9 @@ const Trading = () => {
         return;
       }
     } else {
-      if (!lotSize || parseFloat(lotSize) <= 0) {
-        toast.error("Please enter a valid lot size");
+      const lotCheck = validateLotInput(symbol || '', lotSize);
+      if (!lotCheck.ok) {
+        toast.error(lotCheck.error || "Invalid lot size");
         return;
       }
     }
@@ -1350,14 +1353,23 @@ const Trading = () => {
                   <Input
                     id="long-lotsize"
                     type="number"
-                    placeholder="Enter lot size (e.g., 0.01, 0.1, 1)"
+                    placeholder={`Min ${lotSpec.minLot} • Max ${lotSpec.maxLot}`}
                     value={lotSize}
                     onChange={(e) => setLotSize(e.target.value)}
                     className="pl-9"
-                    step="0.001"
+                    min={lotSpec.minLot}
+                    max={lotSpec.maxLot}
+                    step={lotSpec.step}
+                    disabled={!lotSpec.known}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                {!lotSpec.known ? (
+                  <p className="text-xs text-destructive mt-1">Contract size for this symbol is not configured. Trading disabled.</p>
+                ) : !lotValidation.ok ? (
+                  <p className="text-xs text-destructive mt-1">{lotValidation.error}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                )}
               </div>
             )}
 
@@ -1555,14 +1567,23 @@ const Trading = () => {
                   <Input
                     id="short-lotsize"
                     type="number"
-                    placeholder="Enter lot size (e.g., 0.01, 0.1, 1)"
+                    placeholder={`Min ${lotSpec.minLot} • Max ${lotSpec.maxLot}`}
                     value={lotSize}
                     onChange={(e) => setLotSize(e.target.value)}
                     className="pl-9"
-                    step="0.001"
+                    min={lotSpec.minLot}
+                    max={lotSpec.maxLot}
+                    step={lotSpec.step}
+                    disabled={!lotSpec.known}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                {!lotSpec.known ? (
+                  <p className="text-xs text-destructive mt-1">Contract size for this symbol is not configured. Trading disabled.</p>
+                ) : !lotValidation.ok ? (
+                  <p className="text-xs text-destructive mt-1">{lotValidation.error}</p>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                )}
               </div>
             )}
 
