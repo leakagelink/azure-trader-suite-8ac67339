@@ -339,6 +339,8 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
 
       setAmount("");
       setTransactionId("");
+      setPaymentProof(null);
+      setPaymentProofPreview("");
       setDepositMode("select");
       setInstantStep("amount");
       setIsAutoLocked(false);
