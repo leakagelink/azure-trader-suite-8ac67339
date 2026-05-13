@@ -1573,7 +1573,7 @@ const Trading = () => {
             </div>
             <div className="sticky bottom-0 -mx-4 -mb-4 border-t border-border bg-background/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur sm:static sm:m-0 sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
               <Button
-                onClick={() => handleOpenPosition('short')}
+                onClick={() => setPendingOrder('short')}
                 className={`w-full text-white h-12 ${orderType === 'limit' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-red-500 hover:bg-red-600'}`}
                 size="lg"
                 disabled={
