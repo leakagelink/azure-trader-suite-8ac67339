@@ -848,21 +848,10 @@ const Trading = () => {
     }
 
     try {
-      let usdAmount: number;
-      let margin: number;
-      let assetQuantity: number;
-
-      if (inputMode === 'amount') {
-        // Amount entered = margin user invests
-        margin = parseFloat(tradeAmount);
-        usdAmount = margin * leverage; // notional position value
-        assetQuantity = usdAmount / currentPrice;
-      } else {
-        const lots = parseFloat(lotSize);
-        assetQuantity = lots * contractSize;
-        usdAmount = assetQuantity * currentPrice;
-        margin = (assetQuantity * currentPrice) / leverage;
-      }
+      // Single source of truth: use orderCalc (same values shown in the preview)
+      const assetQuantity = orderCalc.assetQuantity;
+      const usdAmount = orderCalc.positionValue;
+      const margin = orderCalc.marginRequired;
 
       if (isNaN(assetQuantity) || assetQuantity <= 0 || isNaN(margin) || margin <= 0) {
         toast.error("Invalid trade calculation. Please try again.");
