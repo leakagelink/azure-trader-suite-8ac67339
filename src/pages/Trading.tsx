@@ -314,6 +314,7 @@ const Trading = () => {
   const [limitPrice, setLimitPrice] = useState(""); // Limit order price
   const [pendingOrder, setPendingOrder] = useState<'long' | 'short' | null>(null);
   const [submittingOrder, setSubmittingOrder] = useState(false);
+  const [maxLeverageCap, setMaxLeverageCap] = useState<number>(100);
   const [chartScale, setChartScale] = useState(1);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const chartContainerRef = useRef<HTMLDivElement>(null);
