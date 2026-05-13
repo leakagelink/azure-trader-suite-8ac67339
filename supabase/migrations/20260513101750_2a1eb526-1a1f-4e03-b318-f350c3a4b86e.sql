@@ -1,0 +1,2 @@
+UPDATE public.payment_settings SET setting_value = '500', updated_at = now() WHERE setting_key = 'max_leverage';
+UPDATE public.profiles SET max_leverage = 500 WHERE max_leverage IS NOT NULL AND max_leverage < 500;
