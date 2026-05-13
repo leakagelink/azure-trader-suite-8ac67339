@@ -1412,6 +1412,17 @@ const Trading = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-[11px] text-muted-foreground mt-1">Allowed range: 1x – {maxLeverageCap}x</p>
+              {leverage >= 20 && leverage < 50 && (
+                <div className="mt-2 p-2 rounded-md border border-yellow-500/40 bg-yellow-500/10 text-xs text-yellow-700 dark:text-yellow-400">
+                  ⚠️ High leverage ({leverage}x): small price moves can cause large losses. Trade carefully.
+                </div>
+              )}
+              {leverage >= 50 && (
+                <div className="mt-2 p-2 rounded-md border border-red-500/50 bg-red-500/10 text-xs text-red-600 dark:text-red-400 font-medium">
+                  🚨 Extreme leverage ({leverage}x): a {(100 / leverage).toFixed(2)}% adverse move can liquidate your full margin. Only experienced traders should proceed.
+                </div>
+              )}
             </div>
 
             <div className="p-3 bg-muted rounded-lg space-y-2">
