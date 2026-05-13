@@ -713,11 +713,11 @@ const Trading = () => {
 
       // Validate limit price direction
       if (type === 'long' && limitPriceValue >= currentPrice) {
-        toast.error("Limit price for LONG should be below current price (buy cheaper)");
+        toast.error("Limit price for BUY should be below current price (buy cheaper)");
         return;
       }
       if (type === 'short' && limitPriceValue <= currentPrice) {
-        toast.error("Limit price for SHORT should be above current price (sell higher)");
+        toast.error("Limit price for SELL should be above current price (sell higher)");
         return;
       }
 
@@ -741,7 +741,7 @@ const Trading = () => {
 
         if (error) throw error;
 
-        toast.success(`Limit ${type.toUpperCase()} order placed @ ${currencySymbol}${limitPriceValue.toFixed(2)}. Will execute when price reaches this level.`);
+        toast.success(`Limit ${type === 'long' ? 'BUY' : 'SELL'} order placed @ ${currencySymbol}${limitPriceValue.toFixed(2)}. Will execute when price reaches this level.`);
         setTradeAmount("");
         setLotSize("");
         setStopLoss("");
@@ -808,11 +808,11 @@ const Trading = () => {
       const stopLossValue = stopLoss ? parseFloat(stopLoss) : null;
       if (stopLossValue !== null) {
         if (type === 'long' && stopLossValue >= currentPrice) {
-          toast.error("Stop loss must be below entry price for LONG positions");
+          toast.error("Stop loss must be below entry price for BUY positions");
           return;
         }
         if (type === 'short' && stopLossValue <= currentPrice) {
-          toast.error("Stop loss must be above entry price for SHORT positions");
+          toast.error("Stop loss must be above entry price for SELL positions");
           return;
         }
       }
@@ -821,11 +821,11 @@ const Trading = () => {
       const takeProfitValue = takeProfit ? parseFloat(takeProfit) : null;
       if (takeProfitValue !== null) {
         if (type === 'long' && takeProfitValue <= currentPrice) {
-          toast.error("Take profit must be above entry price for LONG positions");
+          toast.error("Take profit must be above entry price for BUY positions");
           return;
         }
         if (type === 'short' && takeProfitValue >= currentPrice) {
-          toast.error("Take profit must be below entry price for SHORT positions");
+          toast.error("Take profit must be below entry price for SELL positions");
           return;
         }
       }
@@ -906,7 +906,7 @@ const Trading = () => {
           reference_id: null
         });
 
-        toast.success(`Averaged into existing ${type.toUpperCase()} position: +${assetQuantity.toFixed(6)} ${symbol?.toUpperCase()} @ $${currentPrice.toFixed(2)}. New avg entry: $${newAvgEntryPrice.toFixed(2)}, Total margin: $${newTotalMargin.toFixed(2)}`);
+        toast.success(`Averaged into existing ${type === 'long' ? 'BUY' : 'SELL'} position: +${assetQuantity.toFixed(6)} ${symbol?.toUpperCase()} @ $${currentPrice.toFixed(2)}. New avg entry: $${newAvgEntryPrice.toFixed(2)}, Total margin: $${newTotalMargin.toFixed(2)}`);
       } else {
         // CREATE NEW POSITION
         const { error } = await supabase.from('positions').insert({
@@ -944,7 +944,7 @@ const Trading = () => {
 
         const slMessage = stopLossValue ? ` | SL: $${stopLossValue.toFixed(2)}` : '';
         const tpMessage = takeProfitValue ? ` | TP: $${takeProfitValue.toFixed(2)}` : '';
-        toast.success(`${type.toUpperCase()} position opened: ${assetQuantity.toFixed(6)} ${symbol?.toUpperCase()} @ $${currentPrice.toFixed(2)}${slMessage}${tpMessage}. Margin: $${margin.toFixed(2)}`);
+        toast.success(`${type === 'long' ? 'BUY' : 'SELL'} position opened: ${assetQuantity.toFixed(6)} ${symbol?.toUpperCase()} @ $${currentPrice.toFixed(2)}${slMessage}${tpMessage}. Margin: $${margin.toFixed(2)}`);
       }
 
       setTradeAmount("");
@@ -1163,7 +1163,7 @@ const Trading = () => {
         </div>
       </main>
 
-      {/* Sticky Bottom Long/Short Bar */}
+      {/* Sticky Bottom Buy/Sell Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-background/95 backdrop-blur-lg border-t border-border/40 px-3 pt-3 pb-7 sm:px-4 sm:pt-4 sm:pb-8 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]" style={{ paddingBottom: 'max(1.75rem, env(safe-area-inset-bottom, 1.75rem))' }}>
         <div className="container mx-auto flex gap-2 sm:gap-3 max-w-screen-lg">
           <Button
@@ -1172,7 +1172,7 @@ const Trading = () => {
             size="lg"
           >
             <TrendingUp className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            LONG
+            BUY
           </Button>
           <Button
             onClick={() => setShowShortDialog(true)}
@@ -1180,18 +1180,18 @@ const Trading = () => {
             size="lg"
           >
             <TrendingDown className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            SHORT
+            SELL
           </Button>
         </div>
       </div>
 
-      {/* Long Position Dialog */}
+      {/* Buy Position Dialog */}
       <Dialog open={showLongDialog} onOpenChange={setShowLongDialog}>
         <DialogContent className="w-[calc(100vw-1rem)] max-w-md max-h-[calc(100dvh-1rem)] overflow-y-auto overscroll-contain touch-pan-y p-4 sm:p-6 sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-green-500">
               <TrendingUp className="h-5 w-5" />
-              Open LONG Position
+              Open BUY Position
             </DialogTitle>
             <DialogDescription>
               Buy {symbol?.toUpperCase()}
@@ -1293,7 +1293,7 @@ const Trading = () => {
               </div>
             )}
 
-            {/* Stop Loss Input for Long */}
+            {/* Stop Loss Input for Buy */}
             <div>
               <Label htmlFor="long-stoploss">Stop Loss Price (Optional)</Label>
               <div className="relative mt-2">
@@ -1311,7 +1311,7 @@ const Trading = () => {
               <p className="text-xs text-muted-foreground mt-1">Position auto-closes if price drops to this level</p>
             </div>
 
-            {/* Take Profit Input for Long */}
+            {/* Take Profit Input for Buy */}
             <div>
               <Label htmlFor="long-takeprofit">Take Profit Price (Optional)</Label>
               <div className="relative mt-2">
@@ -1380,20 +1380,20 @@ const Trading = () => {
                 }
               >
                 {orderType === 'limit' ? <ShoppingCart className="mr-2 h-5 w-5" /> : <TrendingUp className="mr-2 h-5 w-5" />}
-                {orderType === 'limit' ? 'Place Limit LONG Order' : 'Open LONG Position'}
+                {orderType === 'limit' ? 'Place Limit BUY Order' : 'Open BUY Position'}
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Short Position Dialog */}
+      {/* Sell Position Dialog */}
       <Dialog open={showShortDialog} onOpenChange={setShowShortDialog}>
         <DialogContent className="w-[calc(100vw-1rem)] max-w-md max-h-[calc(100dvh-1rem)] overflow-y-auto overscroll-contain touch-pan-y p-4 sm:p-6 sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-500">
               <TrendingDown className="h-5 w-5" />
-              Open SHORT Position
+              Open SELL Position
             </DialogTitle>
             <DialogDescription>
               Sell {symbol?.toUpperCase()}
@@ -1495,7 +1495,7 @@ const Trading = () => {
               </div>
             )}
 
-            {/* Stop Loss Input for Short */}
+            {/* Stop Loss Input for Sell */}
             <div>
               <Label htmlFor="short-stoploss">Stop Loss Price (Optional)</Label>
               <div className="relative mt-2">
@@ -1513,7 +1513,7 @@ const Trading = () => {
               <p className="text-xs text-muted-foreground mt-1">Position auto-closes if price rises to this level</p>
             </div>
 
-            {/* Take Profit Input for Short */}
+            {/* Take Profit Input for Sell */}
             <div>
               <Label htmlFor="short-takeprofit">Take Profit Price (Optional)</Label>
               <div className="relative mt-2">
@@ -1582,7 +1582,7 @@ const Trading = () => {
                 }
               >
                 {orderType === 'limit' ? <ShoppingCart className="mr-2 h-5 w-5" /> : <TrendingDown className="mr-2 h-5 w-5" />}
-                {orderType === 'limit' ? 'Place Limit SHORT Order' : 'Open SHORT Position'}
+                {orderType === 'limit' ? 'Place Limit SELL Order' : 'Open SELL Position'}
               </Button>
             </div>
           </div>

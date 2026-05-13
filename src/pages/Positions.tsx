@@ -622,7 +622,7 @@ const Positions = () => {
         .update({ status: 'executed' as any, executed_at: new Date().toISOString() })
         .eq('id', order.id);
 
-      toast.success(`Limit ${order.position_type.toUpperCase()} order executed! ${order.symbol} @ $${entryPrice.toFixed(2)}`);
+      toast.success(`Limit ${order.position_type === 'long' ? 'BUY' : 'SELL'} order executed! ${order.symbol} @ $${entryPrice.toFixed(2)}`);
       fetchPositions();
     } catch (error) {
       console.error('Error executing limit order:', error);
@@ -1011,7 +1011,7 @@ const Positions = () => {
             <div>
               <h3 className="font-bold text-lg">{position.symbol}/USDT</h3>
               <span className={`text-sm font-semibold ${isLong ? 'text-green-500' : 'text-red-500'}`}>
-                {position.position_type.toUpperCase()} {position.leverage}x
+                {position.position_type === 'long' ? 'BUY' : 'SELL'} {position.leverage}x
               </span>
             </div>
           </div>
@@ -1198,13 +1198,13 @@ const Positions = () => {
                       <p className="text-lg font-bold">{openPositions.length}</p>
                     </div>
                     <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1 font-semibold">Long</p>
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1 font-semibold">Buy</p>
                       <p className="text-lg font-bold text-emerald-500">
                         {openPositions.filter(p => p.position_type === 'long').length}
                       </p>
                     </div>
                     <div className="p-2 rounded-xl bg-red-500/10 border border-red-500/20">
-                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1 font-semibold">Short</p>
+                      <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1 font-semibold">Sell</p>
                       <p className="text-lg font-bold text-red-500">
                         {openPositions.filter(p => p.position_type === 'short').length}
                       </p>
@@ -1374,8 +1374,8 @@ const Positions = () => {
                         <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Types</SelectItem>
-                          <SelectItem value="long">Long Only</SelectItem>
-                          <SelectItem value="short">Short Only</SelectItem>
+                          <SelectItem value="long">Buy Only</SelectItem>
+                          <SelectItem value="short">Sell Only</SelectItem>
                         </SelectContent>
                       </Select>
                       <Select value={historyOutcome} onValueChange={(v: any) => setHistoryOutcome(v)}>

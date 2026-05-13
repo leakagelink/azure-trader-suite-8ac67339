@@ -369,7 +369,7 @@ const AdminPositions = () => {
             <div className="min-w-0">
               <h3 className="font-bold text-lg">{position.symbol}/USDT</h3>
               <span className={`text-sm font-semibold ${isLong ? 'text-green-500' : 'text-red-500'}`}>
-                {position.position_type.toUpperCase()} {position.leverage}x
+                {position.position_type === 'long' ? 'BUY' : 'SELL'} {position.leverage}x
               </span>
               <p className="text-xs text-muted-foreground truncate">
                 {position.profiles?.full_name || position.profiles?.email || 'Unknown User'}
