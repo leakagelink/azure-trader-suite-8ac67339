@@ -848,21 +848,10 @@ const Trading = () => {
     }
 
     try {
-      let usdAmount: number;
-      let margin: number;
-      let assetQuantity: number;
-
-      if (inputMode === 'amount') {
-        // Amount entered = margin user invests
-        margin = parseFloat(tradeAmount);
-        usdAmount = margin * leverage; // notional position value
-        assetQuantity = usdAmount / currentPrice;
-      } else {
-        const lots = parseFloat(lotSize);
-        assetQuantity = lots * contractSize;
-        usdAmount = assetQuantity * currentPrice;
-        margin = (assetQuantity * currentPrice) / leverage;
-      }
+      // Single source of truth: use orderCalc (same values shown in the preview)
+      const assetQuantity = orderCalc.assetQuantity;
+      const usdAmount = orderCalc.positionValue;
+      const margin = orderCalc.marginRequired;
 
       if (isNaN(assetQuantity) || assetQuantity <= 0 || isNaN(margin) || margin <= 0) {
         toast.error("Invalid trade calculation. Please try again.");
@@ -1368,7 +1357,7 @@ const Trading = () => {
                 ) : !lotValidation.ok ? (
                   <p className="text-xs text-destructive mt-1">{lotValidation.error}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {orderCalc.assetQuantity.toLocaleString(undefined,{maximumFractionDigits:4})}</p>
                 )}
               </div>
             )}
@@ -1582,7 +1571,7 @@ const Trading = () => {
                 ) : !lotValidation.ok ? (
                   <p className="text-xs text-destructive mt-1">{lotValidation.error}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {orderCalc.assetQuantity.toLocaleString(undefined,{maximumFractionDigits:4})}</p>
                 )}
               </div>
             )}
