@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, Shield } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Users, Shield, Save } from "lucide-react";
 import { toast } from "sonner";
 import BottomNav from "@/components/BottomNav";
 
@@ -19,6 +20,7 @@ interface AdminUser {
   full_name: string | null;
   avatar_url: string | null;
   roles: string[];
+  max_leverage: number | null;
 }
 
 const Admin = () => {
@@ -27,6 +29,8 @@ const Admin = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [leverageDraft, setLeverageDraft] = useState<Record<string, string>>({});
+  const [savingLeverage, setSavingLeverage] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -75,12 +79,61 @@ const Admin = () => {
 
       if (error) throw error;
 
-      setUsers(data || []);
+      const baseUsers = data || [];
+      const userIds = baseUsers.map((u: any) => u.id);
+      let leverageMap: Record<string, number | null> = {};
+      if (userIds.length > 0) {
+        const { data: profileRows } = await supabase
+          .from("profiles")
+          .select("id, max_leverage")
+          .in("id", userIds);
+        (profileRows || []).forEach((p: any) => {
+          leverageMap[p.id] = p.max_leverage ?? null;
+        });
+      }
+      const merged: AdminUser[] = baseUsers.map((u: any) => ({
+        ...u,
+        max_leverage: leverageMap[u.id] ?? null,
+      }));
+      setUsers(merged);
+      const draft: Record<string, string> = {};
+      merged.forEach((u) => {
+        draft[u.id] = u.max_leverage != null ? String(u.max_leverage) : "";
+      });
+      setLeverageDraft(draft);
     } catch (error: any) {
       console.error("Error fetching users:", error);
       toast.error("Failed to load users");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveLeverageCap = async (userId: string) => {
+    const raw = (leverageDraft[userId] ?? "").trim();
+    let value: number | null = null;
+    if (raw !== "") {
+      const n = parseInt(raw);
+      if (isNaN(n) || n < 1 || n > 100) {
+        toast.error("Leverage cap must be between 1 and 100");
+        return;
+      }
+      value = n;
+    }
+    try {
+      setSavingLeverage((s) => ({ ...s, [userId]: true }));
+      const { error } = await supabase
+        .from("profiles")
+        .update({ max_leverage: value })
+        .eq("id", userId);
+      if (error) throw error;
+      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, max_leverage: value } : u));
+      toast.success(value === null ? "Per-user cap cleared (uses global)" : `Leverage cap set to ${value}x`);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Failed to save leverage cap");
+    } finally {
+      setSavingLeverage((s) => ({ ...s, [userId]: false }));
     }
   };
 
@@ -156,6 +209,7 @@ const Admin = () => {
                       <TableHead>Last Login</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Roles</TableHead>
+                      <TableHead>Leverage Cap</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -185,6 +239,33 @@ const Admin = () => {
                               </Badge>
                             ))}
                           </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              min="1"
+                              max="100"
+                              step="1"
+                              placeholder="Global"
+                              className="h-8 w-24"
+                              value={leverageDraft[user.id] ?? ""}
+                              onChange={(e) =>
+                                setLeverageDraft((d) => ({ ...d, [user.id]: e.target.value }))
+                              }
+                            />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              disabled={!!savingLeverage[user.id]}
+                              onClick={() => saveLeverageCap(user.id)}
+                            >
+                              <Save className="h-3 w-3" />
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {user.max_leverage != null ? `${user.max_leverage}x override` : "Using global cap"}
+                          </p>
                         </TableCell>
                       </TableRow>
                     ))}

@@ -416,6 +416,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_approved: boolean
+          max_leverage: number | null
           mobile_number: string | null
           updated_at: string
         }
@@ -429,6 +430,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_approved?: boolean
+          max_leverage?: number | null
           mobile_number?: string | null
           updated_at?: string
         }
@@ -442,6 +444,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_approved?: boolean
+          max_leverage?: number | null
           mobile_number?: string | null
           updated_at?: string
         }

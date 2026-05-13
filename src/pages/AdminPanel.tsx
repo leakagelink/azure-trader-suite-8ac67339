@@ -111,6 +111,7 @@ const AdminPanel = () => {
     exchangeRate: "0.012",
     appDownloadUrl: "",
     apiPassword: "",
+    maxLeverage: "100",
   });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
@@ -294,6 +295,7 @@ const AdminPanel = () => {
           exchangeRate: settings.exchangeRate || "0.012",
           appDownloadUrl: settings.appDownloadUrl || "",
           apiPassword: "",
+          maxLeverage: settings.maxLeverage || "100",
         });
         
         // Set deposit offer settings
@@ -778,6 +780,7 @@ const AdminPanel = () => {
         { setting_key: "bank_name", setting_value: paymentSettings.bankName },
         { setting_key: "exchange_rate", setting_value: paymentSettings.exchangeRate },
         { setting_key: "app_download_url", setting_value: paymentSettings.appDownloadUrl },
+        { setting_key: "max_leverage", setting_value: paymentSettings.maxLeverage || "100" },
         // Deposit offer settings
         { setting_key: "deposit_bonus_enabled", setting_value: String(depositOfferSettings.bonusEnabled) },
         { setting_key: "deposit_bonus_percentage", setting_value: depositOfferSettings.bonusPercentage },
@@ -1774,6 +1777,37 @@ const AdminPanel = () => {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Yeh rate users ke deposit conversion (INR → USD wallet credit) ke liye use hota hai. Save Settings dabane ke baad turant lagu ho jayega.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Global Leverage Cap */}
+                <div className="space-y-4 border-t pt-6">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <DollarSign className="h-5 w-5 text-blue-500" />
+                    Global Leverage Cap
+                  </h3>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="maxLeverage">Maximum Leverage (1x – 100x)</Label>
+                      <Input
+                        id="maxLeverage"
+                        type="number"
+                        step="1"
+                        min="1"
+                        max="100"
+                        placeholder="100"
+                        value={paymentSettings.maxLeverage}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          if (v === "") { setPaymentSettings({ ...paymentSettings, maxLeverage: "" }); return; }
+                          const n = Math.max(1, Math.min(100, parseInt(v) || 1));
+                          setPaymentSettings({ ...paymentSettings, maxLeverage: n.toString() });
+                        }}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Default cap applied to all users (1–100). Per-user override Broker Dashboard se set kar sakte hain.
                       </p>
                     </div>
                   </div>

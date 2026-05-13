@@ -314,6 +314,7 @@ const Trading = () => {
   const [limitPrice, setLimitPrice] = useState(""); // Limit order price
   const [pendingOrder, setPendingOrder] = useState<'long' | 'short' | null>(null);
   const [submittingOrder, setSubmittingOrder] = useState(false);
+  const [maxLeverageCap, setMaxLeverageCap] = useState<number>(100);
   const [chartScale, setChartScale] = useState(1);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -341,6 +342,28 @@ const Trading = () => {
       fetchWalletBalance();
     }
   }, [showLongDialog, showShortDialog]);
+
+  // Fetch leverage cap (per-user override or global setting)
+  useEffect(() => {
+    const fetchLeverageCap = async () => {
+      if (!user?.id) return;
+      try {
+        const [profileRes, settingRes] = await Promise.all([
+          supabase.from('profiles').select('max_leverage').eq('id', user.id).maybeSingle(),
+          supabase.from('payment_settings').select('setting_value').eq('setting_key', 'max_leverage').maybeSingle(),
+        ]);
+        const perUser = (profileRes.data as any)?.max_leverage as number | null | undefined;
+        const global = parseInt((settingRes.data as any)?.setting_value || '100');
+        const effective = (perUser != null ? perUser : (isNaN(global) ? 100 : global));
+        const clamped = Math.max(1, Math.min(100, effective));
+        setMaxLeverageCap(clamped);
+        setLeverage((prev) => Math.min(prev, clamped));
+      } catch (e) {
+        console.error('Failed to fetch leverage cap', e);
+      }
+    };
+    fetchLeverageCap();
+  }, [user?.id]);
 
   // Swipe gesture handlers
   const navigateTimeframe = (direction: 'left' | 'right') => {
@@ -1345,7 +1368,7 @@ const Trading = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 5, 10, 20, 50, 100].map((lev) => (
+                  {[1, 2, 5, 10, 20, 50, 100].filter((lev) => lev <= maxLeverageCap).map((lev) => (
                     <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>
                   ))}
                 </SelectContent>
@@ -1565,7 +1588,7 @@ const Trading = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {[1, 2, 5, 10, 20, 50, 100].map((lev) => (
+                  {[1, 2, 5, 10, 20, 50, 100].filter((lev) => lev <= maxLeverageCap).map((lev) => (
                     <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>
                   ))}
                 </SelectContent>
