@@ -844,8 +844,9 @@ const Trading = () => {
       let assetQuantity: number;
 
       if (inputMode === 'amount') {
-        usdAmount = parseFloat(tradeAmount);
-        margin = usdAmount / leverage;
+        // Amount entered = margin user invests
+        margin = parseFloat(tradeAmount);
+        usdAmount = margin * leverage; // notional position value
         assetQuantity = usdAmount / currentPrice;
       } else {
         assetQuantity = parseFloat(lotSize);
