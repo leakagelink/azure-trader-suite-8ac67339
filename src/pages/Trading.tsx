@@ -1466,6 +1466,8 @@ const Trading = () => {
                 className={`w-full text-white h-12 ${orderType === 'limit' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-500 hover:bg-green-600'}`}
                 size="lg"
                 disabled={
+                  !lotSpec.known ||
+                  (inputMode === 'lotSize' && !lotValidation.ok) ||
                   (orderType === 'limit' && (!limitPrice || parseFloat(limitPrice) <= 0)) ||
                   orderCalc.positionValue <= 0 ||
                   (orderType === 'market' && orderCalc.marginRequired > walletBalance)
