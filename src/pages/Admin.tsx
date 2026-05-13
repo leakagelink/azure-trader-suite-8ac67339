@@ -209,6 +209,7 @@ const Admin = () => {
                       <TableHead>Last Login</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Roles</TableHead>
+                      <TableHead>Leverage Cap</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
