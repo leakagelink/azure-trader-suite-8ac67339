@@ -79,12 +79,61 @@ const Admin = () => {
 
       if (error) throw error;
 
-      setUsers(data || []);
+      const baseUsers = data || [];
+      const userIds = baseUsers.map((u: any) => u.id);
+      let leverageMap: Record<string, number | null> = {};
+      if (userIds.length > 0) {
+        const { data: profileRows } = await supabase
+          .from("profiles")
+          .select("id, max_leverage")
+          .in("id", userIds);
+        (profileRows || []).forEach((p: any) => {
+          leverageMap[p.id] = p.max_leverage ?? null;
+        });
+      }
+      const merged: AdminUser[] = baseUsers.map((u: any) => ({
+        ...u,
+        max_leverage: leverageMap[u.id] ?? null,
+      }));
+      setUsers(merged);
+      const draft: Record<string, string> = {};
+      merged.forEach((u) => {
+        draft[u.id] = u.max_leverage != null ? String(u.max_leverage) : "";
+      });
+      setLeverageDraft(draft);
     } catch (error: any) {
       console.error("Error fetching users:", error);
       toast.error("Failed to load users");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveLeverageCap = async (userId: string) => {
+    const raw = (leverageDraft[userId] ?? "").trim();
+    let value: number | null = null;
+    if (raw !== "") {
+      const n = parseInt(raw);
+      if (isNaN(n) || n < 1 || n > 100) {
+        toast.error("Leverage cap must be between 1 and 100");
+        return;
+      }
+      value = n;
+    }
+    try {
+      setSavingLeverage((s) => ({ ...s, [userId]: true }));
+      const { error } = await supabase
+        .from("profiles")
+        .update({ max_leverage: value })
+        .eq("id", userId);
+      if (error) throw error;
+      setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, max_leverage: value } : u));
+      toast.success(value === null ? "Per-user cap cleared (uses global)" : `Leverage cap set to ${value}x`);
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || "Failed to save leverage cap");
+    } finally {
+      setSavingLeverage((s) => ({ ...s, [userId]: false }));
     }
   };
 
