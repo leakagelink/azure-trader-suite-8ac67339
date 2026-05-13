@@ -49,10 +49,10 @@ export const TradingCalculator = () => {
           <Tabs value={direction} onValueChange={(v) => setDirection(v as "long" | "short")}>
             <TabsList className="grid grid-cols-2 w-full max-w-xs mx-auto mb-6">
               <TabsTrigger value="long" className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-500">
-                <TrendingUp className="h-4 w-4 mr-1" /> LONG
+                <TrendingUp className="h-4 w-4 mr-1" /> BUY
               </TabsTrigger>
               <TabsTrigger value="short" className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-500">
-                <TrendingUp className="h-4 w-4 mr-1 rotate-180" /> SHORT
+                <TrendingUp className="h-4 w-4 mr-1 rotate-180" /> SELL
               </TabsTrigger>
             </TabsList>
 

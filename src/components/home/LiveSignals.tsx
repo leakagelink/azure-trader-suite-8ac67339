@@ -96,7 +96,7 @@ export const LiveSignals = ({ authenticated = false }: { authenticated?: boolean
                       </div>
                     </div>
                     <Badge variant="outline" className={s.signal_type === "long" ? "text-green-500 border-green-500/40" : "text-red-500 border-red-500/40"}>
-                      {s.signal_type.toUpperCase()}
+                      {s.signal_type === "long" ? "BUY" : "SELL"}
                     </Badge>
                   </div>
 

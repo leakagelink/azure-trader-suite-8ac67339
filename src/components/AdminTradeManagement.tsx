@@ -1841,8 +1841,8 @@ export const AdminTradeManagement = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="long">Long (Buy)</SelectItem>
-                  <SelectItem value="short">Short (Sell)</SelectItem>
+                  <SelectItem value="long">Buy</SelectItem>
+                  <SelectItem value="short">Sell</SelectItem>
                 </SelectContent>
               </Select>
             </div>

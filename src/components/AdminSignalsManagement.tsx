@@ -205,7 +205,7 @@ export const AdminSignalsManagement = () => {
                           : "text-red-500 border-red-500/40"}
                       >
                         {s.signal_type === "long" ? <TrendingUp className="h-3 w-3 mr-1" /> : <TrendingDown className="h-3 w-3 mr-1" />}
-                        {s.signal_type.toUpperCase()}
+                        {s.signal_type === "long" ? "BUY" : "SELL"}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-mono">{s.entry_price}</TableCell>
@@ -259,8 +259,8 @@ export const AdminSignalsManagement = () => {
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="long">LONG</SelectItem>
-                  <SelectItem value="short">SHORT</SelectItem>
+                  <SelectItem value="long">BUY</SelectItem>
+                  <SelectItem value="short">SELL</SelectItem>
                 </SelectContent>
               </Select>
             </div>

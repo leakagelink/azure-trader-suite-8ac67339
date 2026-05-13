@@ -278,7 +278,7 @@ export default function DrawingOverlay({
           ctx.fillStyle = "#facc15";
           ctx.font = "bold 11px sans-serif";
           const rr = Math.abs((target - entry) / (entry - stopPrice)).toFixed(2);
-          ctx.fillText(`${isLong ? "LONG" : "SHORT"}  Entry ${entry.toFixed(2)}  TP ${target.toFixed(2)}  SL ${stopPrice.toFixed(2)}  RR 1:${rr}`, left + 4, Math.min(y1, y2, ys) - 4);
+          ctx.fillText(`${isLong ? "BUY" : "SELL"}  Entry ${entry.toFixed(2)}  TP ${target.toFixed(2)}  SL ${stopPrice.toFixed(2)}  RR 1:${rr}`, left + 4, Math.min(y1, y2, ys) - 4);
         }
 
         // selection handles
