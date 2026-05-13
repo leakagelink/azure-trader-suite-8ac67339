@@ -1381,7 +1381,7 @@ const Trading = () => {
                     step="0.001"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Enter the quantity of {symbol?.toUpperCase()} you want to trade</p>
+                <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
               </div>
             )}
 
