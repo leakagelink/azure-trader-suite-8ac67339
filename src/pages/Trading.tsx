@@ -306,7 +306,7 @@ const Trading = () => {
   const [showShortDialog, setShowShortDialog] = useState(false);
   const [tradeAmount, setTradeAmount] = useState(""); // USD amount
   const [lotSize, setLotSize] = useState(""); // Lot size (units)
-  const [inputMode, setInputMode] = useState<'amount' | 'lotSize'>('amount');
+  const [inputMode, setInputMode] = useState<'amount' | 'lotSize'>('lotSize');
   const [leverage, setLeverage] = useState(100);
   const [stopLoss, setStopLoss] = useState(""); // Stop loss price
   const [takeProfit, setTakeProfit] = useState(""); // Take profit price
