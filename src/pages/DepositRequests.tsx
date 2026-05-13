@@ -293,6 +293,7 @@ const DepositRequests = () => {
                   <TableHead>Amount</TableHead>
                   <TableHead>Payment Method</TableHead>
                   <TableHead>Transaction ID</TableHead>
+                  <TableHead>Proof</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Actions</TableHead>
