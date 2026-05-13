@@ -27,6 +27,8 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   const [paymentMethod, setPaymentMethod] = useState<"upi" | "netbanking">("upi");
   const [amount, setAmount] = useState("");
   const [transactionId, setTransactionId] = useState("");
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentProofPreview, setPaymentProofPreview] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(COUNTDOWN_DURATION);
