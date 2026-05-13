@@ -755,11 +755,59 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
         </p>
       </div>
 
+      {/* Payment Proof Upload */}
+      <div className="space-y-2">
+        <Label htmlFor="paymentProof">Payment Proof / Screenshot</Label>
+        {paymentProof ? (
+          <div className="relative border border-border rounded-lg p-3 bg-muted/20">
+            <div className="flex items-center gap-3">
+              {paymentProofPreview ? (
+                <img src={paymentProofPreview} alt="Proof preview" className="h-16 w-16 object-cover rounded" />
+              ) : (
+                <div className="h-16 w-16 rounded bg-muted flex items-center justify-center">
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{paymentProof.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {(paymentProof.size / 1024).toFixed(1)} KB
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => handleProofChange(null)}
+              >
+                <XIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <label
+            htmlFor="paymentProof"
+            className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary/50 transition-colors bg-muted/10"
+          >
+            <Upload className="h-6 w-6 text-muted-foreground" />
+            <span className="text-sm font-medium">Upload payment screenshot</span>
+            <span className="text-xs text-muted-foreground">JPG, PNG or PDF (max 5MB)</span>
+          </label>
+        )}
+        <Input
+          id="paymentProof"
+          type="file"
+          accept="image/*,application/pdf"
+          className="hidden"
+          onChange={(e) => handleProofChange(e.target.files?.[0] || null)}
+        />
+      </div>
+
       {/* Submit Button */}
       <Button
         className="w-full"
         onClick={handleSubmit}
-        disabled={loading || !amount || !transactionId}
+        disabled={loading || !amount || !transactionId || !paymentProof}
       >
         {loading ? "Submitting..." : "Submit Deposit Request"}
       </Button>
