@@ -1,4 +1,35 @@
 import { supabase } from "@/integrations/supabase/client";
+import { resolveSymbolSpec, registerSymbolSpec, type SymbolSpec } from "./symbolRegistry";
+
+/** Auto-register every symbol returned by an API response so contract specs stay in sync. */
+function autoRegisterSymbols(payload: any) {
+  try {
+    const candidates: any[] = [];
+    if (Array.isArray(payload)) candidates.push(...payload);
+    if (payload && typeof payload === 'object') {
+      for (const key of Object.keys(payload)) {
+        if (Array.isArray((payload as any)[key])) candidates.push(...(payload as any)[key]);
+      }
+    }
+    for (const item of candidates) {
+      const sym: string | undefined = item?.symbol || item?.base || item?.code;
+      if (!sym || typeof sym !== 'string') continue;
+      const inferred = resolveSymbolSpec(sym);
+      const merged: SymbolSpec = {
+        symbol: inferred.symbol,
+        assetClass: item.assetClass ?? inferred.assetClass,
+        contractSize: typeof item.contractSize === 'number' ? item.contractSize : inferred.contractSize,
+        unit: item.unit ?? inferred.unit,
+        minLot: typeof item.minLot === 'number' ? item.minLot : inferred.minLot,
+        maxLot: typeof item.maxLot === 'number' ? item.maxLot : inferred.maxLot,
+        step: typeof item.step === 'number' ? item.step : inferred.step,
+      };
+      registerSymbolSpec(merged);
+    }
+  } catch (e) {
+    console.warn('autoRegisterSymbols failed', e);
+  }
+}
 
 /**
  * Lightweight in-memory cache + in-flight dedupe for forex edge functions.
@@ -45,6 +76,7 @@ export async function getForexData(opts?: { force?: boolean }): Promise<any> {
     try {
       const { data, error } = await supabase.functions.invoke("fetch-forex-data");
       if (error) throw error;
+      autoRegisterSymbols(data);
       dataCache.set(key, { value: data, expiresAt: Date.now() + FOREX_DATA_TTL_MS });
       return data;
     } finally {
@@ -122,6 +154,7 @@ export async function getCommoditiesData(opts?: { force?: boolean }): Promise<an
     try {
       const { data, error } = await supabase.functions.invoke("fetch-commodities-data");
       if (error) throw error;
+      autoRegisterSymbols(data);
       commoditiesCache.set(key, { value: data, expiresAt: Date.now() + COMMODITIES_DATA_TTL_MS });
       return data;
     } finally {
