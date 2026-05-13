@@ -713,11 +713,11 @@ const Trading = () => {
 
       // Validate limit price direction
       if (type === 'long' && limitPriceValue >= currentPrice) {
-        toast.error("Limit price for LONG should be below current price (buy cheaper)");
+        toast.error("Limit price for BUY should be below current price (buy cheaper)");
         return;
       }
       if (type === 'short' && limitPriceValue <= currentPrice) {
-        toast.error("Limit price for SHORT should be above current price (sell higher)");
+        toast.error("Limit price for SELL should be above current price (sell higher)");
         return;
       }
 
@@ -808,11 +808,11 @@ const Trading = () => {
       const stopLossValue = stopLoss ? parseFloat(stopLoss) : null;
       if (stopLossValue !== null) {
         if (type === 'long' && stopLossValue >= currentPrice) {
-          toast.error("Stop loss must be below entry price for LONG positions");
+          toast.error("Stop loss must be below entry price for BUY positions");
           return;
         }
         if (type === 'short' && stopLossValue <= currentPrice) {
-          toast.error("Stop loss must be above entry price for SHORT positions");
+          toast.error("Stop loss must be above entry price for SELL positions");
           return;
         }
       }
@@ -821,11 +821,11 @@ const Trading = () => {
       const takeProfitValue = takeProfit ? parseFloat(takeProfit) : null;
       if (takeProfitValue !== null) {
         if (type === 'long' && takeProfitValue <= currentPrice) {
-          toast.error("Take profit must be above entry price for LONG positions");
+          toast.error("Take profit must be above entry price for BUY positions");
           return;
         }
         if (type === 'short' && takeProfitValue >= currentPrice) {
-          toast.error("Take profit must be below entry price for SHORT positions");
+          toast.error("Take profit must be below entry price for SELL positions");
           return;
         }
       }
