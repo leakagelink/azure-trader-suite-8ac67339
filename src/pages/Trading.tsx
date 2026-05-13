@@ -385,12 +385,16 @@ const Trading = () => {
       assetQuantity = execPrice > 0 ? positionValue / execPrice : 0;
     } else {
       const lots = !isNaN(lotNum) && lotNum > 0 ? lotNum : 0;
-      assetQuantity = lots * contractSize;
+      const s = (symbol || '').toUpperCase();
+      const forex = ['EUR','GBP','JPY','AUD','CAD','CHF','CNY','INR','NZD','SGD'].includes(s);
+      const commodityContracts: Record<string, number> = { XAU:100, XAG:5000, XPT:100, XPD:100, WTI:1000, BRENT:1000, NG:10000, HG:25000 };
+      const cs = forex ? 100_000 : (commodityContracts[s] ?? 1);
+      assetQuantity = lots * cs;
       positionValue = assetQuantity * execPrice;
       marginRequired = lev > 0 ? positionValue / lev : positionValue;
     }
     return { lev, execPrice, isLimit, positionValue, assetQuantity, marginRequired };
-  }, [leverage, orderType, limitPrice, currentPrice, tradeAmount, lotSize, inputMode, contractSize]);
+  }, [leverage, orderType, limitPrice, currentPrice, tradeAmount, lotSize, inputMode, symbol]);
 
   // Swipe gesture handlers
   const navigateTimeframe = (direction: 'left' | 'right') => {
