@@ -384,12 +384,13 @@ const Trading = () => {
       positionValue = marginRequired * lev;
       assetQuantity = execPrice > 0 ? positionValue / execPrice : 0;
     } else {
-      assetQuantity = !isNaN(lotNum) && lotNum > 0 ? lotNum : 0;
+      const lots = !isNaN(lotNum) && lotNum > 0 ? lotNum : 0;
+      assetQuantity = lots * contractSize;
       positionValue = assetQuantity * execPrice;
       marginRequired = lev > 0 ? positionValue / lev : positionValue;
     }
     return { lev, execPrice, isLimit, positionValue, assetQuantity, marginRequired };
-  }, [leverage, orderType, limitPrice, currentPrice, tradeAmount, lotSize, inputMode]);
+  }, [leverage, orderType, limitPrice, currentPrice, tradeAmount, lotSize, inputMode, contractSize]);
 
   // Swipe gesture handlers
   const navigateTimeframe = (direction: 'left' | 'right') => {
