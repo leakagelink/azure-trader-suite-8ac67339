@@ -377,14 +377,17 @@ const Trading = () => {
     const lotNum = parseFloat(lotSize);
     let positionValue = 0;
     let assetQuantity = 0;
+    let marginRequired = 0;
     if (inputMode === 'amount') {
-      positionValue = !isNaN(amountNum) && amountNum > 0 ? amountNum : 0;
+      // Amount = margin user invests; position value = margin * leverage
+      marginRequired = !isNaN(amountNum) && amountNum > 0 ? amountNum : 0;
+      positionValue = marginRequired * lev;
       assetQuantity = execPrice > 0 ? positionValue / execPrice : 0;
     } else {
       assetQuantity = !isNaN(lotNum) && lotNum > 0 ? lotNum : 0;
       positionValue = assetQuantity * execPrice;
+      marginRequired = lev > 0 ? positionValue / lev : positionValue;
     }
-    const marginRequired = lev > 0 ? positionValue / lev : positionValue;
     return { lev, execPrice, isLimit, positionValue, assetQuantity, marginRequired };
   }, [leverage, orderType, limitPrice, currentPrice, tradeAmount, lotSize, inputMode]);
 
@@ -841,8 +844,9 @@ const Trading = () => {
       let assetQuantity: number;
 
       if (inputMode === 'amount') {
-        usdAmount = parseFloat(tradeAmount);
-        margin = usdAmount / leverage;
+        // Amount entered = margin user invests
+        margin = parseFloat(tradeAmount);
+        usdAmount = margin * leverage; // notional position value
         assetQuantity = usdAmount / currentPrice;
       } else {
         assetQuantity = parseFloat(lotSize);
