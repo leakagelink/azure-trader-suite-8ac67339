@@ -305,6 +305,8 @@ const Trading = () => {
   const [takeProfit, setTakeProfit] = useState(""); // Take profit price
   const [orderType, setOrderType] = useState<'market' | 'limit'>('market');
   const [limitPrice, setLimitPrice] = useState(""); // Limit order price
+  const [pendingOrder, setPendingOrder] = useState<'long' | 'short' | null>(null);
+  const [submittingOrder, setSubmittingOrder] = useState(false);
   const [chartScale, setChartScale] = useState(1);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const chartContainerRef = useRef<HTMLDivElement>(null);
