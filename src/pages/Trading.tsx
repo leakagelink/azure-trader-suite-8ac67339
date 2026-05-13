@@ -1357,7 +1357,7 @@ const Trading = () => {
                 ) : !lotValidation.ok ? (
                   <p className="text-xs text-destructive mt-1">{lotValidation.error}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {orderCalc.assetQuantity.toLocaleString(undefined,{maximumFractionDigits:4})}</p>
                 )}
               </div>
             )}
