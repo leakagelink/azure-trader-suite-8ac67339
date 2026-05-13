@@ -29,6 +29,8 @@ const Admin = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [leverageDraft, setLeverageDraft] = useState<Record<string, string>>({});
+  const [savingLeverage, setSavingLeverage] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!authLoading && !user) {
