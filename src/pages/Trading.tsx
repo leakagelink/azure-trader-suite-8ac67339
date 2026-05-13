@@ -1163,7 +1163,7 @@ const Trading = () => {
         </div>
       </main>
 
-      {/* Sticky Bottom Long/Short Bar */}
+      {/* Sticky Bottom Buy/Sell Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-background/95 backdrop-blur-lg border-t border-border/40 px-3 pt-3 pb-7 sm:px-4 sm:pt-4 sm:pb-8 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]" style={{ paddingBottom: 'max(1.75rem, env(safe-area-inset-bottom, 1.75rem))' }}>
         <div className="container mx-auto flex gap-2 sm:gap-3 max-w-screen-lg">
           <Button
