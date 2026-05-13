@@ -76,6 +76,7 @@ export async function getForexData(opts?: { force?: boolean }): Promise<any> {
     try {
       const { data, error } = await supabase.functions.invoke("fetch-forex-data");
       if (error) throw error;
+      autoRegisterSymbols(data);
       dataCache.set(key, { value: data, expiresAt: Date.now() + FOREX_DATA_TTL_MS });
       return data;
     } finally {
