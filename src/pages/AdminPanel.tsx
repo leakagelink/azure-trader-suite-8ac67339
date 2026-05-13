@@ -1749,16 +1749,15 @@ const AdminPanel = () => {
                   </div>
                 </div>
 
-                {/* Exchange Rate Settings — HIDDEN (kept in code) */}
-                {false && (
+                {/* Exchange Rate Settings */}
                 <div className="space-y-4 border-t pt-6">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <DollarSign className="h-5 w-5 text-blue-500" />
-                    Currency Conversion Settings
+                    USD Conversion Rate
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="exchangeRate">INR to USD Exchange Rate</Label>
+                      <Label htmlFor="exchangeRate">INR → USD Rate</Label>
                       <Input
                         id="exchangeRate"
                         type="number"
@@ -1771,12 +1770,14 @@ const AdminPanel = () => {
                         }
                       />
                       <p className="text-xs text-muted-foreground">
-                        1 INR = {paymentSettings.exchangeRate} USD (Example: ₹1000 = ${(1000 * parseFloat(paymentSettings.exchangeRate || "0.012")).toFixed(2)})
+                        1 INR = {paymentSettings.exchangeRate} USD &nbsp;•&nbsp; ₹1000 ≈ ${(1000 * parseFloat(paymentSettings.exchangeRate || "0.012")).toFixed(2)} &nbsp;•&nbsp; 1 USD ≈ ₹{(1 / parseFloat(paymentSettings.exchangeRate || "0.012")).toFixed(2)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Yeh rate users ke deposit conversion (INR → USD wallet credit) ke liye use hota hai. Save Settings dabane ke baad turant lagu ho jayega.
                       </p>
                     </div>
                   </div>
                 </div>
-                )}
 
                 {/* Mobile App Upload Settings — HIDDEN (kept in code) */}
                 {false && (
