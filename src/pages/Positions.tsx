@@ -1342,9 +1342,9 @@ const Positions = () => {
                   {label}
                   {historySortField === field ? (
                     historySortDir === "asc" ? (
-                      <SortUp className="h-3 w-3" />
+                      <ArrowUp className="h-3 w-3" />
                     ) : (
-                      <SortDown className="h-3 w-3" />
+                      <ArrowDown className="h-3 w-3" />
                     )
                   ) : (
                     <ArrowUpDown className="h-3 w-3 opacity-50" />
