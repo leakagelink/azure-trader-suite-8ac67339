@@ -1349,15 +1349,15 @@ const Trading = () => {
                     min={lotSpec.minLot}
                     max={lotSpec.maxLot}
                     step={lotSpec.step}
-                    disabled={!lotSpec.known}
                   />
                 </div>
-                {!lotSpec.known ? (
-                  <p className="text-xs text-destructive mt-1">Contract size for this symbol is not configured. Trading disabled.</p>
-                ) : !lotValidation.ok ? (
+                {!lotValidation.ok ? (
                   <p className="text-xs text-destructive mt-1">{lotValidation.error}</p>
                 ) : (
-                  <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {orderCalc.assetQuantity.toLocaleString(undefined,{maximumFractionDigits:4})}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {orderCalc.assetQuantity.toLocaleString(undefined,{maximumFractionDigits:4})}
+                    {!lotSpec.known && <span className="text-amber-600 ml-1">(auto-detected spec)</span>}
+                  </p>
                 )}
               </div>
             )}
