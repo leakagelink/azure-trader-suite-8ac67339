@@ -295,6 +295,7 @@ const AdminPanel = () => {
           exchangeRate: settings.exchangeRate || "0.012",
           appDownloadUrl: settings.appDownloadUrl || "",
           apiPassword: "",
+          maxLeverage: settings.maxLeverage || "100",
         });
         
         // Set deposit offer settings
