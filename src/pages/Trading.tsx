@@ -747,8 +747,8 @@ const Trading = () => {
   const handleOpenPosition = async (type: 'long' | 'short') => {
     // Leverage validation — block invalid or out-of-range values
     const lev = Number(leverage);
-    if (!Number.isFinite(lev) || isNaN(lev) || lev < 1) {
-      toast.error("Invalid leverage selected. Please choose a value between 1x and " + maxLeverageCap + "x.");
+    if (!Number.isFinite(lev) || isNaN(lev)) {
+      toast.error("Invalid leverage selected. Please choose 100x, 200x, or 500x.");
       return;
     }
     if (lev > maxLeverageCap) {
@@ -756,7 +756,7 @@ const Trading = () => {
       setLeverage(maxLeverageCap);
       return;
     }
-    if (![1, 2, 5, 10, 20, 50, 100].includes(lev)) {
+    if (![100, 200, 500].includes(lev)) {
       toast.error("Unsupported leverage value. Please pick from the dropdown.");
       return;
     }
