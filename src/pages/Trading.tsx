@@ -1568,7 +1568,12 @@ const Trading = () => {
                     Trading is disabled to prevent incorrect lot sizing. Please contact support to add it.
                   </div>
                 )}
-                <Label htmlFor="short-lotsize">Lot Size (Units)</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label htmlFor="short-lotsize">Lot Size (Units)</Label>
+                  <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
+                    {lotUnitLabel}
+                  </span>
+                </div>
                 <div className="relative mt-2">
                   <Coins className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -1584,12 +1589,11 @@ const Trading = () => {
                     disabled={!lotSpec.known}
                   />
                 </div>
-                {!lotValidation.ok ? (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Min {lotSpec.minLot} • Max {lotSpec.maxLot} • Step {lotSpec.step} • Quantity: {orderCalc.assetQuantity.toLocaleString(undefined,{maximumFractionDigits:4})} {lotSpec.unit}
+                </p>
+                {!lotValidation.ok && lotSpec.known && (
                   <p className="text-xs text-destructive mt-1">{lotValidation.error}</p>
-                ) : (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {lotUnitLabel} • Min {lotSpec.minLot}, Max {lotSpec.maxLot}, Step {lotSpec.step} • Quantity: {orderCalc.assetQuantity.toLocaleString(undefined,{maximumFractionDigits:4})}
-                  </p>
                 )}
               </div>
             )}
