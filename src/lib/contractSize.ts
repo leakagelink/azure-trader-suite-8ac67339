@@ -30,6 +30,12 @@ export type LotValidationResult = { ok: boolean; error?: string };
 
 export function validateLotInput(symbol: string, lotValue: string | number): LotValidationResult {
   const spec = resolveSymbolSpec(symbol);
+  if (spec.inferred) {
+    return {
+      ok: false,
+      error: `Contract size for "${spec.symbol}" is not configured in the symbol registry. Trading is blocked to prevent incorrect lot sizing — please contact support to add this symbol.`,
+    };
+  }
   const lots = typeof lotValue === "number" ? lotValue : parseFloat(lotValue);
   if (isNaN(lots) || lots <= 0) {
     return { ok: false, error: "Please enter a valid lot size greater than 0." };
