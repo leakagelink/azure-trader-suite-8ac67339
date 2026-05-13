@@ -780,6 +780,7 @@ const AdminPanel = () => {
         { setting_key: "bank_name", setting_value: paymentSettings.bankName },
         { setting_key: "exchange_rate", setting_value: paymentSettings.exchangeRate },
         { setting_key: "app_download_url", setting_value: paymentSettings.appDownloadUrl },
+        { setting_key: "max_leverage", setting_value: paymentSettings.maxLeverage || "100" },
         // Deposit offer settings
         { setting_key: "deposit_bonus_enabled", setting_value: String(depositOfferSettings.bonusEnabled) },
         { setting_key: "deposit_bonus_percentage", setting_value: depositOfferSettings.bonusPercentage },
