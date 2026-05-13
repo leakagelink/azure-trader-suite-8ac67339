@@ -62,6 +62,7 @@ export type Database = {
           currency: string
           id: string
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_proof_url: string | null
           rejection_reason: string | null
           status: Database["public"]["Enums"]["deposit_status"]
           transaction_id: string
@@ -75,6 +76,7 @@ export type Database = {
           currency?: string
           id?: string
           payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_proof_url?: string | null
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["deposit_status"]
           transaction_id: string
@@ -88,6 +90,7 @@ export type Database = {
           currency?: string
           id?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_proof_url?: string | null
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["deposit_status"]
           transaction_id?: string
