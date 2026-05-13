@@ -1522,20 +1522,6 @@ const Trading = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-2">
-              <InputTabs value={inputMode} onValueChange={(v) => setInputMode(v as 'amount' | 'lotSize')} className="w-full">
-                <InputTabsList className="grid w-full grid-cols-2">
-                  <InputTabsTrigger value="amount" className="flex items-center gap-1">
-                    <DollarSign className="h-3 w-3" />
-                    Amount (USD)
-                  </InputTabsTrigger>
-                  <InputTabsTrigger value="lotSize" className="flex items-center gap-1">
-                    <Coins className="h-3 w-3" />
-                    Lot Size
-                  </InputTabsTrigger>
-                </InputTabsList>
-              </InputTabs>
-            </div>
 
             {/* Amount Input */}
             {inputMode === 'amount' ? (
