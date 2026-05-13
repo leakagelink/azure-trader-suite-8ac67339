@@ -1590,6 +1590,63 @@ const Trading = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Order Confirmation Dialog */}
+      <Dialog open={!!pendingOrder} onOpenChange={(open) => { if (!open) setPendingOrder(null); }}>
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-sm p-4 sm:p-6">
+          <DialogHeader>
+            <DialogTitle className={`flex items-center gap-2 ${pendingOrder === 'long' ? 'text-green-500' : 'text-red-500'}`}>
+              {pendingOrder === 'long' ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
+              Confirm {pendingOrder === 'long' ? 'BUY' : 'SELL'} Order
+            </DialogTitle>
+            <DialogDescription>
+              Please review the order details before confirming.
+            </DialogDescription>
+          </DialogHeader>
+          {pendingOrder && (() => {
+            const isLimit = orderType === 'limit';
+            const execPrice = isLimit ? parseFloat(limitPrice || '0') : currentPrice;
+            const positionValue = inputMode === 'amount'
+              ? parseFloat(tradeAmount || '0')
+              : parseFloat(lotSize || '0') * (execPrice || currentPrice);
+            const units = execPrice > 0 ? positionValue / execPrice : 0;
+            const sl = parseFloat(stopLoss || '0');
+            const tp = parseFloat(takeProfit || '0');
+            return (
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between"><span className="text-muted-foreground">Symbol</span><span className="font-semibold">{symbol?.toUpperCase()}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Side</span><span className={`font-semibold ${pendingOrder === 'long' ? 'text-green-500' : 'text-red-500'}`}>{pendingOrder === 'long' ? 'BUY' : 'SELL'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Order Type</span><span className="font-semibold uppercase">{orderType}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">{isLimit ? 'Limit Price' : 'Market Price'}</span><span className="font-semibold">${execPrice.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Amount</span><span className="font-semibold">${positionValue.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Units</span><span className="font-semibold">{units.toFixed(6)}</span></div>
+                <div className="flex justify-between border-t border-border pt-2"><span className="text-muted-foreground">Stop Loss</span><span className="font-semibold">{sl > 0 ? `$${sl.toFixed(2)}` : '—'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Take Profit</span><span className="font-semibold">{tp > 0 ? `$${tp.toFixed(2)}` : '—'}</span></div>
+              </div>
+            );
+          })()}
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" className="flex-1" onClick={() => setPendingOrder(null)} disabled={submittingOrder}>Cancel</Button>
+            <Button
+              className={`flex-1 text-white ${pendingOrder === 'long' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'}`}
+              disabled={submittingOrder}
+              onClick={async () => {
+                if (!pendingOrder) return;
+                const side = pendingOrder;
+                setSubmittingOrder(true);
+                try {
+                  await handleOpenPosition(side);
+                } finally {
+                  setSubmittingOrder(false);
+                  setPendingOrder(null);
+                }
+              }}
+            >
+              {submittingOrder ? 'Placing...' : `Confirm ${pendingOrder === 'long' ? 'BUY' : 'SELL'}`}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
