@@ -252,6 +252,36 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     }
   };
 
+  const handleProofChange = (file: File | null) => {
+    if (!file) {
+      setPaymentProof(null);
+      setPaymentProofPreview("");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 5MB allowed", variant: "destructive" });
+      return;
+    }
+    setPaymentProof(file);
+    if (file.type.startsWith("image/")) {
+      setPaymentProofPreview(URL.createObjectURL(file));
+    } else {
+      setPaymentProofPreview("");
+    }
+  };
+
+  const uploadProof = async (userId: string): Promise<string | null> => {
+    if (!paymentProof) return null;
+    const ext = paymentProof.name.split(".").pop() || "jpg";
+    const path = `${userId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("payment-proofs")
+      .upload(path, paymentProof, { upsert: false });
+    if (error) throw error;
+    const { data } = supabase.storage.from("payment-proofs").getPublicUrl(path);
+    return data.publicUrl;
+  };
+
   const handleSubmit = async () => {
     if (!amount || !transactionId) {
       toast({
@@ -262,16 +292,27 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       return;
     }
 
+    if (!paymentProof) {
+      toast({
+        title: "Payment Proof Required",
+        description: "Please upload a screenshot of your payment",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      const proofUrl = await uploadProof(user.id);
+
       // For instant deposit, update the existing request with transaction ID
       if (depositMode === "instant" && depositRequestId) {
         const { error } = await supabase
           .from("deposit_requests")
-          .update({ transaction_id: transactionId })
+          .update({ transaction_id: transactionId, payment_proof_url: proofUrl })
           .eq('id', depositRequestId);
 
         if (error) throw error;
@@ -283,6 +324,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           currency: "INR",
           payment_method: depositMode === "instant" ? "upi" : paymentMethod,
           transaction_id: transactionId,
+          payment_proof_url: proofUrl,
         });
 
         if (error) throw error;
