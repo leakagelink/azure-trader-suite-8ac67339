@@ -20,6 +20,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   XAxis,
   YAxis,
   CartesianGrid,
@@ -1331,6 +1338,20 @@ const Trading = () => {
               <p className="text-xs text-muted-foreground mt-1">Position auto-closes when price reaches this profit target</p>
             </div>
             
+            <div>
+              <Label>Leverage</Label>
+              <Select value={leverage.toString()} onValueChange={(v) => setLeverage(parseInt(v))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 5, 10, 20, 50, 100].map((lev) => (
+                    <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="p-3 bg-muted rounded-lg space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{orderType === 'limit' ? 'Limit Price:' : 'Entry Price:'}</span>
@@ -1349,6 +1370,10 @@ const Trading = () => {
                     : (lotSize || "0.000000")
                   } {symbol?.toUpperCase()}
                 </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Leverage:</span>
+                <span className="font-semibold">{leverage}x</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Margin Required:</span>
@@ -1533,6 +1558,20 @@ const Trading = () => {
               <p className="text-xs text-muted-foreground mt-1">Position auto-closes when price reaches this profit target</p>
             </div>
             
+            <div>
+              <Label>Leverage</Label>
+              <Select value={leverage.toString()} onValueChange={(v) => setLeverage(parseInt(v))}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 5, 10, 20, 50, 100].map((lev) => (
+                    <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="p-3 bg-muted rounded-lg space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">{orderType === 'limit' ? 'Limit Price:' : 'Entry Price:'}</span>
@@ -1551,6 +1590,10 @@ const Trading = () => {
                     : (lotSize || "0.000000")
                   } {symbol?.toUpperCase()}
                 </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Leverage:</span>
+                <span className="font-semibold">{leverage}x</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Margin Required:</span>
@@ -1617,6 +1660,7 @@ const Trading = () => {
                 <div className="flex justify-between"><span className="text-muted-foreground">Symbol</span><span className="font-semibold">{symbol?.toUpperCase()}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Side</span><span className={`font-semibold ${pendingOrder === 'long' ? 'text-green-500' : 'text-red-500'}`}>{pendingOrder === 'long' ? 'BUY' : 'SELL'}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Order Type</span><span className="font-semibold uppercase">{orderType}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Leverage</span><span className="font-semibold">{leverage}x</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">{isLimit ? 'Limit Price' : 'Market Price'}</span><span className="font-semibold">${execPrice.toFixed(2)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Amount</span><span className="font-semibold">${positionValue.toFixed(2)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Units</span><span className="font-semibold">{units.toFixed(6)}</span></div>
