@@ -154,6 +154,7 @@ export async function getCommoditiesData(opts?: { force?: boolean }): Promise<an
     try {
       const { data, error } = await supabase.functions.invoke("fetch-commodities-data");
       if (error) throw error;
+      autoRegisterSymbols(data);
       commoditiesCache.set(key, { value: data, expiresAt: Date.now() + COMMODITIES_DATA_TTL_MS });
       return data;
     } finally {
