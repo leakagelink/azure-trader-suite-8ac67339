@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, TrendingUp, TrendingDown, X, RefreshCcw, ArrowUp, ArrowDown, CheckCircle2, Loader2, History, Search, Filter } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, X, RefreshCcw, ArrowUp, ArrowDown, CheckCircle2, Loader2, History, Search, Filter, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -98,6 +98,8 @@ const Positions = () => {
   const [historyType, setHistoryType] = useState<"all" | "long" | "short">("all");
   const [historyOutcome, setHistoryOutcome] = useState<"all" | "profit" | "loss">("all");
   const [historyRange, setHistoryRange] = useState<"all" | "today" | "7d" | "30d" | "90d">("all");
+  const [historySortField, setHistorySortField] = useState<"date" | "symbol" | "pnl">("date");
+  const [historySortDir, setHistorySortDir] = useState<"asc" | "desc">("desc");
   const [priceChanges, setPriceChanges] = useState<Record<string, { direction: 'up' | 'down' | 'none'; flash: boolean }>>({});
   const previousPricesRef = useRef<Record<string, number>>({});
   const positionsRef = useRef<Position[]>([]);
@@ -1292,10 +1294,63 @@ const Positions = () => {
                 return true;
               });
 
+              const sorted = [...filtered].sort((a, b) => {
+                const dir = historySortDir === "asc" ? 1 : -1;
+                if (historySortField === "date") {
+                  const aTime = new Date(a.closed_at || a.opened_at).getTime();
+                  const bTime = new Date(b.closed_at || b.opened_at).getTime();
+                  return (aTime - bTime) * dir;
+                }
+                if (historySortField === "symbol") {
+                  return a.symbol.localeCompare(b.symbol) * dir;
+                }
+                if (historySortField === "pnl") {
+                  return ((Number(a.pnl) || 0) - (Number(b.pnl) || 0)) * dir;
+                }
+                return 0;
+              });
+
               const totalPnl = filtered.reduce((s, p) => s + (Number(p.pnl) || 0), 0);
               const wins = filtered.filter((p) => (p.pnl || 0) > 0).length;
               const losses = filtered.filter((p) => (p.pnl || 0) < 0).length;
               const winRate = filtered.length > 0 ? ((wins / filtered.length) * 100).toFixed(1) : "0.0";
+
+              const toggleSort = (field: "date" | "symbol" | "pnl") => {
+                if (historySortField === field) {
+                  setHistorySortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+                } else {
+                  setHistorySortField(field);
+                  setHistorySortDir(field === "date" ? "desc" : "asc");
+                }
+              };
+
+              const SortButton = ({
+                field,
+                label,
+              }: {
+                field: "date" | "symbol" | "pnl";
+                label: string;
+              }) => (
+                <button
+                  onClick={() => toggleSort(field)}
+                  className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg transition-all ${
+                    historySortField === field
+                      ? "bg-primary/15 text-primary"
+                      : "bg-muted/40 text-muted-foreground hover:bg-muted/60"
+                  }`}
+                >
+                  {label}
+                  {historySortField === field ? (
+                    historySortDir === "asc" ? (
+                      <ArrowUp className="h-3 w-3" />
+                    ) : (
+                      <ArrowDown className="h-3 w-3" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="h-3 w-3 opacity-50" />
+                  )}
+                </button>
+              );
 
               return (
                 <>
@@ -1342,6 +1397,15 @@ const Positions = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    {/* Sort Controls */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground font-medium">Sort by:</span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <SortButton field="date" label="Date" />
+                        <SortButton field="symbol" label="Symbol" />
+                        <SortButton field="pnl" label="Net P&L" />
+                      </div>
+                    </div>
                     {(historySearch || historyType !== "all" || historyOutcome !== "all" || historyRange !== "all") && (
                       <Button
                         variant="ghost"
@@ -1385,13 +1449,13 @@ const Positions = () => {
                   </div>
 
                   {/* Results */}
-                  {filtered.length === 0 ? (
+                  {sorted.length === 0 ? (
                     <Card className="p-8 text-center">
                       <History className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
                       <p className="text-muted-foreground">No trades match your filters</p>
                     </Card>
                   ) : (
-                    filtered.map((position) => (
+                    sorted.map((position) => (
                       <PositionCard key={position.id} position={position} />
                     ))
                   )}
