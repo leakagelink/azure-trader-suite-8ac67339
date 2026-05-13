@@ -384,12 +384,17 @@ const Trading = () => {
       positionValue = marginRequired * lev;
       assetQuantity = execPrice > 0 ? positionValue / execPrice : 0;
     } else {
-      assetQuantity = !isNaN(lotNum) && lotNum > 0 ? lotNum : 0;
+      const lots = !isNaN(lotNum) && lotNum > 0 ? lotNum : 0;
+      const s = (symbol || '').toUpperCase();
+      const forex = ['EUR','GBP','JPY','AUD','CAD','CHF','CNY','INR','NZD','SGD'].includes(s);
+      const commodityContracts: Record<string, number> = { XAU:100, XAG:5000, XPT:100, XPD:100, WTI:1000, BRENT:1000, NG:10000, HG:25000 };
+      const cs = forex ? 100_000 : (commodityContracts[s] ?? 1);
+      assetQuantity = lots * cs;
       positionValue = assetQuantity * execPrice;
       marginRequired = lev > 0 ? positionValue / lev : positionValue;
     }
     return { lev, execPrice, isLimit, positionValue, assetQuantity, marginRequired };
-  }, [leverage, orderType, limitPrice, currentPrice, tradeAmount, lotSize, inputMode]);
+  }, [leverage, orderType, limitPrice, currentPrice, tradeAmount, lotSize, inputMode, symbol]);
 
   // Swipe gesture handlers
   const navigateTimeframe = (direction: 'left' | 'right') => {
@@ -494,6 +499,31 @@ const Trading = () => {
     const commoditySymbols = ['XAU', 'XAG', 'WTI', 'NG', 'HG', 'XPT', 'XPD', 'BRENT'];
     return commoditySymbols.includes(sym.toUpperCase());
   };
+
+  // Standard contract size per 1 lot, by market type
+  const getContractSize = (sym: string): number => {
+    const s = (sym || '').toUpperCase();
+    if (isForexPair(s)) return 100_000; // 1 standard lot = 100,000 units
+    const commodityContracts: Record<string, number> = {
+      XAU: 100,    // Gold: 100 oz
+      XAG: 5_000,  // Silver: 5000 oz
+      XPT: 100,    // Platinum: 100 oz
+      XPD: 100,    // Palladium: 100 oz
+      WTI: 1_000,  // Crude Oil: 1000 barrels
+      BRENT: 1_000,
+      NG: 10_000,  // Natural Gas: 10,000 mmBtu
+      HG: 25_000,  // Copper: 25,000 lbs
+    };
+    if (commodityContracts[s] !== undefined) return commodityContracts[s];
+    return 1; // Crypto / default: 1 lot = 1 unit
+  };
+
+  const contractSize = getContractSize(symbol || '');
+  const lotUnitLabel = isForexPair((symbol || '').toUpperCase())
+    ? `1 lot = ${contractSize.toLocaleString()} units`
+    : isCommodity((symbol || '').toUpperCase())
+      ? `1 lot = ${contractSize.toLocaleString()} ${['NG'].includes((symbol||'').toUpperCase()) ? 'mmBtu' : ['HG'].includes((symbol||'').toUpperCase()) ? 'lbs' : ['WTI','BRENT'].includes((symbol||'').toUpperCase()) ? 'barrels' : 'oz'}`
+      : `1 lot = 1 ${(symbol || '').toUpperCase()}`;
 
   // Generate TradingView URL based on symbol type
   const getTradingViewUrl = () => {
@@ -849,7 +879,8 @@ const Trading = () => {
         usdAmount = margin * leverage; // notional position value
         assetQuantity = usdAmount / currentPrice;
       } else {
-        assetQuantity = parseFloat(lotSize);
+        const lots = parseFloat(lotSize);
+        assetQuantity = lots * contractSize;
         usdAmount = assetQuantity * currentPrice;
         margin = (assetQuantity * currentPrice) / leverage;
       }
@@ -1350,7 +1381,7 @@ const Trading = () => {
                     step="0.001"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Enter the quantity of {symbol?.toUpperCase()} you want to trade</p>
+                <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
               </div>
             )}
 
@@ -1555,7 +1586,7 @@ const Trading = () => {
                     step="0.001"
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Enter the quantity of {symbol?.toUpperCase()} you want to trade</p>
+                <p className="text-xs text-muted-foreground mt-1">{lotUnitLabel} • Quantity: {(parseFloat(lotSize || '0') * contractSize).toLocaleString(undefined,{maximumFractionDigits:4})}</p>
               </div>
             )}
 
