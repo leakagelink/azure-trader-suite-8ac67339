@@ -83,9 +83,9 @@ function TradingChart({
     return v === null ? true : v === "1";
   });
   const [tweenMs, setTweenMs] = useState<number>(() => {
-    if (typeof window === "undefined") return 140;
+    if (typeof window === "undefined") return 35;
     const v = parseInt(localStorage.getItem("tradingChartTweenMs") || "", 10);
-    return Number.isFinite(v) && v >= 0 && v <= 1000 ? v : 140;
+    return Number.isFinite(v) && v >= 0 && v <= 1000 ? v : 35;
   });
   const tweenEnabledRef = useRef(tweenEnabled);
   const tweenMsRef = useRef(tweenMs);
@@ -101,7 +101,13 @@ function TradingChart({
   // create chart once
   useEffect(() => {
     if (!containerRef.current) return;
+    disposedRef.current = false;
+    const container = containerRef.current;
+    const initialWidth = Math.max(1, container.clientWidth);
+    const initialHeight = Math.max(1, container.clientHeight);
     const c = createChart(containerRef.current, {
+      width: initialWidth,
+      height: initialHeight,
       layout: {
         background: { color: "#0B0F1A" },
         textColor: "#cbd5e1",
@@ -114,8 +120,15 @@ function TradingChart({
       rightPriceScale: { borderColor: "rgba(255,255,255,0.08)" },
       timeScale: { borderColor: "rgba(255,255,255,0.08)", timeVisible: true, secondsVisible: false },
       crosshair: { mode: 1 },
-      autoSize: true,
     });
+    let localDisposed = false;
+    const ro = new ResizeObserver(([entry]) => {
+      if (localDisposed || disposedRef.current) return;
+      const width = Math.max(1, Math.floor(entry.contentRect.width));
+      const height = Math.max(1, Math.floor(entry.contentRect.height));
+      try { c.resize(width, height); } catch {}
+    });
+    ro.observe(container);
     const vs = c.addSeries(HistogramSeries, {
       priceFormat: { type: "volume" },
       priceScaleId: "",
@@ -125,6 +138,8 @@ function TradingChart({
     setChart(c);
     setVolSeries(vs);
     return () => {
+      localDisposed = true;
+      ro.disconnect();
       disposedRef.current = true;
       if (rafRef.current != null) {
         cancelAnimationFrame(rafRef.current);
