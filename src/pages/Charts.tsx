@@ -328,11 +328,32 @@ export default function Charts() {
     });
   }, []);
 
+  const handleCryptoTrade = useCallback((price: number) => {
+    setLive(true);
+    setCandles((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      const updated: Candle = {
+        ...last,
+        close: price,
+        high: Math.max(last.high, price),
+        low: Math.min(last.low, price),
+      };
+      if (updated.close === last.close && updated.high === last.high && updated.low === last.low) {
+        return prev;
+      }
+      const next = prev.slice(0, -1);
+      next.push(updated);
+      return next;
+    });
+  }, []);
+
   useBinanceKlineStream({
     symbol,
     interval: tf,
     enabled: isCrypto,
     onCandle: handleLiveCandle,
+    onTrade: handleCryptoTrade,
   });
 
   // Real-time price stream for Forex & Commodities (server-pushed via SSE,
