@@ -365,6 +365,76 @@ function TradingChart({
   const prev = candles[candles.length - 2] ?? last;
   const change = last && prev ? ((last.close - prev.close) / prev.close) * 100 : 0;
 
+  // ----- Debug overlay: live OHLC + last-tick timestamps to verify lag/freeze
+  const [debug, setDebug] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("tradingChartDebug") === "1";
+  });
+  const [debugStats, setDebugStats] = useState({
+    tickCount: 0,
+    barCount: 0,
+    lastTickAt: 0,
+    lastBarOpenedAt: 0,
+    msSinceTick: 0,
+  });
+  const debugStatsRef = useRef(debugStats);
+  debugStatsRef.current = debugStats;
+  const lastSeenRef = useRef<{ time: number; close: number } | null>(null);
+
+  // Count ticks/bar transitions whenever candles update.
+  useEffect(() => {
+    if (!candles.length) return;
+    const lc = candles[candles.length - 1];
+    const seen = lastSeenRef.current;
+    const now = Date.now();
+    const isNewBar = !seen || lc.time !== seen.time;
+    const isTick = !seen || lc.close !== seen.close || isNewBar;
+    if (!isTick) return;
+    lastSeenRef.current = { time: lc.time, close: lc.close };
+    setDebugStats((s) => ({
+      tickCount: s.tickCount + 1,
+      barCount: s.barCount + (isNewBar ? 1 : 0),
+      lastTickAt: now,
+      lastBarOpenedAt: isNewBar ? now : s.lastBarOpenedAt,
+      msSinceTick: 0,
+    }));
+  }, [candles]);
+
+  // Tick the "ms since last update" counter while debug is on.
+  useEffect(() => {
+    if (!debug) return;
+    const id = setInterval(() => {
+      setDebugStats((s) => ({ ...s, msSinceTick: Date.now() - (s.lastTickAt || Date.now()) }));
+    }, 250);
+    return () => clearInterval(id);
+  }, [debug]);
+
+  const toggleDebug = () => {
+    setDebug((v) => {
+      const next = !v;
+      try { localStorage.setItem("tradingChartDebug", next ? "1" : "0"); } catch {}
+      return next;
+    });
+  };
+
+  const fmtTs = (ms: number) => {
+    if (!ms) return "—";
+    const d = new Date(ms);
+    const pad = (n: number, w = 2) => String(n).padStart(w, "0");
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+  };
+  const fmtBarTime = (sec: number) => {
+    if (!sec) return "—";
+    const d = new Date(sec * 1000);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
+
+  // Color the "ms since" badge so a freeze is obvious at a glance.
+  const stale = debugStats.msSinceTick;
+  const staleClass =
+    stale > 5000 ? "text-red-500" : stale > 2000 ? "text-amber-500" : "text-emerald-500";
+
   return (
     <div className="relative h-full w-full" style={{ overscrollBehavior: "contain" }}>
       <div ref={containerRef} className="absolute inset-0" />
@@ -390,6 +460,47 @@ function TradingChart({
             {change >= 0 ? "+" : ""}
             {change.toFixed(2)}%
           </span>
+        </div>
+      )}
+
+      {/* Debug toggle (always visible, very small) */}
+      <button
+        type="button"
+        onClick={toggleDebug}
+        title={debug ? "Hide debug overlay" : "Show debug overlay"}
+        className={`absolute right-2 top-12 z-20 rounded-md border px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider backdrop-blur-md transition-colors ${
+          debug
+            ? "border-primary/60 bg-primary/15 text-primary"
+            : "border-border/40 bg-background/60 text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        dbg
+      </button>
+
+      {/* Debug overlay panel */}
+      {debug && last && (
+        <div className="pointer-events-none absolute bottom-2 left-2 z-20 max-w-[260px] rounded-lg border border-border/60 bg-background/85 p-2 font-mono text-[10px] leading-tight backdrop-blur-md shadow-sm">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <span className="font-bold tracking-wider text-primary">DEBUG · {symbol}</span>
+            <span className={`font-bold ${staleClass}`}>
+              {stale}ms
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+            <span className="text-muted-foreground">O</span><span>{last.open}</span>
+            <span className="text-muted-foreground">H</span><span>{last.high}</span>
+            <span className="text-muted-foreground">L</span><span>{last.low}</span>
+            <span className="text-muted-foreground">C</span><span>{last.close}</span>
+            <span className="text-muted-foreground">vol</span><span>{(last.volume ?? 0).toLocaleString()}</span>
+          </div>
+          <div className="mt-1 border-t border-border/40 pt-1 grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+            <span className="text-muted-foreground">bar t</span><span>{fmtBarTime(last.time)}</span>
+            <span className="text-muted-foreground">last tick</span><span>{fmtTs(debugStats.lastTickAt)}</span>
+            <span className="text-muted-foreground">bar opened</span><span>{fmtTs(debugStats.lastBarOpenedAt)}</span>
+            <span className="text-muted-foreground">ticks</span><span>{debugStats.tickCount}</span>
+            <span className="text-muted-foreground">bars</span><span>{debugStats.barCount}</span>
+            <span className="text-muted-foreground">candles</span><span>{candles.length}</span>
+          </div>
         </div>
       )}
     </div>
