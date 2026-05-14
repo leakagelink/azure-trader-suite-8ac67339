@@ -597,6 +597,54 @@ function TradingChart({
         ⚙ anim
       </button>
 
+      {/* Perf toggle */}
+      <button
+        type="button"
+        onClick={togglePerf}
+        title={perf ? "Hide perf overlay" : "Show FPS / latency"}
+        className={`absolute right-2 top-[7.5rem] z-20 rounded-md border px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider backdrop-blur-md transition-colors ${
+          perf
+            ? "border-primary/60 bg-primary/15 text-primary"
+            : "border-border/40 bg-background/60 text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        fps
+      </button>
+
+      {perf && (
+        <div className="pointer-events-none absolute bottom-2 right-2 z-20 min-w-[180px] rounded-lg border border-border/60 bg-background/85 p-2 font-mono text-[10px] leading-tight backdrop-blur-md shadow-sm">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <span className="font-bold tracking-wider text-primary">PERF</span>
+            <span
+              className={`font-bold ${
+                perfStats.fps >= 55 ? "text-emerald-500" : perfStats.fps >= 30 ? "text-amber-500" : "text-red-500"
+              }`}
+            >
+              {perfStats.fps} fps
+            </span>
+          </div>
+          <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5">
+            <span className="text-muted-foreground">avg frame</span><span>{perfStats.avgFrameMs}ms</span>
+            <span className="text-muted-foreground">worst</span>
+            <span className={perfStats.worstFrameMs > 33 ? "text-amber-500" : ""}>{perfStats.worstFrameMs}ms</span>
+            <span className="text-muted-foreground">last tick Δ</span>
+            <span
+              className={
+                perfStats.lastLatencyMs > 2000
+                  ? "text-red-500"
+                  : perfStats.lastLatencyMs > 800
+                  ? "text-amber-500"
+                  : "text-emerald-500"
+              }
+            >
+              {perfStats.lastLatencyMs}ms
+            </span>
+            <span className="text-muted-foreground">avg tick Δ</span><span>{perfStats.avgLatencyMs}ms</span>
+            <span className="text-muted-foreground">updates/s</span><span>{perfStats.updatesPerSec}</span>
+          </div>
+        </div>
+      )}
+
       {settingsOpen && (
         <div className="absolute right-2 top-[7.5rem] z-30 w-[220px] rounded-lg border border-border/60 bg-background/95 p-3 text-[11px] shadow-lg backdrop-blur-md">
           <div className="mb-2 flex items-center justify-between">
