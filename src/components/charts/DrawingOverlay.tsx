@@ -112,20 +112,32 @@ export default function DrawingOverlay({
   useEffect(() => {
     if (!chart || !series) return;
     let raf = 0;
+    let active = true;
     const render = () => {
+      if (!active) return;
       const c = canvasRef.current;
       const cont = containerRef.current;
       if (!c || !cont) {
-        raf = requestAnimationFrame(render);
+        if (active) raf = requestAnimationFrame(render);
         return;
       }
       const ctx = c.getContext("2d");
       if (!ctx) return;
       ctx.clearRect(0, 0, cont.clientWidth, cont.clientHeight);
 
-      const ts = chart.timeScale();
-      const toX = (time: number) => ts.timeToCoordinate(time as Time);
-      const toY = (price: number) => series.priceToCoordinate(price);
+      let ts: ReturnType<IChartApi["timeScale"]>;
+      try {
+        ts = chart.timeScale();
+      } catch {
+        if (active) raf = requestAnimationFrame(render);
+        return;
+      }
+      const toX = (time: number) => {
+        try { return ts.timeToCoordinate(time as Time); } catch { return null; }
+      };
+      const toY = (price: number) => {
+        try { return series.priceToCoordinate(price); } catch { return null; }
+      };
 
       const all = draftRef.current ? [...drawings, draftRef.current] : drawings;
 
@@ -299,10 +311,13 @@ export default function DrawingOverlay({
       }
 
       // magnet crosshair tag
-      raf = requestAnimationFrame(render);
+      if (active) raf = requestAnimationFrame(render);
     };
     raf = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      active = false;
+      cancelAnimationFrame(raf);
+    };
   }, [chart, series, drawings, containerRef, selectedId]);
 
   // pointer events
