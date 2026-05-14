@@ -367,8 +367,14 @@ export default function Charts() {
   }), []);
   const bucketSec = intervalSecMap[tf] ?? 3600;
 
-  const handleStreamPrice = useCallback((price: number) => {
-    setLive(true);
+  // Anchor = last real price from the upstream stream. Synthetic micro-ticks
+  // wander around this anchor so the candle "breathes" like crypto, but never
+  // drifts away from reality.
+  const anchorRef = useRef<{ price: number; ts: number } | null>(null);
+  const recentPricesRef = useRef<number[]>([]);
+  const synthPriceRef = useRef<number | null>(null);
+
+  const applyPriceToCandles = useCallback((price: number) => {
     setCandles((prev) => {
       if (!prev.length) return prev;
       const last = prev[prev.length - 1];
@@ -400,11 +406,81 @@ export default function Charts() {
     });
   }, [bucketSec]);
 
+  const handleStreamPrice = useCallback((price: number) => {
+    setLive(true);
+    // Track recent prices for volatility estimation
+    const arr = recentPricesRef.current;
+    arr.push(price);
+    if (arr.length > 30) arr.shift();
+    anchorRef.current = { price, ts: Date.now() };
+    synthPriceRef.current = price;
+    applyPriceToCandles(price);
+  }, [applyPriceToCandles]);
+
   useLivePriceStream({
     symbol,
     enabled: isFxOrCommodity,
     onPrice: handleStreamPrice,
   });
+
+  // Synthetic momentum ticker — only for FX/commodity where upstream is slow.
+  // Generates a small mean-reverting random walk around the latest real price
+  // so the chart visibly moves between Yahoo polls (TradingView-style feel).
+  useEffect(() => {
+    if (!isFxOrCommodity) return;
+    let raf = 0;
+    let lastTickAt = 0;
+    const TICK_MS = 220; // ~4-5 synthetic updates per second
+
+    const step = (now: number) => {
+      raf = requestAnimationFrame(step);
+      if (now - lastTickAt < TICK_MS) return;
+      lastTickAt = now;
+
+      const anchor = anchorRef.current;
+      const cur = synthPriceRef.current;
+      if (!anchor || cur == null) return;
+
+      // Estimate volatility from recent real prices (stddev of returns).
+      const arr = recentPricesRef.current;
+      let vol = 0;
+      if (arr.length >= 3) {
+        const rets: number[] = [];
+        for (let i = 1; i < arr.length; i++) {
+          rets.push((arr[i] - arr[i - 1]) / arr[i - 1]);
+        }
+        const mean = rets.reduce((a, b) => a + b, 0) / rets.length;
+        const variance = rets.reduce((s, r) => s + (r - mean) ** 2, 0) / rets.length;
+        vol = Math.sqrt(variance);
+      }
+      // Floor volatility so even flat markets show micro-movement
+      const sigma = Math.max(vol * 0.6, anchor.price * 0.00002);
+
+      // Mean-revert toward anchor (Ornstein-Uhlenbeck style)
+      const reversion = (anchor.price - cur) * 0.15;
+      const noise = (Math.random() * 2 - 1) * sigma * anchor.price;
+      let next = cur + reversion + noise;
+
+      // Clamp drift: never wander more than ~3*sigma from anchor
+      const maxDrift = Math.max(sigma * anchor.price * 4, anchor.price * 0.0001);
+      if (Math.abs(next - anchor.price) > maxDrift) {
+        next = anchor.price + Math.sign(next - anchor.price) * maxDrift;
+      }
+
+      synthPriceRef.current = next;
+      applyPriceToCandles(next);
+    };
+
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [isFxOrCommodity, applyPriceToCandles]);
+
+  // Reset synth state when symbol changes
+  useEffect(() => {
+    anchorRef.current = null;
+    synthPriceRef.current = null;
+    recentPricesRef.current = [];
+  }, [symbol]);
 
 
   useEffect(() => {
