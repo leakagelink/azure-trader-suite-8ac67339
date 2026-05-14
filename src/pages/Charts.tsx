@@ -335,90 +335,55 @@ export default function Charts() {
     onCandle: handleLiveCandle,
   });
 
-  // Live tick polling for Forex & Commodities — keeps last candle moving (momentum)
-  useEffect(() => {
-    if (isCrypto) return;
-    const upper = symbol.toUpperCase();
-    const isForex = isForexSymbol(upper);
-    const isCommodity = isCommoditySymbol(upper);
-    if (!isForex && !isCommodity) return;
+  // Real-time price stream for Forex & Commodities (server-pushed via SSE,
+  // no client-side polling). Crypto already streams full candles via the
+  // Binance WebSocket above.
+  const isFxOrCommodity = !isCrypto && (isForexSymbol(symbol) || isCommoditySymbol(symbol));
 
-    const intervalSecMap: Record<string, number> = {
-      "1m": 60, "5m": 300, "15m": 900, "30m": 1800,
-      "1h": 3600, "2h": 7200, "4h": 14400, "1d": 86400, "1w": 604800,
-    };
-    const bucketSec = intervalSecMap[tf] ?? 3600;
+  const intervalSecMap: Record<string, number> = useMemo(() => ({
+    "1m": 60, "5m": 300, "15m": 900, "30m": 1800,
+    "1h": 3600, "2h": 7200, "4h": 14400, "1d": 86400, "1w": 604800,
+  }), []);
+  const bucketSec = intervalSecMap[tf] ?? 3600;
 
-    let cancelled = false;
-
-    const pickPrice = async (): Promise<number | null> => {
-      try {
-        if (isCommodity) {
-          const data = await getCommoditiesData();
-          const arr = data?.commoditiesData || [];
-          const hit = arr.find((c: any) => (c.symbol || "").toUpperCase() === upper);
-          const p = hit ? parseFloat(hit.price) : NaN;
-          return Number.isFinite(p) && p > 0 ? p : null;
-        }
-        const data = await getForexData();
-        const arr = data?.forexData || [];
-        const fxKey = normalizeForexForChart(upper).toUpperCase();
-        const hit = arr.find((f: any) =>
-          (f.symbol || "").toUpperCase() === fxKey ||
-          (f.symbol || "").toUpperCase() === upper ||
-          (f.name || "").toUpperCase() === fxKey
-        );
-        const p = hit ? parseFloat(hit.price) : NaN;
-        return Number.isFinite(p) && p > 0 ? p : null;
-      } catch {
-        return null;
-      }
-    };
-
-    const tick = async () => {
-      const price = await pickPrice();
-      if (cancelled || price == null) return;
-      setLive(true);
-      setCandles((prev) => {
-        if (!prev.length) return prev;
-        const last = prev[prev.length - 1];
-        const nowSec = Math.floor(Date.now() / 1000);
-        const curBucket = Math.floor(nowSec / bucketSec) * bucketSec;
-        if (curBucket > last.time) {
-          // Start a new candle bucket
-          const newCandle: Candle = {
-            time: curBucket,
-            open: last.close,
-            high: Math.max(last.close, price),
-            low: Math.min(last.close, price),
-            close: price,
-            volume: 0,
-          };
-          return [...prev, newCandle].slice(-500);
-        }
-        // Update existing last candle
-        const updated: Candle = {
-          ...last,
+  const handleStreamPrice = useCallback((price: number) => {
+    setLive(true);
+    setCandles((prev) => {
+      if (!prev.length) return prev;
+      const last = prev[prev.length - 1];
+      const nowSec = Math.floor(Date.now() / 1000);
+      const curBucket = Math.floor(nowSec / bucketSec) * bucketSec;
+      if (curBucket > last.time) {
+        const newCandle: Candle = {
+          time: curBucket,
+          open: last.close,
+          high: Math.max(last.close, price),
+          low: Math.min(last.close, price),
           close: price,
-          high: Math.max(last.high, price),
-          low: Math.min(last.low, price),
+          volume: 0,
         };
-        if (updated.close === last.close && updated.high === last.high && updated.low === last.low) {
-          return prev;
-        }
-        const next = prev.slice(0, -1);
-        next.push(updated);
-        return next;
-      });
-    };
+        return [...prev, newCandle].slice(-500);
+      }
+      const updated: Candle = {
+        ...last,
+        close: price,
+        high: Math.max(last.high, price),
+        low: Math.min(last.low, price),
+      };
+      if (updated.close === last.close && updated.high === last.high && updated.low === last.low) {
+        return prev;
+      }
+      const next = prev.slice(0, -1);
+      next.push(updated);
+      return next;
+    });
+  }, [bucketSec]);
 
-    tick();
-    const id = setInterval(tick, 1500);
-    return () => {
-      cancelled = true;
-      clearInterval(id);
-    };
-  }, [symbol, tf, isCrypto]);
+  useLivePriceStream({
+    symbol,
+    enabled: isFxOrCommodity,
+    onPrice: handleStreamPrice,
+  });
 
 
   useEffect(() => {
