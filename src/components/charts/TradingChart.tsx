@@ -156,7 +156,17 @@ function TradingChart({
         color: k.close >= k.open ? "rgba(16,185,129,0.35)" : "rgba(239,68,68,0.35)",
       })),
     );
-  }, [candles, mainSeries, volSeries, chartType]);
+    // Lock the visible window to the last N bars so the chart looks the
+    // same on every device (phones, tablets, desktops). Without this,
+    // lightweight-charts auto-fits bar spacing to container width, so
+    // wider screens show more bars than narrow ones.
+    try {
+      const VISIBLE_BARS = 80;
+      const len = candles.length;
+      const from = Math.max(0, len - VISIBLE_BARS);
+      chart?.timeScale().setVisibleLogicalRange({ from, to: len - 1 });
+    } catch {}
+  }, [candles, mainSeries, volSeries, chartType, chart]);
 
   // Indicators
   useEffect(() => {
@@ -213,7 +223,13 @@ function TradingChart({
         indSeriesRef.current.push(hs);
       }
     }
-    chart.timeScale().fitContent();
+    // Keep the same fixed window after indicator changes
+    try {
+      const VISIBLE_BARS = 80;
+      const len = candles.length;
+      const from = Math.max(0, len - VISIBLE_BARS);
+      chart.timeScale().setVisibleLogicalRange({ from, to: len - 1 });
+    } catch {}
   }, [chart, candles, indicators]);
 
   // Alert price lines
