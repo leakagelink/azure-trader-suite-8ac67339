@@ -602,7 +602,7 @@ function TradingChart({
         type="button"
         onClick={togglePerf}
         title={perf ? "Hide perf overlay" : "Show FPS / latency"}
-        className={`absolute right-2 top-[7.5rem] z-20 rounded-md border px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider backdrop-blur-md transition-colors ${
+        className={`absolute right-2 top-[9.75rem] z-20 rounded-md border px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-wider backdrop-blur-md transition-colors ${
           perf
             ? "border-primary/60 bg-primary/15 text-primary"
             : "border-border/40 bg-background/60 text-muted-foreground hover:text-foreground"
