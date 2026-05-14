@@ -412,7 +412,7 @@ export default function Charts() {
     };
 
     tick();
-    const id = setInterval(tick, 3000);
+    const id = setInterval(tick, 1500);
     return () => {
       cancelled = true;
       clearInterval(id);

@@ -43,9 +43,9 @@ function autoRegisterSymbols(payload: any) {
 
 type Entry<T> = { value: T; expiresAt: number };
 
-const FOREX_DATA_TTL_MS = 20_000; // snapshot prices
+const FOREX_DATA_TTL_MS = 4_000; // snapshot prices (kept short so live charts tick smoothly)
 const FOREX_CHART_TTL_MS = 25_000; // OHLC candles
-const COMMODITIES_DATA_TTL_MS = 12_000; // commodities snapshot
+const COMMODITIES_DATA_TTL_MS = 4_000; // commodities snapshot (short TTL for live momentum)
 
 const dataCache = new Map<string, Entry<any>>();
 const chartCache = new Map<string, Entry<any>>();
