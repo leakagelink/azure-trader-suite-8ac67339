@@ -66,6 +66,13 @@ function TradingChart({
   const [volSeries, setVolSeries] = useState<ISeriesApi<"Histogram"> | null>(null);
   const indSeriesRef = useRef<ISeriesApi<any>[]>([]);
   const alertLinesRef = useRef<IPriceLine[]>([]);
+  const disposedRef = useRef(false);
+  // Animation/throttling refs for smooth live tick rendering
+  const prevCandlesRef = useRef<Candle[] | null>(null);
+  const prevChartTypeRef = useRef<ChartType | null>(null);
+  const pendingCandleRef = useRef<Candle | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const tweenStateRef = useRef<{ from: number; to: number; t0: number } | null>(null);
   const { drawings, setDrawings } = useChartDrawings(symbol);
 
   // create chart once
@@ -95,13 +102,22 @@ function TradingChart({
     setChart(c);
     setVolSeries(vs);
     return () => {
-      c.remove();
+      disposedRef.current = true;
+      if (rafRef.current != null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      try { c.remove(); } catch {}
       setChart(null);
       setMainSeries(null);
       mainSeriesRef.current = null;
       setVolSeries(null);
       indSeriesRef.current = [];
       alertLinesRef.current = [];
+      prevCandlesRef.current = null;
+      prevChartTypeRef.current = null;
+      pendingCandleRef.current = null;
+      tweenStateRef.current = null;
     };
   }, []);
 
@@ -138,35 +154,129 @@ function TradingChart({
     setMainSeries(s);
   }, [chart, chartType]);
 
-  // feed data
+  // Feed data — incremental updates + rAF batching + close-price tween
+  // for buttery-smooth live ticks. Full setData() is only used on the
+  // first paint, when symbol/chartType changes, or when history grows
+  // by more than one bar (e.g. a backfill). Live ticks fall through to
+  // mainSeries.update() inside an animation frame, so we coalesce many
+  // ws ticks per frame and let the browser repaint at ~60fps.
   useEffect(() => {
     if (!mainSeries || !volSeries || !candles.length) return;
+    if (disposedRef.current) return;
+
+    const VISIBLE_BARS = 80;
+    const lockVisibleRange = () => {
+      if (disposedRef.current) return;
+      try {
+        const len = candles.length;
+        const from = Math.max(0, len - VISIBLE_BARS);
+        chart?.timeScale().setVisibleLogicalRange({ from, to: len - 1 });
+      } catch {}
+    };
+
+    const toMain = (k: Candle) =>
+      chartType === "line" || chartType === "area"
+        ? { time: k.time as any, value: k.close }
+        : { time: k.time as any, open: k.open, high: k.high, low: k.low, close: k.close };
+
+    const toVol = (k: Candle) => ({
+      time: k.time as any,
+      value: k.volume ?? 0,
+      color: k.close >= k.open ? "rgba(16,185,129,0.35)" : "rgba(239,68,68,0.35)",
+    });
+
+    const prev = prevCandlesRef.current;
+    const prevType = prevChartTypeRef.current;
+    const fullReload =
+      !prev ||
+      prevType !== chartType ||
+      Math.abs(candles.length - prev.length) > 1 ||
+      (prev.length > 0 && candles[0]?.time !== prev[0]?.time);
+
     const src = chartType === "heikin" ? heikinAshi(candles) : candles;
-    if (chartType === "line" || chartType === "area") {
-      mainSeries.setData(src.map((k) => ({ time: k.time as any, value: k.close })));
+
+    if (fullReload) {
+      try {
+        mainSeries.setData(src.map(toMain));
+        volSeries.setData(candles.map(toVol));
+      } catch {}
+      lockVisibleRange();
+      tweenStateRef.current = null;
+      pendingCandleRef.current = null;
     } else {
-      mainSeries.setData(
-        src.map((k) => ({ time: k.time as any, open: k.open, high: k.high, low: k.low, close: k.close })),
-      );
+      // Either the last bar updated in place, or one new bar appended.
+      const lastSrc = src[src.length - 1];
+      const lastVol = candles[candles.length - 1];
+      pendingCandleRef.current = lastSrc;
+
+      // Set up a tween from the previous close to the new close so the
+      // candle "morphs" instead of jumping. Heikin/area/line all benefit.
+      const prevLast = (chartType === "heikin" ? heikinAshi(prev!) : prev!)[prev!.length - 1];
+      if (prevLast && prevLast.time === lastSrc.time && prevLast.close !== lastSrc.close) {
+        tweenStateRef.current = { from: prevLast.close, to: lastSrc.close, t0: performance.now() };
+      } else {
+        tweenStateRef.current = null;
+      }
+
+      const flush = () => {
+        rafRef.current = null;
+        if (disposedRef.current || !mainSeriesRef.current) return;
+        const target = pendingCandleRef.current;
+        if (!target) return;
+
+        const tw = tweenStateRef.current;
+        const TWEEN_MS = 140;
+        let renderClose = target.close;
+        let stillTweening = false;
+        if (tw) {
+          const t = (performance.now() - tw.t0) / TWEEN_MS;
+          if (t >= 1) {
+            renderClose = tw.to;
+          } else {
+            // easeOutCubic for natural settle
+            const e = 1 - Math.pow(1 - t, 3);
+            renderClose = tw.from + (tw.to - tw.from) * e;
+            stillTweening = true;
+          }
+        }
+
+        try {
+          if (chartType === "line" || chartType === "area") {
+            mainSeriesRef.current.update({ time: target.time as any, value: renderClose });
+          } else {
+            const high = Math.max(target.high, renderClose);
+            const low = Math.min(target.low, renderClose);
+            mainSeriesRef.current.update({
+              time: target.time as any,
+              open: target.open,
+              high,
+              low,
+              close: renderClose,
+            });
+          }
+          volSeries.update(toVol(lastVol));
+        } catch {}
+
+        // If a new bar was appended (not just an in-place update), make
+        // sure the visible window slides forward by one bar.
+        if (prev && candles.length === prev.length + 1) {
+          lockVisibleRange();
+        }
+
+        if (stillTweening && !disposedRef.current) {
+          rafRef.current = requestAnimationFrame(flush);
+        }
+      };
+
+      if (rafRef.current == null) {
+        rafRef.current = requestAnimationFrame(flush);
+      }
     }
-    volSeries.setData(
-      candles.map((k) => ({
-        time: k.time as any,
-        value: k.volume ?? 0,
-        color: k.close >= k.open ? "rgba(16,185,129,0.35)" : "rgba(239,68,68,0.35)",
-      })),
-    );
-    // Lock the visible window to the last N bars so the chart looks the
-    // same on every device (phones, tablets, desktops). Without this,
-    // lightweight-charts auto-fits bar spacing to container width, so
-    // wider screens show more bars than narrow ones.
-    try {
-      const VISIBLE_BARS = 80;
-      const len = candles.length;
-      const from = Math.max(0, len - VISIBLE_BARS);
-      chart?.timeScale().setVisibleLogicalRange({ from, to: len - 1 });
-    } catch {}
+
+    prevCandlesRef.current = candles;
+    prevChartTypeRef.current = chartType;
   }, [candles, mainSeries, volSeries, chartType, chart]);
+
 
   // Indicators
   useEffect(() => {
