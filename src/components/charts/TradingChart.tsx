@@ -298,5 +298,12 @@ export default memo(TradingChart, (prev, next) => {
   if (prev.candles.length !== next.candles.length) return false;
   const a = prev.candles[prev.candles.length - 1];
   const b = next.candles[next.candles.length - 1];
-  return !!a && !!b && a.time === b.time && a.close === b.close;
+  return (
+    !!a && !!b &&
+    a.time === b.time &&
+    a.open === b.open &&
+    a.high === b.high &&
+    a.low === b.low &&
+    a.close === b.close
+  );
 });
