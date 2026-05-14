@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useBinanceKlineStream } from "@/hooks/useBinanceKlineStream";
+import { useLivePriceStream } from "@/hooks/useLivePriceStream";
 import {
   ArrowLeft,
   ChevronDown,
