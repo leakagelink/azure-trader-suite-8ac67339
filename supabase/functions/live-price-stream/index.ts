@@ -25,7 +25,9 @@ const corsHeaders = {
 };
 
 const STREAM_MAX_MS = 110_000; // < 2 min so clients reconnect cleanly
-const TICK_MS = 1_500;
+const TICK_MS = 800; // Yahoo poll cadence (forex/commodities)
+const FORCE_EMIT_MS = 4_000; // emit at least this often even if price didn't change
+const BINANCE_MIN_EMIT_MS = 120; // upper bound on Binance trade emits (~8/s)
 
 // ----------------------------------------------------------------- symbol maps
 const COMMODITY_TO_YAHOO: Record<string, string> = {
