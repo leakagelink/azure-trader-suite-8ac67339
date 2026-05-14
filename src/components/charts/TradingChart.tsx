@@ -75,6 +75,29 @@ function TradingChart({
   const tweenStateRef = useRef<{ from: number; to: number; t0: number } | null>(null);
   const { drawings, setDrawings } = useChartDrawings(symbol);
 
+  // ----- Animation settings (persisted) -----
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [tweenEnabled, setTweenEnabled] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    const v = localStorage.getItem("tradingChartTweenEnabled");
+    return v === null ? true : v === "1";
+  });
+  const [tweenMs, setTweenMs] = useState<number>(() => {
+    if (typeof window === "undefined") return 140;
+    const v = parseInt(localStorage.getItem("tradingChartTweenMs") || "", 10);
+    return Number.isFinite(v) && v >= 0 && v <= 1000 ? v : 140;
+  });
+  const tweenEnabledRef = useRef(tweenEnabled);
+  const tweenMsRef = useRef(tweenMs);
+  useEffect(() => {
+    tweenEnabledRef.current = tweenEnabled;
+    try { localStorage.setItem("tradingChartTweenEnabled", tweenEnabled ? "1" : "0"); } catch {}
+  }, [tweenEnabled]);
+  useEffect(() => {
+    tweenMsRef.current = tweenMs;
+    try { localStorage.setItem("tradingChartTweenMs", String(tweenMs)); } catch {}
+  }, [tweenMs]);
+
   // create chart once
   useEffect(() => {
     if (!containerRef.current) return;
