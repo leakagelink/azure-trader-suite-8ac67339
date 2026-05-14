@@ -235,7 +235,13 @@ function TradingChart({
       // Set up a tween from the previous close to the new close so the
       // candle "morphs" instead of jumping. Heikin/area/line all benefit.
       const prevLast = (chartType === "heikin" ? heikinAshi(prev!) : prev!)[prev!.length - 1];
-      if (prevLast && prevLast.time === lastSrc.time && prevLast.close !== lastSrc.close) {
+      if (
+        tweenEnabledRef.current &&
+        tweenMsRef.current > 0 &&
+        prevLast &&
+        prevLast.time === lastSrc.time &&
+        prevLast.close !== lastSrc.close
+      ) {
         tweenStateRef.current = { from: prevLast.close, to: lastSrc.close, t0: performance.now() };
       } else {
         tweenStateRef.current = null;
