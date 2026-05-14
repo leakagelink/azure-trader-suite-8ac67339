@@ -78,14 +78,14 @@ function TradingChart({
   // ----- Animation settings (persisted) -----
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [tweenEnabled, setTweenEnabled] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
+    if (typeof window === "undefined") return false;
     const v = localStorage.getItem("tradingChartTweenEnabled");
-    return v === null ? true : v === "1";
+    return v === null ? false : v === "1";
   });
   const [tweenMs, setTweenMs] = useState<number>(() => {
     if (typeof window === "undefined") return 35;
     const v = parseInt(localStorage.getItem("tradingChartTweenMs") || "", 10);
-    return Number.isFinite(v) && v >= 0 && v <= 1000 ? v : 35;
+    return Number.isFinite(v) && v >= 0 && v <= 80 ? v : 35;
   });
   const tweenEnabledRef = useRef(tweenEnabled);
   const tweenMsRef = useRef(tweenMs);
