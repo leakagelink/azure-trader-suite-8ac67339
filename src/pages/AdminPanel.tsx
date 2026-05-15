@@ -1987,7 +1987,6 @@ const AdminPanel = () => {
                     </div>
                   )}
                 </div>
-                )}
 
                 {/* Momentum Control — HIDDEN (kept in code) */}
                 {false && (
