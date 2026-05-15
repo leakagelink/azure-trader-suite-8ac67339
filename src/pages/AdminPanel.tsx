@@ -1396,7 +1396,7 @@ const AdminPanel = () => {
                               <div>{request.currency === "INR" ? "₹" : "$"}{Number(request.amount).toFixed(2)}</div>
                               {request.currency === "INR" && (
                                 <div className="text-xs text-muted-foreground">
-                                  ≈ ${(Number(request.amount) * parseFloat(paymentSettings.exchangeRate || "0.012")).toFixed(2)} USD
+                                  ≈ ${(Number(request.amount) / parseFloat(paymentSettings.exchangeRate || "96")).toFixed(2)} USD
                                 </div>
                               )}
                             </div>
