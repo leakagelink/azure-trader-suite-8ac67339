@@ -292,7 +292,9 @@ const AdminPanel = () => {
           accountNumber: settings.accountNumber || "1234567890",
           ifsc: settings.ifscCode || "BANK0001234",
           bankName: settings.bankName || "Demo Bank",
-          exchangeRate: settings.exchangeRate || "0.012",
+          exchangeRate: settings.exchangeRate
+            ? (1 / parseFloat(settings.exchangeRate)).toFixed(4)
+            : "96.00",
           appDownloadUrl: settings.appDownloadUrl || "",
           apiPassword: "",
           maxLeverage: settings.maxLeverage || "100",
@@ -778,7 +780,7 @@ const AdminPanel = () => {
         { setting_key: "account_number", setting_value: paymentSettings.accountNumber },
         { setting_key: "ifsc_code", setting_value: paymentSettings.ifsc },
         { setting_key: "bank_name", setting_value: paymentSettings.bankName },
-        { setting_key: "exchange_rate", setting_value: paymentSettings.exchangeRate },
+        { setting_key: "exchange_rate", setting_value: (1 / parseFloat(paymentSettings.exchangeRate || "96")).toFixed(8) },
         { setting_key: "app_download_url", setting_value: paymentSettings.appDownloadUrl },
         { setting_key: "max_leverage", setting_value: paymentSettings.maxLeverage || "100" },
         // Deposit offer settings
@@ -1394,7 +1396,7 @@ const AdminPanel = () => {
                               <div>{request.currency === "INR" ? "₹" : "$"}{Number(request.amount).toFixed(2)}</div>
                               {request.currency === "INR" && (
                                 <div className="text-xs text-muted-foreground">
-                                  ≈ ${(Number(request.amount) * parseFloat(paymentSettings.exchangeRate || "0.012")).toFixed(2)} USD
+                                  ≈ ${(Number(request.amount) / parseFloat(paymentSettings.exchangeRate || "96")).toFixed(2)} USD
                                 </div>
                               )}
                             </div>
@@ -1760,23 +1762,23 @@ const AdminPanel = () => {
                   </h3>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="exchangeRate">INR → USD Rate</Label>
+                      <Label htmlFor="exchangeRate">USD → INR Rate (1 USD = ? INR)</Label>
                       <Input
                         id="exchangeRate"
                         type="number"
-                        step="0.0001"
+                        step="0.01"
                         min="0"
-                        placeholder="0.012"
+                        placeholder="96.00"
                         value={paymentSettings.exchangeRate}
                         onChange={(e) =>
                           setPaymentSettings({ ...paymentSettings, exchangeRate: e.target.value })
                         }
                       />
                       <p className="text-xs text-muted-foreground">
-                        1 INR = {paymentSettings.exchangeRate} USD &nbsp;•&nbsp; ₹1000 ≈ ${(1000 * parseFloat(paymentSettings.exchangeRate || "0.012")).toFixed(2)} &nbsp;•&nbsp; 1 USD ≈ ₹{(1 / parseFloat(paymentSettings.exchangeRate || "0.012")).toFixed(2)}
+                        1 USD = ₹{paymentSettings.exchangeRate} &nbsp;•&nbsp; ₹1000 ≈ ${(1000 / parseFloat(paymentSettings.exchangeRate || "96")).toFixed(2)} &nbsp;•&nbsp; ₹10000 ≈ ${(10000 / parseFloat(paymentSettings.exchangeRate || "96")).toFixed(2)}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Yeh rate users ke deposit conversion (INR → USD wallet credit) ke liye use hota hai. Save Settings dabane ke baad turant lagu ho jayega.
+                        Yahan pe seedha "1 USD = kitne INR" daalein (jaise 96.01). Yeh rate users ke deposit conversion (INR → USD wallet credit) ke liye use hota hai. Save Settings dabane ke baad turant lagu ho jayega.
                       </p>
                     </div>
                   </div>
