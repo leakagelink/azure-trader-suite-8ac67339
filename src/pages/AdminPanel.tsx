@@ -1815,8 +1815,7 @@ const AdminPanel = () => {
                   </div>
                 </div>
 
-                {/* Mobile App Upload Settings — HIDDEN (kept in code) */}
-                {false && (
+                {/* Mobile App Upload Settings */}
                 <div className="space-y-4 border-t pt-6">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <Smartphone className="h-5 w-5 text-purple-500" />
