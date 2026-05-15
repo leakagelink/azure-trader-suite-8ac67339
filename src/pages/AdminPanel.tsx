@@ -292,7 +292,9 @@ const AdminPanel = () => {
           accountNumber: settings.accountNumber || "1234567890",
           ifsc: settings.ifscCode || "BANK0001234",
           bankName: settings.bankName || "Demo Bank",
-          exchangeRate: settings.exchangeRate || "0.012",
+          exchangeRate: settings.exchangeRate
+            ? (1 / parseFloat(settings.exchangeRate)).toFixed(4)
+            : "96.00",
           appDownloadUrl: settings.appDownloadUrl || "",
           apiPassword: "",
           maxLeverage: settings.maxLeverage || "100",
