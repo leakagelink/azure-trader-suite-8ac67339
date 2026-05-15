@@ -263,33 +263,32 @@ const Profile = () => {
         {/* Right column: app, kyc, account info */}
         <div className="lg:sticky lg:top-24 lg:self-start space-y-5">
       {/* App Download Card */}
-      {appDownloadUrl && (
         <Card className={`${glassCardClass} p-5 mb-5 group hover:scale-[1.01] transition-all duration-300`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-teal-500/10" />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent" />
+          <div className="absolute inset-0 bg-primary/5" />
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
           <div className="relative flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-              <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-teal-500/30 border border-emerald-500/40 flex items-center justify-center flex-shrink-0">
-                <Smartphone className="h-6 w-6 text-emerald-500" />
+              <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                <Smartphone className="h-6 w-6 text-primary" />
               </div>
               <div className="min-w-0">
                 <h3 className="font-bold text-sm sm:text-base">Download Mobile App</h3>
                 <p className="text-xs text-muted-foreground truncate">
-                  Get the TradixoFX app for better trading
+                  {appDownloadUrl ? "Get the TradixoFX app for better trading" : "App will appear here after Broker upload"}
                 </p>
               </div>
             </div>
             <Button
               size="sm"
+              disabled={!appDownloadUrl}
               onClick={() => window.open(appDownloadUrl, '_blank')}
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-95 text-white rounded-xl flex-shrink-0"
+              className="rounded-xl flex-shrink-0"
             >
               <Download className="h-4 w-4 mr-1.5" />
-              Get
+              {appDownloadUrl ? "Get" : "Pending"}
             </Button>
           </div>
         </Card>
-      )}
 
       {/* KYC Verification Card */}
       <Card
