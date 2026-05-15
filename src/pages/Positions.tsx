@@ -344,6 +344,15 @@ const Positions = () => {
             }
           }
 
+          // Auto-liquidation when loss reaches 100% of margin (PnL <= -margin)
+          if (
+            !permanentlyClosedIdsRef.current.has(position.id) &&
+            position.margin > 0 &&
+            pnl <= -Number(position.margin)
+          ) {
+            autoCloseQueue.push({ position: { ...position, current_price: currentPrice, pnl }, reason: "liquidation" });
+          }
+
           if (position.price_mode !== "edited") {
             supabase
               .from("positions")
