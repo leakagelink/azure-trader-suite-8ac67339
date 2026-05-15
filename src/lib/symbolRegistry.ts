@@ -55,6 +55,10 @@ const SYMBOL_REGISTRY: SymbolSpec[] = [
   // Industrial metals
   { symbol: 'HG',  ...CLASS_DEFAULTS.industrial },
   { symbol: 'XCU', ...CLASS_DEFAULTS.industrial },
+
+  // Crypto (1 lot = 1 coin). Add new coins here to enable trading.
+  ...['BTC','ETH','BNB','SOL','XRP','ADA','DOGE','TRX','TON','AVAX','DOT','MATIC','LTC','BCH','LINK','ATOM','XLM','ETC','FIL','NEAR','APT','ARB','OP','SUI','PEPE','SHIB','UNI','AAVE','ICP','HBAR','VET','ALGO','SAND','MANA','AXS','FTM','INJ','RNDR','IMX','GRT','MKR','LDO','RUNE','THETA','EGLD','XMR','EOS','FLOW','CRO','KAS','TIA','SEI','WLD','JUP','ORDI','BONK','WIF','FET']
+    .map<SymbolSpec>((s) => ({ symbol: s, ...CLASS_DEFAULTS.crypto })),
 ];
 
 const REGISTRY_MAP = new Map<string, SymbolSpec>(
