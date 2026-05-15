@@ -857,7 +857,7 @@ const Positions = () => {
   };
 
   // Auto-close position when stop loss or take profit is triggered
-  const handleAutoClose = async (position: Position, reason: 'stop_loss' | 'take_profit') => {
+  const handleAutoClose = async (position: Position, reason: 'stop_loss' | 'take_profit' | 'liquidation') => {
     // Check if already permanently closed - prevent double close
     if (permanentlyClosedIdsRef.current.has(position.id)) {
       return;
@@ -870,15 +870,21 @@ const Positions = () => {
       // IMMEDIATELY remove from open positions state
       setOpenPositions(prev => prev.filter(p => p.id !== position.id));
       
-      // Determine close price based on trigger reason
-      const closePrice = reason === 'stop_loss' 
+      // Determine close price + final pnl based on trigger reason
+      const closePrice = reason === 'stop_loss'
         ? (position.stop_loss || position.current_price)
-        : (position.take_profit || position.current_price);
-        
+        : reason === 'take_profit'
+          ? (position.take_profit || position.current_price)
+          : position.current_price; // liquidation closes at the price that hit -100%
+
       const quantity = getEffectivePositionAmount(position);
-      const pnl = position.position_type === 'long' 
+      const computedPnl = position.position_type === 'long'
         ? (closePrice - position.entry_price) * quantity
         : (position.entry_price - closePrice) * quantity;
+      // On liquidation cap loss to exactly -margin (no over-loss into balance)
+      const pnl = reason === 'liquidation'
+        ? -Number(position.margin)
+        : computedPnl;
 
       const closedAt = new Date().toISOString();
 
