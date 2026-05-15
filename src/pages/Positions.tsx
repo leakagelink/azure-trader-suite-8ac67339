@@ -258,7 +258,7 @@ const Positions = () => {
           });
         }
 
-        const autoCloseQueue: Array<{ position: Position; reason: "stop_loss" | "take_profit" }> = [];
+        const autoCloseQueue: Array<{ position: Position; reason: "stop_loss" | "take_profit" | "liquidation" }> = [];
 
         const updatedPositions = currentPositions.map((position) => {
           let currentPrice = position.current_price;
@@ -342,6 +342,15 @@ const Positions = () => {
             if (hitTakeProfit) {
               autoCloseQueue.push({ position: { ...position, current_price: currentPrice, pnl }, reason: "take_profit" });
             }
+          }
+
+          // Auto-liquidation when loss reaches 100% of margin (PnL <= -margin)
+          if (
+            !permanentlyClosedIdsRef.current.has(position.id) &&
+            position.margin > 0 &&
+            pnl <= -Number(position.margin)
+          ) {
+            autoCloseQueue.push({ position: { ...position, current_price: currentPrice, pnl }, reason: "liquidation" });
           }
 
           if (position.price_mode !== "edited") {
@@ -848,7 +857,7 @@ const Positions = () => {
   };
 
   // Auto-close position when stop loss or take profit is triggered
-  const handleAutoClose = async (position: Position, reason: 'stop_loss' | 'take_profit') => {
+  const handleAutoClose = async (position: Position, reason: 'stop_loss' | 'take_profit' | 'liquidation') => {
     // Check if already permanently closed - prevent double close
     if (permanentlyClosedIdsRef.current.has(position.id)) {
       return;
@@ -861,15 +870,21 @@ const Positions = () => {
       // IMMEDIATELY remove from open positions state
       setOpenPositions(prev => prev.filter(p => p.id !== position.id));
       
-      // Determine close price based on trigger reason
-      const closePrice = reason === 'stop_loss' 
+      // Determine close price + final pnl based on trigger reason
+      const closePrice = reason === 'stop_loss'
         ? (position.stop_loss || position.current_price)
-        : (position.take_profit || position.current_price);
-        
+        : reason === 'take_profit'
+          ? (position.take_profit || position.current_price)
+          : position.current_price; // liquidation closes at the price that hit -100%
+
       const quantity = getEffectivePositionAmount(position);
-      const pnl = position.position_type === 'long' 
+      const computedPnl = position.position_type === 'long'
         ? (closePrice - position.entry_price) * quantity
         : (position.entry_price - closePrice) * quantity;
+      // On liquidation cap loss to exactly -margin (no over-loss into balance)
+      const pnl = reason === 'liquidation'
+        ? -Number(position.margin)
+        : computedPnl;
 
       const closedAt = new Date().toISOString();
 
@@ -946,6 +961,8 @@ const Positions = () => {
 
       if (reason === 'stop_loss') {
         toast.warning(`⚠️ Stop Loss triggered for ${position.symbol}! Position closed at $${closePrice.toFixed(2)}. PnL: ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)}`);
+      } else if (reason === 'liquidation') {
+        toast.error(`💥 ${position.symbol} liquidated at $${closePrice.toFixed(2)} — loss reached 100% of margin. PnL: $${pnl.toFixed(2)}`);
       } else {
         toast.success(`🎯 Take Profit reached for ${position.symbol}! Position closed at $${closePrice.toFixed(2)}. PnL: +$${pnl.toFixed(2)}`);
       }
