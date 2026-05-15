@@ -1928,7 +1928,7 @@ const AdminPanel = () => {
                     )}
                   </div>
                 </div>
-                )}
+
 
                 {/* Market Settings */}
                 <div className="space-y-4 border-t pt-6">
