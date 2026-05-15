@@ -698,6 +698,14 @@ export type Database = {
       }
     }
     Functions: {
+      admin_clear_user_trade_history: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      admin_delete_position: {
+        Args: { p_position_id: string }
+        Returns: undefined
+      }
       admin_submit_kyc:
         | {
             Args: {
