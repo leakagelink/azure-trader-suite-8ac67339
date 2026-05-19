@@ -99,6 +99,9 @@ const AdminPanel = () => {
 
   const [methodsDialogOpen, setMethodsDialogOpen] = useState(false);
   const [methodsDialogUser, setMethodsDialogUser] = useState<{ id: string; name: string } | null>(null);
+  const [auditLogOpen, setAuditLogOpen] = useState(false);
+  const [auditLogFilter, setAuditLogFilter] = useState<string | undefined>(undefined);
+
 
   // KYC state (count only — list managed inside AdminKYCManagement)
   const [pendingKycCount, setPendingKycCount] = useState(0);
