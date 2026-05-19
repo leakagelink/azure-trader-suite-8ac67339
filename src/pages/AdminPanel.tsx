@@ -48,6 +48,8 @@ import { AdminSignalsManagement } from "@/components/AdminSignalsManagement";
 import { AdminAuditLog } from "@/components/AdminAuditLog";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminUserPaymentMethodsDialog from "@/components/AdminUserPaymentMethodsDialog";
+import { AdminAuditLogDialog } from "@/components/AdminAuditLogDialog";
+
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 const AdminPanel = () => {
