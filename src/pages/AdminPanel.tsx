@@ -649,7 +649,22 @@ const AdminPanel = () => {
           ? { amount: source?.amount, currency: source?.currency, status: source?.status }
           : { amount: source?.amount, currency: source?.currency, status: source?.status, method: source?.withdrawal_method },
       });
-      toast({ title: "Moved to trash", description: `${type === "deposit" ? "Deposit" : "Withdrawal"} archived (recoverable)` });
+      toast({
+        title: "Moved to trash",
+        description: `${type === "deposit" ? "Deposit" : "Withdrawal"} archived. You can undo within 10 seconds.`,
+        duration: 10000,
+        action: (
+          <ToastAction
+            altText="Undo delete"
+            onClick={() => {
+              if (type === "deposit") handleRestoreDeposit(id, { silent: true });
+              else handleRestoreWithdrawal(id, { silent: true });
+            }}
+          >
+            Undo
+          </ToastAction>
+        ),
+      });
       setDeleteDialogOpen(false);
       setDeleteDialogRecord(null);
       fetchAllData();
