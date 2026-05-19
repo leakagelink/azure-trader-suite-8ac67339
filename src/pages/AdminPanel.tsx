@@ -92,6 +92,8 @@ const AdminPanel = () => {
 
   // Withdrawals state
   const [withdrawalRequests, setWithdrawalRequests] = useState<any[]>([]);
+  const [methodsDialogOpen, setMethodsDialogOpen] = useState(false);
+  const [methodsDialogUser, setMethodsDialogUser] = useState<{ id: string; name: string } | null>(null);
 
   // KYC state (count only — list managed inside AdminKYCManagement)
   const [pendingKycCount, setPendingKycCount] = useState(0);
