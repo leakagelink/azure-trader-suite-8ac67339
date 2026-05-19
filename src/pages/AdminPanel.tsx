@@ -962,9 +962,16 @@ const AdminPanel = () => {
     );
   }
 
-  // Compute pending counts for sidebar badges
-  const pendingDepositsCount = depositRequests.filter((d: any) => d.status === "pending" || d.status === "locked").length;
-  const pendingWithdrawalsCount = withdrawalRequests.filter((w: any) => w.status === "pending").length;
+  // Compute pending counts for sidebar badges (exclude trashed records)
+  const pendingDepositsCount = depositRequests.filter((d: any) => !d.deleted_at && (d.status === "pending" || d.status === "locked")).length;
+  const pendingWithdrawalsCount = withdrawalRequests.filter((w: any) => !w.deleted_at && w.status === "pending").length;
+
+  // Filter lists based on "show deleted" toggle
+  const visibleDeposits = depositRequests.filter((d: any) => showDeletedDeposits ? !!d.deleted_at : !d.deleted_at);
+  const visibleWithdrawals = withdrawalRequests.filter((w: any) => showDeletedWithdrawals ? !!w.deleted_at : !w.deleted_at);
+  const trashedDepositsCount = depositRequests.filter((d: any) => !!d.deleted_at).length;
+  const trashedWithdrawalsCount = withdrawalRequests.filter((w: any) => !!w.deleted_at).length;
+
 
   return (
     <SidebarProvider defaultOpen={typeof window !== "undefined" ? window.innerWidth >= 1024 : true}>
