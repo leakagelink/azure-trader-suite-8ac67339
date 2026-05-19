@@ -239,16 +239,46 @@ const WithdrawalModal = ({ open, onOpenChange, onSuccess, availableBalance }: Wi
               </div>
 
               {!addingNew && (
-                <RadioGroup value={selectedMethodId} onValueChange={setSelectedMethodId} className="space-y-2">
-                  {savedMethods.map((m) => (
-                    <div
-                      key={m.id}
-                      className="flex items-center gap-3 p-3 border border-border rounded-lg hover:bg-muted/30"
-                    >
-                      <RadioGroupItem value={m.id} id={m.id} />
-                      <Label htmlFor={m.id} className="flex-1 cursor-pointer">
+                <>
+                  <Select value={selectedMethodId} onValueChange={setSelectedMethodId}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Choose a saved method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {savedMethods.filter((m) => m.method_type === "bank").length > 0 && (
+                        <SelectGroup>
+                          <SelectLabel>Bank Accounts</SelectLabel>
+                          {savedMethods
+                            .filter((m) => m.method_type === "bank")
+                            .map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                {m.label}{m.is_default ? " • Default" : ""}
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
+                      )}
+                      {savedMethods.filter((m) => m.method_type === "upi").length > 0 && (
+                        <SelectGroup>
+                          <SelectLabel>UPI</SelectLabel>
+                          {savedMethods
+                            .filter((m) => m.method_type === "upi")
+                            .map((m) => (
+                              <SelectItem key={m.id} value={m.id}>
+                                {m.label}{m.is_default ? " • Default" : ""}
+                              </SelectItem>
+                            ))}
+                        </SelectGroup>
+                      )}
+                    </SelectContent>
+                  </Select>
+
+                  {selectedMethodId && (() => {
+                    const m = savedMethods.find((x) => x.id === selectedMethodId);
+                    if (!m) return null;
+                    return (
+                      <div className="p-3 rounded-lg border border-border bg-muted/30 text-sm space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs uppercase font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary">
+                          <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary">
                             {m.method_type}
                           </span>
                           <span className="font-medium">{m.label}</span>
@@ -258,24 +288,29 @@ const WithdrawalModal = ({ open, onOpenChange, onSuccess, availableBalance }: Wi
                             </span>
                           )}
                         </div>
-                        {m.method_type === "bank" && (
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {m.account_name} • {m.bank_name} • IFSC {m.ifsc_code}
-                          </div>
+                        {m.method_type === "bank" ? (
+                          <p className="text-xs text-muted-foreground">
+                            {m.account_name} • A/C ••{m.account_number?.slice(-4)} • IFSC {m.ifsc_code}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-muted-foreground">UPI: {m.upi_id}</p>
                         )}
-                      </Label>
-                      {!m.is_default && (
-                        <Button type="button" variant="ghost" size="icon" onClick={() => handleSetDefault(m.id)} title="Set default">
-                          <Star className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button type="button" variant="ghost" size="icon" onClick={() => handleDeleteMethod(m.id)} title="Delete">
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  ))}
-                </RadioGroup>
+                        <div className="flex items-center gap-2 pt-1">
+                          {!m.is_default && (
+                            <Button type="button" variant="ghost" size="sm" onClick={() => handleSetDefault(m.id)}>
+                              <Star className="h-3.5 w-3.5 mr-1" /> Set default
+                            </Button>
+                          )}
+                          <Button type="button" variant="ghost" size="sm" onClick={() => handleDeleteMethod(m.id)}>
+                            <Trash2 className="h-3.5 w-3.5 mr-1 text-destructive" /> Remove
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </>
               )}
+
             </div>
           )}
 
