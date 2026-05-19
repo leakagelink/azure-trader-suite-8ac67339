@@ -1422,24 +1422,40 @@ const AdminPanel = () => {
           <TabsContent value="deposits">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <Wallet className="h-5 w-5" />
                       Deposit Management
                     </CardTitle>
-                    <CardDescription>Review and approve deposit requests</CardDescription>
+                    <CardDescription>
+                      {showDeletedDeposits
+                        ? `Viewing trashed deposits (${trashedDepositsCount})`
+                        : "Review and approve deposit requests"}
+                    </CardDescription>
                   </div>
-                  <Button onClick={fetchAllData} variant="outline" size="icon">
-                    <RefreshCw className="h-4 w-4" />
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant={showDeletedDeposits ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowDeletedDeposits(v => !v)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-1" />
+                      {showDeletedDeposits ? "View Active" : `Trash (${trashedDepositsCount})`}
+                    </Button>
+                    <Button onClick={fetchAllData} variant="outline" size="icon">
+                      <RefreshCw className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
                 {loading ? (
                   <p className="text-center py-8 text-muted-foreground">Loading deposits...</p>
-                ) : depositRequests.length === 0 ? (
-                  <p className="text-center py-8 text-muted-foreground">No deposit requests</p>
+                ) : visibleDeposits.length === 0 ? (
+                  <p className="text-center py-8 text-muted-foreground">
+                    {showDeletedDeposits ? "Trash is empty" : "No deposit requests"}
+                  </p>
                 ) : (
                   <div className="overflow-x-auto -mx-2 px-2"><Table>
                     <TableHeader>
@@ -1454,10 +1470,11 @@ const AdminPanel = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {depositRequests.map((request) => (
-                        <TableRow key={request.id}>
+                      {visibleDeposits.map((request) => (
+                        <TableRow key={request.id} className={request.deleted_at ? "opacity-70" : ""}>
                           <TableCell>
                             <div>
+
                               <div className="font-medium">
                                 {request.profiles?.full_name || "Unknown"}
                               </div>
