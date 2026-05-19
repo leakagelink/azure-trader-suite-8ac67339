@@ -1526,7 +1526,7 @@ const AdminPanel = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2 flex-wrap">
-                              {(request.status === "pending" || request.status === "locked") && (
+                              {!request.deleted_at && (request.status === "pending" || request.status === "locked") && (
                                 <>
                                   <Button
                                     size="sm"
@@ -1546,16 +1546,29 @@ const AdminPanel = () => {
                                   </Button>
                                 </>
                               )}
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleDeleteDeposit(request.id)}
-                                title="Delete record"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
+                              {request.deleted_at ? (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleRestoreDeposit(request.id)}
+                                  title="Restore record"
+                                >
+                                  <RefreshCw className="h-4 w-4 mr-1" />
+                                  Restore
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleDeleteDeposit(request.id)}
+                                  title="Move to trash"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
                             </div>
                           </TableCell>
+
 
                         </TableRow>
                       ))}
