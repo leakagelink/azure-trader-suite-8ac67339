@@ -49,6 +49,8 @@ import { AdminAuditLog } from "@/components/AdminAuditLog";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminUserPaymentMethodsDialog from "@/components/AdminUserPaymentMethodsDialog";
 import { AdminAuditLogDialog } from "@/components/AdminAuditLogDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
