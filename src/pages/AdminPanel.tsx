@@ -2178,8 +2178,7 @@ const AdminPanel = () => {
                 </div>
                 )}
 
-                {/* Login Password Change — HIDDEN (kept in code) */}
-                {false && (
+                {/* Login Password Change */}
                 <div className="space-y-4 pt-4 border-t border-border">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <Lock className="h-5 w-5 text-orange-500" />
