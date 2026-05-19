@@ -89,9 +89,12 @@ const AdminPanel = () => {
 
   // Deposits state
   const [depositRequests, setDepositRequests] = useState<any[]>([]);
+  const [showDeletedDeposits, setShowDeletedDeposits] = useState(false);
 
   // Withdrawals state
   const [withdrawalRequests, setWithdrawalRequests] = useState<any[]>([]);
+  const [showDeletedWithdrawals, setShowDeletedWithdrawals] = useState(false);
+
   const [methodsDialogOpen, setMethodsDialogOpen] = useState(false);
   const [methodsDialogUser, setMethodsDialogUser] = useState<{ id: string; name: string } | null>(null);
 
