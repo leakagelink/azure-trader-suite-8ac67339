@@ -339,6 +339,8 @@ const Profile = () => {
           <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
         </div>
       </Card>
+      <PaymentMethodsManager />
+
 
       <Card className={`${glassCardClass} p-5 mb-5`}>
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
