@@ -2491,6 +2491,13 @@ const AdminPanel = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AdminUserPaymentMethodsDialog
+        open={methodsDialogOpen}
+        onOpenChange={setMethodsDialogOpen}
+        userId={methodsDialogUser?.id || null}
+        userName={methodsDialogUser?.name || null}
+      />
             </Tabs>
           </main>
         </div>
