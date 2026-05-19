@@ -50,6 +50,7 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminUserPaymentMethodsDialog from "@/components/AdminUserPaymentMethodsDialog";
 import { AdminAuditLogDialog } from "@/components/AdminAuditLogDialog";
 import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
+import { ToastAction } from "@/components/ui/toast";
 
 
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -648,7 +649,22 @@ const AdminPanel = () => {
           ? { amount: source?.amount, currency: source?.currency, status: source?.status }
           : { amount: source?.amount, currency: source?.currency, status: source?.status, method: source?.withdrawal_method },
       });
-      toast({ title: "Moved to trash", description: `${type === "deposit" ? "Deposit" : "Withdrawal"} archived (recoverable)` });
+      toast({
+        title: "Moved to trash",
+        description: `${type === "deposit" ? "Deposit" : "Withdrawal"} archived. You can undo within 10 seconds.`,
+        duration: 10000,
+        action: (
+          <ToastAction
+            altText="Undo delete"
+            onClick={() => {
+              if (type === "deposit") handleRestoreDeposit(id, { silent: true });
+              else handleRestoreWithdrawal(id, { silent: true });
+            }}
+          >
+            Undo
+          </ToastAction>
+        ),
+      });
       setDeleteDialogOpen(false);
       setDeleteDialogRecord(null);
       fetchAllData();
@@ -657,7 +673,7 @@ const AdminPanel = () => {
     }
   };
 
-  const handleRestoreDeposit = async (depositId: string) => {
+  const handleRestoreDeposit = async (depositId: string, opts?: { silent?: boolean }) => {
     try {
       const deposit = depositRequests.find(d => d.id === depositId);
       const { error } = await supabase
@@ -666,21 +682,21 @@ const AdminPanel = () => {
         .eq("id", depositId);
       if (error) throw error;
       await writeAuditLog({
-        action: "restore",
+        action: opts?.silent ? "undo_delete" : "restore",
         target_table: "deposit_requests",
         target_id: depositId,
         target_user_id: deposit?.user_id ?? null,
-        reason: null,
+        reason: opts?.silent ? "Undo via toast" : null,
         metadata: { amount: deposit?.amount, currency: deposit?.currency },
       });
-      toast({ title: "Restored", description: "Deposit record restored" });
+      toast({ title: opts?.silent ? "Undone" : "Restored", description: "Deposit record restored" });
       fetchAllData();
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
-  const handleRestoreWithdrawal = async (withdrawalId: string) => {
+  const handleRestoreWithdrawal = async (withdrawalId: string, opts?: { silent?: boolean }) => {
     try {
       const w = withdrawalRequests.find(x => x.id === withdrawalId);
       const { error } = await supabase
@@ -689,14 +705,14 @@ const AdminPanel = () => {
         .eq("id", withdrawalId);
       if (error) throw error;
       await writeAuditLog({
-        action: "restore",
+        action: opts?.silent ? "undo_delete" : "restore",
         target_table: "withdrawal_requests",
         target_id: withdrawalId,
         target_user_id: w?.user_id ?? null,
-        reason: null,
+        reason: opts?.silent ? "Undo via toast" : null,
         metadata: { amount: w?.amount, currency: w?.currency },
       });
-      toast({ title: "Restored", description: "Withdrawal record restored" });
+      toast({ title: opts?.silent ? "Undone" : "Restored", description: "Withdrawal record restored" });
       fetchAllData();
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
