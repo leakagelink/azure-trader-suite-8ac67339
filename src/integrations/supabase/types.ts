@@ -510,6 +510,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_payment_methods: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          bank_name: string | null
+          created_at: string
+          id: string
+          ifsc_code: string | null
+          is_default: boolean
+          label: string | null
+          method_type: string
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_default?: boolean
+          label?: string | null
+          method_type: string
+          updated_at?: string
+          upi_id?: string | null
+          user_id: string
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc_code?: string | null
+          is_default?: boolean
+          label?: string | null
+          method_type?: string
+          updated_at?: string
+          upi_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
