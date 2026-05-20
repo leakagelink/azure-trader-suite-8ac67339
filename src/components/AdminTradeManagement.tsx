@@ -528,7 +528,7 @@ export const AdminTradeManagement = () => {
         let mutated = false;
         const next = prev.map((position) => {
           if (position.status !== 'open') return position;
-          if (position.price_mode === 'edited' || position.price_mode === 'manual') return position;
+          if (position.price_mode === 'manual') return position;
           const symbol = position.symbol.toUpperCase();
           const isForex = isForexSymbol(symbol);
           const isCommodity = isCommoditySymbol(symbol);
