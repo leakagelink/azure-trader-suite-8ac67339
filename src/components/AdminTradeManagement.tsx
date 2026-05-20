@@ -1117,22 +1117,32 @@ export const AdminTradeManagement = () => {
 
   const handleCloseTrade = async (position: Position) => {
     try {
-      // Use the current displayed PnL (which may have been edited by admin)
-      // instead of recalculating from prices
       const pnl = position.pnl ?? calculatePnL(position);
 
-      // Close position with the current PnL value
-      await supabase
+      // IDEMPOTENCY GUARD: only close if still open. If another close
+      // (user-side, double-click, or race) already closed it, the update
+      // returns 0 rows and we MUST NOT credit the wallet again.
+      const { data: updateResult, error: updErr } = await supabase
         .from('positions')
         .update({
           status: 'closed',
           closed_at: new Date().toISOString(),
           close_price: position.current_price,
-          pnl: pnl
+          pnl: pnl,
         })
-        .eq('id', position.id);
+        .eq('id', position.id)
+        .eq('status', 'open')
+        .select('id');
 
-      // Get wallet
+      if (updErr) throw updErr;
+
+      if (!updateResult || updateResult.length === 0) {
+        toast.info('Trade was already closed — skipping duplicate wallet credit');
+        fetchPositions();
+        fetchClosedUserStats();
+        return;
+      }
+
       const { data: wallet } = await supabase
         .from('user_wallets')
         .select('balance')
@@ -1140,24 +1150,22 @@ export const AdminTradeManagement = () => {
         .eq('currency', 'USD')
         .single();
 
-      const currentBalance = wallet?.balance || 0;
-      const finalAmount = position.margin + pnl;
+      const currentBalance = Number(wallet?.balance ?? 0);
+      const finalAmount = Number(position.margin) + Number(pnl);
 
-      // Update wallet
       await supabase
         .from('user_wallets')
         .update({ balance: currentBalance + finalAmount })
         .eq('user_id', position.user_id)
         .eq('currency', 'USD');
 
-      // Record transaction
       await supabase.from('wallet_transactions').insert({
         user_id: position.user_id,
         type: 'trade',
         amount: finalAmount,
         currency: 'USD',
         status: 'Completed',
-        reference_id: position.id
+        reference_id: position.id,
       });
 
       toast.success(`Position closed: ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)} PnL`);
