@@ -59,6 +59,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 const AdminPanel = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const onlineUserIds = useOnlineUsers();
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeTab, setActiveTab] = useState("approvals");
