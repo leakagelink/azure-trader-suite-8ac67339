@@ -49,6 +49,14 @@ interface UserWithTrades {
   email: string;
   tradeCount: number;
   totalPnL: number;
+  closedCount: number;
+}
+
+interface ClosedUserStat {
+  id: string;
+  full_name: string;
+  email: string;
+  closedCount: number;
 }
 
 interface AssetOption {
@@ -121,6 +129,7 @@ export const AdminTradeManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [tradeViewTab, setTradeViewTab] = useState<'open' | 'closed'>('open');
   const [closedPositions, setClosedPositions] = useState<Position[]>([]);
+  const [closedUserStats, setClosedUserStats] = useState<ClosedUserStat[]>([]);
   
   // Trade form fields
   const [assetType, setAssetType] = useState<'crypto' | 'forex' | 'commodities'>('crypto');
@@ -238,6 +247,7 @@ export const AdminTradeManagement = () => {
   useEffect(() => {
     fetchUsers();
     fetchPositions();
+    fetchClosedUserStats();
   }, []);
 
   // Fetch price when symbol changes for lot size calculations
@@ -565,6 +575,34 @@ export const AdminTradeManagement = () => {
     }
   };
 
+  const fetchClosedUserStats = async () => {
+    const { data: closed } = await supabase
+      .from("positions")
+      .select("user_id")
+      .eq("status", "closed");
+    if (!closed) { setClosedUserStats([]); return; }
+    const counts = new Map<string, number>();
+    closed.forEach((row: any) => {
+      counts.set(row.user_id, (counts.get(row.user_id) || 0) + 1);
+    });
+    const userIds = Array.from(counts.keys());
+    if (userIds.length === 0) { setClosedUserStats([]); return; }
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .in("id", userIds);
+    const stats: ClosedUserStat[] = userIds.map(id => {
+      const p = profiles?.find((x: any) => x.id === id);
+      return {
+        id,
+        full_name: p?.full_name || 'Unknown',
+        email: p?.email || '',
+        closedCount: counts.get(id) || 0,
+      };
+    });
+    setClosedUserStats(stats);
+  };
+
   const handleDeleteClosedTrade = async (positionId: string) => {
     if (!window.confirm("Delete this trade from history? This cannot be undone.")) return;
     const { error } = await supabase.rpc("admin_delete_position", { p_position_id: positionId });
@@ -573,6 +611,7 @@ export const AdminTradeManagement = () => {
       return;
     }
     setClosedPositions(prev => prev.filter(p => p.id !== positionId));
+    fetchClosedUserStats();
     toast.success("Trade deleted from history");
   };
 
@@ -585,8 +624,10 @@ export const AdminTradeManagement = () => {
       return;
     }
     setClosedPositions([]);
+    fetchClosedUserStats();
     toast.success(`Deleted ${data ?? 0} trade(s) from history`);
   };
+
 
   const getEffectivePositionAmount = (position: Pick<Position, 'amount' | 'margin' | 'leverage' | 'entry_price'>) => {
     const rawAmount = Number(position.amount) || 0;
@@ -616,7 +657,7 @@ export const AdminTradeManagement = () => {
     }
   };
 
-  // Get users with active trades
+  // Get users with active or closed trades
   const usersWithTrades: UserWithTrades[] = useMemo(() => {
     const userTradeMap = new Map<string, UserWithTrades>();
     
@@ -633,13 +674,33 @@ export const AdminTradeManagement = () => {
           full_name: position.profiles?.full_name || 'Unknown',
           email: position.profiles?.email || '',
           tradeCount: 1,
-          totalPnL: pnl
+          totalPnL: pnl,
+          closedCount: 0,
+        });
+      }
+    });
+
+    // Merge users that only have closed trades (no open trades)
+    closedUserStats.forEach(stat => {
+      const existing = userTradeMap.get(stat.id);
+      if (existing) {
+        existing.closedCount = stat.closedCount;
+        if (existing.full_name === 'Unknown' && stat.full_name) existing.full_name = stat.full_name;
+        if (!existing.email && stat.email) existing.email = stat.email;
+      } else {
+        userTradeMap.set(stat.id, {
+          id: stat.id,
+          full_name: stat.full_name,
+          email: stat.email,
+          tradeCount: 0,
+          totalPnL: 0,
+          closedCount: stat.closedCount,
         });
       }
     });
     
     return Array.from(userTradeMap.values());
-  }, [positions]);
+  }, [positions, closedUserStats]);
 
   // Filter users by search
   const filteredUsers = usersWithTrades.filter(user => 
@@ -1101,6 +1162,7 @@ export const AdminTradeManagement = () => {
 
       toast.success(`Position closed: ${pnl >= 0 ? '+' : ''}$${pnl.toFixed(2)} PnL`);
       fetchPositions();
+      fetchClosedUserStats();
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -1260,7 +1322,8 @@ export const AdminTradeManagement = () => {
   const handleViewUserTrades = (userId: string) => {
     setViewingUserId(userId);
     setCurrentPage(1);
-    setTradeViewTab('open');
+    const hasOpen = positions.some(p => p.user_id === userId);
+    setTradeViewTab(hasOpen ? 'open' : 'closed');
     fetchClosedPositions(userId);
   };
 
@@ -1309,12 +1372,12 @@ export const AdminTradeManagement = () => {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Users with Active Trades ({filteredUsers.length})
+            Users with Trades ({filteredUsers.length})
           </h3>
           
           {filteredUsers.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">
-              {searchQuery ? "No users found matching your search" : "No active trades"}
+              {searchQuery ? "No users found matching your search" : "No trades yet"}
             </p>
           ) : (
             <div className="grid gap-3">
@@ -1330,13 +1393,17 @@ export const AdminTradeManagement = () => {
                   <div className="flex items-center gap-6">
                     <div className="text-center">
                       <div className="text-2xl font-bold">{user.tradeCount}</div>
-                      <div className="text-xs text-muted-foreground">Trades</div>
+                      <div className="text-xs text-muted-foreground">Open</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-muted-foreground">{user.closedCount}</div>
+                      <div className="text-xs text-muted-foreground">Closed</div>
                     </div>
                     <div className="text-center min-w-[100px]">
                       <div className={`text-lg font-semibold ${user.totalPnL >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                         {user.totalPnL >= 0 ? '+' : ''}${user.totalPnL.toFixed(2)}
                       </div>
-                      <div className="text-xs text-muted-foreground">Total PnL</div>
+                      <div className="text-xs text-muted-foreground">Open PnL</div>
                     </div>
                     <Button 
                       variant="outline" 
