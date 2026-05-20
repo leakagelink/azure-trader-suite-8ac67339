@@ -657,7 +657,7 @@ export const AdminTradeManagement = () => {
     }
   };
 
-  // Get users with active trades
+  // Get users with active or closed trades
   const usersWithTrades: UserWithTrades[] = useMemo(() => {
     const userTradeMap = new Map<string, UserWithTrades>();
     
@@ -674,13 +674,33 @@ export const AdminTradeManagement = () => {
           full_name: position.profiles?.full_name || 'Unknown',
           email: position.profiles?.email || '',
           tradeCount: 1,
-          totalPnL: pnl
+          totalPnL: pnl,
+          closedCount: 0,
+        });
+      }
+    });
+
+    // Merge users that only have closed trades (no open trades)
+    closedUserStats.forEach(stat => {
+      const existing = userTradeMap.get(stat.id);
+      if (existing) {
+        existing.closedCount = stat.closedCount;
+        if (existing.full_name === 'Unknown' && stat.full_name) existing.full_name = stat.full_name;
+        if (!existing.email && stat.email) existing.email = stat.email;
+      } else {
+        userTradeMap.set(stat.id, {
+          id: stat.id,
+          full_name: stat.full_name,
+          email: stat.email,
+          tradeCount: 0,
+          totalPnL: 0,
+          closedCount: stat.closedCount,
         });
       }
     });
     
     return Array.from(userTradeMap.values());
-  }, [positions]);
+  }, [positions, closedUserStats]);
 
   // Filter users by search
   const filteredUsers = usersWithTrades.filter(user => 
