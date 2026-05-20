@@ -575,6 +575,34 @@ export const AdminTradeManagement = () => {
     }
   };
 
+  const fetchClosedUserStats = async () => {
+    const { data: closed } = await supabase
+      .from("positions")
+      .select("user_id")
+      .eq("status", "closed");
+    if (!closed) { setClosedUserStats([]); return; }
+    const counts = new Map<string, number>();
+    closed.forEach((row: any) => {
+      counts.set(row.user_id, (counts.get(row.user_id) || 0) + 1);
+    });
+    const userIds = Array.from(counts.keys());
+    if (userIds.length === 0) { setClosedUserStats([]); return; }
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name, email")
+      .in("id", userIds);
+    const stats: ClosedUserStat[] = userIds.map(id => {
+      const p = profiles?.find((x: any) => x.id === id);
+      return {
+        id,
+        full_name: p?.full_name || 'Unknown',
+        email: p?.email || '',
+        closedCount: counts.get(id) || 0,
+      };
+    });
+    setClosedUserStats(stats);
+  };
+
   const handleDeleteClosedTrade = async (positionId: string) => {
     if (!window.confirm("Delete this trade from history? This cannot be undone.")) return;
     const { error } = await supabase.rpc("admin_delete_position", { p_position_id: positionId });
@@ -583,6 +611,7 @@ export const AdminTradeManagement = () => {
       return;
     }
     setClosedPositions(prev => prev.filter(p => p.id !== positionId));
+    fetchClosedUserStats();
     toast.success("Trade deleted from history");
   };
 
@@ -595,8 +624,10 @@ export const AdminTradeManagement = () => {
       return;
     }
     setClosedPositions([]);
+    fetchClosedUserStats();
     toast.success(`Deleted ${data ?? 0} trade(s) from history`);
   };
+
 
   const getEffectivePositionAmount = (position: Pick<Position, 'amount' | 'margin' | 'leverage' | 'entry_price'>) => {
     const rawAmount = Number(position.amount) || 0;
