@@ -49,6 +49,14 @@ interface UserWithTrades {
   email: string;
   tradeCount: number;
   totalPnL: number;
+  closedCount: number;
+}
+
+interface ClosedUserStat {
+  id: string;
+  full_name: string;
+  email: string;
+  closedCount: number;
 }
 
 interface AssetOption {
