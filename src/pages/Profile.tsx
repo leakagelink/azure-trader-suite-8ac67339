@@ -26,7 +26,8 @@ interface KYCStatus {
 }
 
 interface TradeHistoryItem {
-  type: string;
+  symbol: string;
+  side: string;
   amount: string;
   date: string;
   status: string;
