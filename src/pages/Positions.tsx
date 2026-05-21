@@ -1112,27 +1112,27 @@ const Positions = () => {
             <p className="font-semibold">${formatMarketPrice(position.entry_price)}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Current Price</p>
+            <p className="text-muted-foreground">{position.status === 'closed' ? 'Close Price' : 'Current Price'}</p>
             <div className={`flex items-center gap-1 font-semibold transition-all duration-300 ${
-              priceChange?.flash 
+              position.status !== 'closed' && priceChange?.flash 
                 ? priceChange.direction === 'up' 
                   ? 'text-green-500 animate-pulse' 
                   : 'text-red-500 animate-pulse'
                 : ''
             }`}>
               <span className={`px-2 py-1 rounded transition-all duration-300 ${
-                priceChange?.flash
+                position.status !== 'closed' && priceChange?.flash
                   ? priceChange.direction === 'up'
                     ? 'bg-green-500/20'
                     : 'bg-red-500/20'
                   : ''
               }`}>
-                ${formatMarketPrice(position.current_price)}
+                ${formatMarketPrice(position.status === 'closed' ? (position.close_price ?? position.current_price) : position.current_price)}
               </span>
-              {priceChange?.direction === 'up' && (
+              {position.status !== 'closed' && priceChange?.direction === 'up' && (
                 <ArrowUp className="h-4 w-4 text-green-500" />
               )}
-              {priceChange?.direction === 'down' && (
+              {position.status !== 'closed' && priceChange?.direction === 'down' && (
                 <ArrowDown className="h-4 w-4 text-red-500" />
               )}
             </div>
