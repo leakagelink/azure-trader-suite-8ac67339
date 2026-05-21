@@ -257,7 +257,7 @@ const Profile = () => {
             {tradeHistory.map((trade, index) => (
               <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-muted/40 hover:bg-muted/60 border border-border/40 transition-all duration-300">
                 <div>
-                  <div className="font-semibold text-sm">{trade.type}</div>
+                  <div className="font-semibold text-sm">{trade.symbol} <span className={`ml-1 text-xs font-medium ${trade.side === "BUY" ? "text-emerald-500" : "text-red-500"}`}>{trade.side}</span></div>
                   <div className="text-xs text-muted-foreground">{trade.date}</div>
                 </div>
                 <div className="text-right">
