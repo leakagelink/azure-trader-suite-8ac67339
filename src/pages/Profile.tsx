@@ -26,7 +26,8 @@ interface KYCStatus {
 }
 
 interface TradeHistoryItem {
-  type: string;
+  symbol: string;
+  side: string;
   amount: string;
   date: string;
   status: string;
@@ -69,17 +70,26 @@ const Profile = () => {
         .from("payment_settings").select("setting_value").eq("setting_key", "app_download_url").maybeSingle();
       if (appUrlSetting?.setting_value) setAppDownloadUrl(appUrlSetting.setting_value);
 
-      const { data: tradeTxs } = await supabase
-        .from("wallet_transactions").select("*").eq("user_id", user?.id)
-        .eq("type", "trade").order("created_at", { ascending: false }).limit(10);
-      if (tradeTxs) {
-        setTradeHistory(tradeTxs.map((tx) => ({
-          type: "Trade",
-          amount: Number(tx.amount) >= 0 ? `+$${Number(tx.amount).toFixed(2)}` : `-$${Math.abs(Number(tx.amount)).toFixed(2)}`,
-          date: new Date(tx.created_at).toLocaleDateString(),
-          status: tx.status,
-          isProfit: Number(tx.amount) >= 0,
-        })));
+      // Fetch closed positions — same source as Broker (admin) view so data matches
+      const { data: closedPositions } = await supabase
+        .from("positions")
+        .select("symbol, position_type, pnl, closed_at, status")
+        .eq("user_id", user?.id)
+        .eq("status", "closed")
+        .order("closed_at", { ascending: false })
+        .limit(10);
+      if (closedPositions) {
+        setTradeHistory(closedPositions.map((p: any) => {
+          const pnl = Number(p.pnl ?? 0);
+          return {
+            symbol: p.symbol,
+            side: (p.position_type === "long" ? "BUY" : "SELL"),
+            amount: pnl >= 0 ? `+$${pnl.toFixed(2)}` : `-$${Math.abs(pnl).toFixed(2)}`,
+            date: p.closed_at ? new Date(p.closed_at).toLocaleDateString() : "",
+            status: "closed",
+            isProfit: pnl >= 0,
+          };
+        }));
       }
     } catch (error: any) {
       console.error("Error fetching profile:", error);
@@ -247,7 +257,7 @@ const Profile = () => {
             {tradeHistory.map((trade, index) => (
               <div key={index} className="flex items-center justify-between p-3 rounded-xl bg-muted/40 hover:bg-muted/60 border border-border/40 transition-all duration-300">
                 <div>
-                  <div className="font-semibold text-sm">{trade.type}</div>
+                  <div className="font-semibold text-sm">{trade.symbol} <span className={`ml-1 text-xs font-medium ${trade.side === "BUY" ? "text-emerald-500" : "text-red-500"}`}>{trade.side}</span></div>
                   <div className="text-xs text-muted-foreground">{trade.date}</div>
                 </div>
                 <div className="text-right">
