@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   Zap,
   History,
+  Mail,
 } from "lucide-react";
 import {
   Sidebar,
