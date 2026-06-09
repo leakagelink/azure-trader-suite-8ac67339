@@ -20,6 +20,7 @@ import Positions from "./pages/Positions";
 import AdminPositions from "./pages/AdminPositions";
 import PendingApproval from "./pages/PendingApproval";
 import WithdrawalHistory from "./pages/WithdrawalHistory";
+import KYCStatus from "./pages/KYCStatus";
 import UserApprovals from "./pages/UserApprovals";
 import News from "./pages/News";
 import Signals from "./pages/Signals";
