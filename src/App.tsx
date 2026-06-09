@@ -74,6 +74,14 @@ const App = () => (
               }
             />
             <Route
+              path="/withdrawal-history"
+              element={
+                <ProtectedRoute>
+                  <WithdrawalHistory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/profile"
               element={
                 <ProtectedRoute>
