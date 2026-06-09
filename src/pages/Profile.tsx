@@ -144,7 +144,7 @@ const Profile = () => {
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Your Client ID</p>
-                <p className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{profile.client_id}</p>
+                <p className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{profile.client_id?.replace(/^CGF/i, "")}</p>
               </div>
             </div>
             <Button
