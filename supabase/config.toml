@@ -1,1 +1,4 @@
 project_id = "guvgsthwiyhkvmvlouxj"
+
+[functions.signup-with-generated-password]
+verify_jwt = false
