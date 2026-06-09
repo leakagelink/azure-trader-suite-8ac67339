@@ -382,34 +382,42 @@ const Dashboard = () => {
             {/* Pro desktop layout: markets + side rail */}
             <div className="xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:gap-6 2xl:gap-8">
             <div className="min-w-0">
-            <Tabs defaultValue="crypto" className="w-full animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <Tabs defaultValue={cryptoOpen ? "crypto" : forexOpen ? "forex" : "commodities"} key={`${cryptoOpen}-${forexOpen}-${commoditiesOpen}`} className="w-full animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <TabsList className={`grid w-full mb-4 sm:mb-6 h-auto p-1.5 bg-card/60 backdrop-blur-xl border border-border/60 rounded-2xl shadow-lg ${
-                forexEnabled && commoditiesEnabled ? 'grid-cols-3' : 
-                forexEnabled || commoditiesEnabled ? 'grid-cols-2' : 'grid-cols-1'
+                [cryptoOpen, forexOpen, commoditiesOpen].filter(Boolean).length === 3 ? 'grid-cols-3' :
+                [cryptoOpen, forexOpen, commoditiesOpen].filter(Boolean).length === 2 ? 'grid-cols-2' : 'grid-cols-1'
               }`}>
-                <TabsTrigger 
-                  value="crypto" 
-                  className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
-                >
-                  Crypto
-                </TabsTrigger>
-                {forexEnabled && (
-                  <TabsTrigger 
+                {cryptoOpen && (
+                  <TabsTrigger
+                    value="crypto"
+                    className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
+                  >
+                    Crypto
+                  </TabsTrigger>
+                )}
+                {forexOpen && (
+                  <TabsTrigger
                     value="forex"
                     className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
                   >
                     Forex
                   </TabsTrigger>
                 )}
-                {commoditiesEnabled && (
-                  <TabsTrigger 
+                {commoditiesOpen && (
+                  <TabsTrigger
                     value="commodities"
                     className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
                   >
                     Commodities
                   </TabsTrigger>
                 )}
+                {!cryptoOpen && !forexOpen && !commoditiesOpen && (
+                  <div className="text-center text-sm text-muted-foreground py-3">All markets are currently closed.</div>
+                )}
               </TabsList>
+
+              {!cryptoOpen && null}
+
 
               <TabsContent value="crypto" className="animate-fade-in">
                 <div className="relative rounded-2xl bg-card/50 backdrop-blur-xl border border-border/60 p-4 sm:p-6 shadow-xl">
