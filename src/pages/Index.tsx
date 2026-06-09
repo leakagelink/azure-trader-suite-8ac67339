@@ -564,8 +564,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Live Trading Signals */}
-      <LiveSignals />
 
       {/* Comparison Table */}
       <ComparisonTable />
