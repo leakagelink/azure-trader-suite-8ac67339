@@ -13,7 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeForexData, invokeForexChartData } from "@/lib/forexCache";
 import { getContractSize, getLotLabel, getLotSpec, validateLotInput } from "@/lib/contractSize";
-import { isForexSymbol } from "@/lib/marketSymbols";
+import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
+import { fetchMarketSettings, isMarketOpen, type MarketCategory, type MarketSettings } from "@/lib/marketSettings";
 import {
   Dialog,
   DialogContent,
@@ -321,6 +322,47 @@ const Trading = () => {
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const touchStartDistance = useRef<number>(0);
+
+  // Market category gating (Crypto / Forex / Commodities on/off + hours)
+  const marketCategory: MarketCategory = useMemo(() => {
+    const s = symbol || '';
+    if (isCommoditySymbol(s)) return 'commodities';
+    if (isForexSymbol(s)) return 'forex';
+    return 'crypto';
+  }, [symbol]);
+  const [marketSettings, setMarketSettings] = useState<MarketSettings | null>(null);
+  const [marketOpen, setMarketOpen] = useState<boolean>(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const s = await fetchMarketSettings();
+        if (cancelled) return;
+        setMarketSettings(s);
+        setMarketOpen(isMarketOpen(s[marketCategory]));
+      } catch (e) {
+        console.error('Failed to fetch market settings', e);
+      }
+    };
+    load();
+    const id = setInterval(() => {
+      setMarketSettings((prev) => {
+        if (prev) setMarketOpen(isMarketOpen(prev[marketCategory]));
+        return prev;
+      });
+    }, 60000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [marketCategory]);
+
+  // Redirect away if market is disabled entirely by Broker
+  useEffect(() => {
+    if (marketSettings && !marketSettings[marketCategory].enabled) {
+      toast.error(`${marketCategory.charAt(0).toUpperCase() + marketCategory.slice(1)} market is currently disabled by Broker`);
+      navigate('/dashboard');
+    }
+  }, [marketSettings, marketCategory, navigate]);
+
 
   // Fetch wallet balance
   const fetchWalletBalance = async () => {
@@ -757,6 +799,18 @@ const Trading = () => {
   };
 
   const handleOpenPosition = async (type: 'long' | 'short') => {
+    // Market gating — block if market disabled or outside trading hours
+    if (marketSettings && !isMarketOpen(marketSettings[marketCategory])) {
+      const cfg = marketSettings[marketCategory];
+      if (!cfg.enabled) {
+        toast.error(`${marketCategory.toUpperCase()} market is disabled by Broker`);
+      } else {
+        toast.error(`${marketCategory.toUpperCase()} market is closed. Hours: ${cfg.hoursStart} - ${cfg.hoursEnd}`);
+      }
+      return;
+    }
+
+
     // Leverage validation — block invalid or out-of-range values
     const lev = Number(leverage);
     if (!Number.isFinite(lev) || isNaN(lev)) {
@@ -1256,25 +1310,38 @@ const Trading = () => {
 
       {/* Sticky Bottom Buy/Sell Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-background/95 backdrop-blur-lg border-t border-border/40 px-3 pt-3 pb-7 sm:px-4 sm:pt-4 sm:pb-8 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]" style={{ paddingBottom: 'max(1.75rem, env(safe-area-inset-bottom, 1.75rem))' }}>
-        <div className="container mx-auto flex gap-2 sm:gap-3 max-w-screen-lg">
-          <Button
-            onClick={() => setShowLongDialog(true)}
-            className="flex-1 h-12 sm:h-14 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform"
-            size="lg"
-          >
-            <TrendingUp className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            BUY
-          </Button>
-          <Button
-            onClick={() => setShowShortDialog(true)}
-            className="flex-1 h-12 sm:h-14 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform"
-            size="lg"
-          >
-            <TrendingDown className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            SELL
-          </Button>
+        <div className="container mx-auto max-w-screen-lg">
+          {!marketOpen && marketSettings && (
+            <div className="mb-2 text-center text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-lg py-1.5 px-3">
+              {marketCategory.toUpperCase()} market closed
+              {marketSettings[marketCategory].hoursEnabled && (
+                <> · Hours {marketSettings[marketCategory].hoursStart} – {marketSettings[marketCategory].hoursEnd}</>
+              )}
+            </div>
+          )}
+          <div className="flex gap-2 sm:gap-3">
+            <Button
+              onClick={() => setShowLongDialog(true)}
+              disabled={!marketOpen}
+              className="flex-1 h-12 sm:h-14 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              size="lg"
+            >
+              <TrendingUp className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              BUY
+            </Button>
+            <Button
+              onClick={() => setShowShortDialog(true)}
+              disabled={!marketOpen}
+              className="flex-1 h-12 sm:h-14 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              size="lg"
+            >
+              <TrendingDown className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              SELL
+            </Button>
+          </div>
         </div>
       </div>
+
 
       {/* Buy Position Dialog */}
       <Dialog open={showLongDialog} onOpenChange={setShowLongDialog}>
