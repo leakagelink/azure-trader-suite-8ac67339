@@ -461,6 +461,9 @@ const Dashboard = () => {
                   )}
                 </div>
               </TabsContent>
+              )}
+
+
 
               {forexEnabled && (
                 <TabsContent value="forex" className="animate-fade-in">
