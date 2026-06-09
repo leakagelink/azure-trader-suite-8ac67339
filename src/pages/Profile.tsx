@@ -360,7 +360,7 @@ const Profile = () => {
         <div className="space-y-3 text-sm">
           <div className="flex justify-between items-center pb-2 border-b border-border/40">
             <span className="text-muted-foreground">Client ID:</span>
-            <span className="font-mono font-bold text-primary">{profile?.client_id || "N/A"}</span>
+            <span className="font-mono font-bold text-primary">{profile?.client_id?.replace(/^CGF/i, "") || "N/A"}</span>
           </div>
           <div className="flex justify-between items-center pb-2 border-b border-border/40">
             <span className="text-muted-foreground">Account ID:</span>
