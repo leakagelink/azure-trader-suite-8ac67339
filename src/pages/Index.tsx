@@ -350,7 +350,7 @@ const Index = () => {
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Live Markets
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6 animate-fade-in">
-              Real-Time Crypto <span className="gradient-text">Markets</span>
+              Real-Time Crypto <span className="text-[#2d8a9e] italic font-serif-display">Markets</span>
             </h2>
             <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in px-4" style={{ animationDelay: '0.1s' }}>
               Track live prices with instant updates every second
@@ -449,7 +449,7 @@ const Index = () => {
                 <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-pulse" /> Real-Time Activity
               </Badge>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-4">
-                Live Trading <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Activity</span>
+                Live Trading <span className="text-[#2d8a9e] italic font-serif-display">Activity</span>
               </h2>
               <p className="text-sm sm:text-xl text-muted-foreground px-2">Join thousands of traders making profitable trades</p>
             </div>
@@ -508,7 +508,7 @@ const Index = () => {
               <Newspaper className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-pulse" /> Live Feed
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6 animate-fade-in">
-              Global Market <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">News</span>
+              Global Market <span className="text-[#2d8a9e] italic font-serif-display">News</span>
             </h2>
             <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in px-2" style={{ animationDelay: '0.1s' }}>
               Real-time news on Crypto, Forex, and Commodities — auto-updates every 5 minutes
@@ -536,7 +536,7 @@ const Index = () => {
         <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <div className="text-center mb-8 sm:mb-16">
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
-              Why Choose <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TradixoFX?</span>
+              Why Choose <span className="text-[#2d8a9e] italic font-serif-display">TradixoFX?</span>
             </h2>
             <p className="text-sm sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto px-2">
               Professional-grade tools trusted by thousands of successful traders worldwide
@@ -582,7 +582,7 @@ const Index = () => {
               <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 fill-primary" /> Testimonials
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
-              What Our <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Traders</span> Say
+              What Our <span className="text-[#2d8a9e] italic font-serif-display">Traders</span> Say
             </h2>
             <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto px-2">
               Join thousands of satisfied traders who trust TradixoFX
@@ -701,7 +701,7 @@ const Index = () => {
                 <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> FAQs
               </Badge>
               <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
-                Frequently Asked <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Questions</span>
+                Frequently Asked <span className="text-[#2d8a9e] italic font-serif-display">Questions</span>
               </h2>
               <p className="text-sm sm:text-xl text-muted-foreground px-2">
                 Everything you need to know about trading with TradixoFX
