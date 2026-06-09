@@ -26,7 +26,7 @@
     },
     "status": {
       "pendingTitle": "KYC Pending",
-      "pendingMsg": "Your KYC has been submitted. The broker will review it and notify you by email. This process can take 24–48 hours.",
+      "pendingMsg": "Your KYC has been submitted. The broker will review it and notify you by email. Approval typically happens within 4 hours.",
       "approvedMsg": "Congratulations! Your KYC is verified. You can now use all features.",
       "rejectionReason": "Rejection reason:",
       "rejectionFallback": "Documents could not be verified",
@@ -34,7 +34,7 @@
     },
     "toast": {
       "submittedTitle": "KYC submitted!",
-      "submittedDesc": "Your KYC has been sent to the broker for review.",
+      "submittedDesc": "Your KYC has been sent to the broker. It will be approved within 4 hours.",
       "missingInfoTitle": "Missing info",
       "missingInfoFallback": "Please complete all required fields",
       "documentRequiredTitle": "Document required",
