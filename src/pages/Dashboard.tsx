@@ -15,6 +15,8 @@ import { MarketNewsFeed } from "@/components/MarketNewsFeed";
 import { TopMoversStrip } from "@/components/home/TopMoversStrip";
 import { LiveSignals } from "@/components/home/LiveSignals";
 import { fetchMarketSettings, isMarketOpen, defaultMarketSettings, type MarketSettings } from "@/lib/marketSettings";
+import { MarketClosedBanner } from "@/components/MarketClosedBanner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Dashboard = () => {
   const navigate = useNavigate();
