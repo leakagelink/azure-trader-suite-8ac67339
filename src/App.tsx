@@ -187,14 +187,6 @@ const App = () => (
               }
             />
             <Route
-              path="/signals"
-              element={
-                <ProtectedRoute>
-                  <Signals />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path="/charts"
               element={
                 <ProtectedRoute>
