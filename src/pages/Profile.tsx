@@ -152,7 +152,7 @@ const Profile = () => {
               size="icon"
               className="rounded-xl hover:bg-primary/10 hover:text-primary"
               onClick={() => {
-                navigator.clipboard.writeText(profile.client_id || "");
+                navigator.clipboard.writeText((profile.client_id || "").replace(/^CGF/i, ""));
                 toast.success("Client ID copied!");
               }}
             >
