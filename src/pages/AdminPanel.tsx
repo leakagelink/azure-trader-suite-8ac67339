@@ -47,6 +47,7 @@ import { AdminAPIManagement } from "@/components/AdminAPIManagement";
 import { AdminKYCManagement } from "@/components/AdminKYCManagement";
 import { AdminSignalsManagement } from "@/components/AdminSignalsManagement";
 import { AdminAuditLog } from "@/components/AdminAuditLog";
+import EmailTemplateEditor from "@/components/admin/EmailTemplateEditor";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminUserPaymentMethodsDialog from "@/components/AdminUserPaymentMethodsDialog";
 import { AdminAuditLogDialog } from "@/components/AdminAuditLogDialog";
