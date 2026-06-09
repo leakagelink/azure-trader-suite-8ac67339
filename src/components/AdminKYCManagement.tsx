@@ -360,7 +360,7 @@ export const AdminKYCManagement = () => {
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell font-mono text-xs">
-                        {profile?.client_id || "—"}
+                        {profile?.client_id?.replace(/^CGF/i, "") || "—"}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell capitalize text-sm">
                         {row.id_document_type.replace("_", " ")}
