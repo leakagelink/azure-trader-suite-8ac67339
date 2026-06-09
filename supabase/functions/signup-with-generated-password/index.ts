@@ -95,7 +95,33 @@ serve(async (req) => {
 
     const clientId = profile?.client_id || "—";
 
-    // Send credentials email
+    // Load custom template from DB, fall back to defaults
+    let subject = DEFAULT_SUBJECT;
+    let htmlTpl = DEFAULT_HTML;
+    try {
+      const { data: tpl } = await admin
+        .from("email_templates")
+        .select("subject, html_body")
+        .eq("key", "signup_credentials")
+        .maybeSingle();
+      if (tpl?.subject) subject = tpl.subject;
+      if (tpl?.html_body) htmlTpl = tpl.html_body;
+    } catch (e) {
+      console.warn("Template fetch failed, using default:", e);
+    }
+
+    const vars = {
+      userName: fullName,
+      email,
+      clientId: clientId.replace(/^CGF/i, ""),
+      password,
+      logoUrl: LOGO_URL,
+      loginUrl: "https://tradixofx.com/auth",
+      year: String(new Date().getFullYear()),
+    };
+    const renderedSubject = renderTemplate(subject, vars);
+    const renderedHtml = renderTemplate(htmlTpl, vars);
+
     if (RESEND_API_KEY) {
       try {
         const emailRes = await fetch("https://api.resend.com/emails", {
@@ -107,8 +133,8 @@ serve(async (req) => {
           body: JSON.stringify({
             from: "TradixoFX <noreply@tradixofx.com>",
             to: [email],
-            subject: "🔐 Your TradixoFX Account Credentials",
-            html: buildEmail(fullName, email, password, clientId),
+            subject: renderedSubject,
+            html: renderedHtml,
           }),
         });
         if (!emailRes.ok) {
