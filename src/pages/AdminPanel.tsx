@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   TrendingUp, Shield, Users, Wallet, Settings, SettingsIcon, 
-  Check, X, RefreshCw, Edit, Trash2, DollarSign, FileText, ArrowUpRight, Upload, Loader2, Lock, Phone, Search, ChevronLeft, ChevronRight, Gift, Smartphone, Download, Globe, Gem
+  Check, X, RefreshCw, Edit, Trash2, DollarSign, FileText, ArrowUpRight, Upload, Loader2, Lock, Phone, Search, ChevronLeft, ChevronRight, Gift, Smartphone, Download, Globe, Gem, Bitcoin, Clock
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import logo from "@/assets/logo.png";
