@@ -416,10 +416,9 @@ const Dashboard = () => {
                 )}
               </TabsList>
 
-              {!cryptoOpen && null}
-
-
+              {cryptoOpen && (
               <TabsContent value="crypto" className="animate-fade-in">
+
                 <div className="relative rounded-2xl bg-card/50 backdrop-blur-xl border border-border/60 p-4 sm:p-6 shadow-xl">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
                   <div className="flex items-center justify-between mb-4 sm:mb-5">
