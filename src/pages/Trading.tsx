@@ -13,7 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeForexData, invokeForexChartData } from "@/lib/forexCache";
 import { getContractSize, getLotLabel, getLotSpec, validateLotInput } from "@/lib/contractSize";
-import { isForexSymbol } from "@/lib/marketSymbols";
+import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
+import { fetchMarketSettings, isMarketOpen, type MarketCategory, type MarketSettings } from "@/lib/marketSettings";
 import {
   Dialog,
   DialogContent,
