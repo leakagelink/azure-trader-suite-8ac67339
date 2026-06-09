@@ -323,6 +323,47 @@ const Trading = () => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const touchStartDistance = useRef<number>(0);
 
+  // Market category gating (Crypto / Forex / Commodities on/off + hours)
+  const marketCategory: MarketCategory = useMemo(() => {
+    const s = symbol || '';
+    if (isCommoditySymbol(s)) return 'commodities';
+    if (isForexSymbol(s)) return 'forex';
+    return 'crypto';
+  }, [symbol]);
+  const [marketSettings, setMarketSettings] = useState<MarketSettings | null>(null);
+  const [marketOpen, setMarketOpen] = useState<boolean>(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const s = await fetchMarketSettings();
+        if (cancelled) return;
+        setMarketSettings(s);
+        setMarketOpen(isMarketOpen(s[marketCategory]));
+      } catch (e) {
+        console.error('Failed to fetch market settings', e);
+      }
+    };
+    load();
+    const id = setInterval(() => {
+      setMarketSettings((prev) => {
+        if (prev) setMarketOpen(isMarketOpen(prev[marketCategory]));
+        return prev;
+      });
+    }, 60000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [marketCategory]);
+
+  // Redirect away if market is disabled entirely by Broker
+  useEffect(() => {
+    if (marketSettings && !marketSettings[marketCategory].enabled) {
+      toast.error(`${marketCategory.charAt(0).toUpperCase() + marketCategory.slice(1)} market is currently disabled by Broker`);
+      navigate('/dashboard');
+    }
+  }, [marketSettings, marketCategory, navigate]);
+
+
   // Fetch wallet balance
   const fetchWalletBalance = async () => {
     if (!user?.id) return;
