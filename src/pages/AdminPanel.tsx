@@ -1171,6 +1171,7 @@ const AdminPanel = () => {
                 <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
                 <TabsTrigger value="kyc">KYC</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
+                <TabsTrigger value="emails">Emails</TabsTrigger>
                 <TabsTrigger value="audit">Audit Log</TabsTrigger>
               </TabsList>
 
