@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   TrendingUp, Shield, Users, Wallet, Settings, SettingsIcon, 
-  Check, X, RefreshCw, Edit, Trash2, DollarSign, FileText, ArrowUpRight, Upload, Loader2, Lock, Phone, Search, ChevronLeft, ChevronRight, Gift, Smartphone, Download, Globe, Gem
+  Check, X, RefreshCw, Edit, Trash2, DollarSign, FileText, ArrowUpRight, Upload, Loader2, Lock, Phone, Search, ChevronLeft, ChevronRight, Gift, Smartphone, Download, Globe, Gem, Bitcoin, Clock
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import logo from "@/assets/logo.png";
@@ -149,11 +149,22 @@ const AdminPanel = () => {
   
   // Market settings state
   const [marketSettings, setMarketSettings] = useState({
+    cryptoEnabled: true,
     forexEnabled: true,
     commoditiesEnabled: true,
     forexMomentumEnabled: true,
     commoditiesMomentumEnabled: true,
+    cryptoHoursEnabled: false,
+    cryptoHoursStart: "00:00",
+    cryptoHoursEnd: "23:59",
+    forexHoursEnabled: false,
+    forexHoursStart: "00:00",
+    forexHoursEnd: "23:59",
+    commoditiesHoursEnabled: false,
+    commoditiesHoursStart: "00:00",
+    commoditiesHoursEnd: "23:59",
   });
+
 
   useEffect(() => {
     checkAdminStatus();
@@ -332,11 +343,22 @@ const AdminPanel = () => {
         
         // Set market settings
         setMarketSettings({
+          cryptoEnabled: settings.cryptoEnabled !== 'false',
           forexEnabled: settings.forexEnabled !== 'false',
           commoditiesEnabled: settings.commoditiesEnabled !== 'false',
           forexMomentumEnabled: settings.forexMomentumEnabled !== 'false',
           commoditiesMomentumEnabled: settings.commoditiesMomentumEnabled !== 'false',
+          cryptoHoursEnabled: settings.cryptoHoursEnabled === 'true',
+          cryptoHoursStart: settings.cryptoHoursStart || "00:00",
+          cryptoHoursEnd: settings.cryptoHoursEnd || "23:59",
+          forexHoursEnabled: settings.forexHoursEnabled === 'true',
+          forexHoursStart: settings.forexHoursStart || "00:00",
+          forexHoursEnd: settings.forexHoursEnd || "23:59",
+          commoditiesHoursEnabled: settings.commoditiesHoursEnabled === 'true',
+          commoditiesHoursStart: settings.commoditiesHoursStart || "00:00",
+          commoditiesHoursEnd: settings.commoditiesHoursEnd || "23:59",
         });
+
       }
     } catch (error: any) {
       toast({
@@ -977,11 +999,23 @@ const AdminPanel = () => {
         { setting_key: "deposit_bonus_max", setting_value: depositOfferSettings.bonusMax },
         { setting_key: "deposit_offer_title", setting_value: depositOfferSettings.offerTitle },
         // Market settings
+        { setting_key: "crypto_enabled", setting_value: String(marketSettings.cryptoEnabled) },
         { setting_key: "forex_enabled", setting_value: String(marketSettings.forexEnabled) },
         { setting_key: "commodities_enabled", setting_value: String(marketSettings.commoditiesEnabled) },
         { setting_key: "forex_momentum_enabled", setting_value: String(marketSettings.forexMomentumEnabled) },
         { setting_key: "commodities_momentum_enabled", setting_value: String(marketSettings.commoditiesMomentumEnabled) },
+        // Market hours
+        { setting_key: "crypto_hours_enabled", setting_value: String(marketSettings.cryptoHoursEnabled) },
+        { setting_key: "crypto_hours_start", setting_value: marketSettings.cryptoHoursStart },
+        { setting_key: "crypto_hours_end", setting_value: marketSettings.cryptoHoursEnd },
+        { setting_key: "forex_hours_enabled", setting_value: String(marketSettings.forexHoursEnabled) },
+        { setting_key: "forex_hours_start", setting_value: marketSettings.forexHoursStart },
+        { setting_key: "forex_hours_end", setting_value: marketSettings.forexHoursEnd },
+        { setting_key: "commodities_hours_enabled", setting_value: String(marketSettings.commoditiesHoursEnabled) },
+        { setting_key: "commodities_hours_start", setting_value: marketSettings.commoditiesHoursStart },
+        { setting_key: "commodities_hours_end", setting_value: marketSettings.commoditiesHoursEnd },
       ];
+
 
       // Only update API password if a new one was entered
       if (paymentSettings.apiPassword && paymentSettings.apiPassword.trim() !== "") {
@@ -2277,58 +2311,104 @@ const AdminPanel = () => {
                 <div className="space-y-4 border-t pt-6">
                   <h3 className="text-lg font-semibold flex items-center gap-2">
                     <Globe className="h-5 w-5 text-blue-500" />
-                    Market Availability
+                    Market Availability & Hours
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Control which markets are available to users on the Dashboard
+                    Toggle markets on/off and optionally restrict trading hours. Disabled or out-of-hours markets are hidden from users.
                   </p>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <DollarSign className="h-5 w-5 text-green-500" />
-                        <div>
-                          <Label className="text-base font-medium">Forex Market</Label>
-                          <p className="text-sm text-muted-foreground">EUR/USD, GBP/USD, JPY/USD, etc.</p>
+
+                  {([
+                    { key: "crypto", label: "Crypto Market", desc: "BTC, ETH, BNB, SOL, etc.", icon: Bitcoin, color: "text-orange-500" },
+                    { key: "forex", label: "Forex Market", desc: "EUR/USD, GBP/USD, JPY/USD, etc.", icon: DollarSign, color: "text-green-500" },
+                    { key: "commodities", label: "Commodities Market", desc: "Gold, Silver, Crude Oil, etc.", icon: Gem, color: "text-yellow-500" },
+                  ] as const).map((m) => {
+                    const enabledKey = `${m.key}Enabled` as const;
+                    const hoursEnabledKey = `${m.key}HoursEnabled` as const;
+                    const startKey = `${m.key}HoursStart` as const;
+                    const endKey = `${m.key}HoursEnd` as const;
+                    const Icon = m.icon;
+                    const isOn = (marketSettings as any)[enabledKey] as boolean;
+                    const hoursOn = (marketSettings as any)[hoursEnabledKey] as boolean;
+                    const start = (marketSettings as any)[startKey] as string;
+                    const end = (marketSettings as any)[endKey] as string;
+                    return (
+                      <div key={m.key} className="p-4 bg-muted rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Icon className={`h-5 w-5 ${m.color}`} />
+                            <div>
+                              <Label className="text-base font-medium">{m.label}</Label>
+                              <p className="text-sm text-muted-foreground">{m.desc}</p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={isOn}
+                            onCheckedChange={(checked) =>
+                              setMarketSettings({ ...marketSettings, [enabledKey]: checked } as any)
+                            }
+                          />
                         </div>
+
+                        {isOn && (
+                          <div className="pl-8 space-y-3 border-l-2 border-border/50 ml-2">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Clock className="h-4 w-4 text-muted-foreground" />
+                                <Label className="text-sm">Restrict trading hours</Label>
+                              </div>
+                              <Switch
+                                checked={hoursOn}
+                                onCheckedChange={(checked) =>
+                                  setMarketSettings({ ...marketSettings, [hoursEnabledKey]: checked } as any)
+                                }
+                              />
+                            </div>
+                            {hoursOn && (
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">Open at</Label>
+                                  <Input
+                                    type="time"
+                                    value={start}
+                                    onChange={(e) =>
+                                      setMarketSettings({ ...marketSettings, [startKey]: e.target.value } as any)
+                                    }
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">Close at</Label>
+                                  <Input
+                                    type="time"
+                                    value={end}
+                                    onChange={(e) =>
+                                      setMarketSettings({ ...marketSettings, [endKey]: e.target.value } as any)
+                                    }
+                                  />
+                                </div>
+                                <p className="col-span-2 text-xs text-muted-foreground">
+                                  Market open from <span className="font-semibold">{start}</span> to <span className="font-semibold">{end}</span> (server time). Window crossing midnight is supported.
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
-                      <Switch
-                        checked={marketSettings.forexEnabled}
-                        onCheckedChange={(checked) =>
-                          setMarketSettings({ ...marketSettings, forexEnabled: checked })
-                        }
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Gem className="h-5 w-5 text-yellow-500" />
-                        <div>
-                          <Label className="text-base font-medium">Commodities Market</Label>
-                          <p className="text-sm text-muted-foreground">Gold, Silver, Crude Oil, etc.</p>
-                        </div>
-                      </div>
-                      <Switch
-                        checked={marketSettings.commoditiesEnabled}
-                        onCheckedChange={(checked) =>
-                          setMarketSettings({ ...marketSettings, commoditiesEnabled: checked })
-                        }
-                      />
-                    </div>
-                  </div>
-                  
-                  {(!marketSettings.forexEnabled || !marketSettings.commoditiesEnabled) && (
+                    );
+                  })}
+
+                  {(!marketSettings.cryptoEnabled || !marketSettings.forexEnabled || !marketSettings.commoditiesEnabled) && (
                     <div className="p-3 bg-amber-600/10 border border-amber-600/20 rounded-lg">
                       <p className="text-sm text-amber-600 font-medium">
-                        {!marketSettings.forexEnabled && !marketSettings.commoditiesEnabled
-                          ? "Both Forex and Commodities markets are disabled"
-                          : !marketSettings.forexEnabled
-                          ? "Forex market is disabled for users"
-                          : "Commodities market is disabled for users"}
+                        {[
+                          !marketSettings.cryptoEnabled && "Crypto",
+                          !marketSettings.forexEnabled && "Forex",
+                          !marketSettings.commoditiesEnabled && "Commodities",
+                        ].filter(Boolean).join(", ")} hidden from users
                       </p>
                     </div>
                   )}
                 </div>
+
 
                 {/* Momentum Control — HIDDEN (kept in code) */}
                 {false && (

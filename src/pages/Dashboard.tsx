@@ -14,6 +14,7 @@ import logo from "@/assets/logo.png";
 import { MarketNewsFeed } from "@/components/MarketNewsFeed";
 import { TopMoversStrip } from "@/components/home/TopMoversStrip";
 import { LiveSignals } from "@/components/home/LiveSignals";
+import { fetchMarketSettings, isMarketOpen, defaultMarketSettings, type MarketSettings } from "@/lib/marketSettings";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -27,10 +28,16 @@ const Dashboard = () => {
   const [forexLoading, setForexLoading] = useState(true);
   const [commoditiesLoading, setCommoditiesLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [forexEnabled, setForexEnabled] = useState(true);
-  const [commoditiesEnabled, setCommoditiesEnabled] = useState(true);
-  const [forexMomentumEnabled, setForexMomentumEnabled] = useState(true);
-  const [commoditiesMomentumEnabled, setCommoditiesMomentumEnabled] = useState(true);
+  const [marketSettings, setMarketSettings] = useState<MarketSettings>(defaultMarketSettings);
+  const [tick, setTick] = useState(0); // re-render every minute for hour-window updates
+  const cryptoOpen = isMarketOpen(marketSettings.crypto);
+  const forexOpen = isMarketOpen(marketSettings.forex);
+  const commoditiesOpen = isMarketOpen(marketSettings.commodities);
+  const forexEnabled = forexOpen;
+  const commoditiesEnabled = commoditiesOpen;
+  const forexMomentumEnabled = true;
+  const commoditiesMomentumEnabled = true;
+
   const [walletBalance, setWalletBalance] = useState<number>(0);
 
   const fetchWalletBalance = async () => {
@@ -135,7 +142,8 @@ const Dashboard = () => {
       }
 
       // Fetch market settings
-      await fetchMarketSettings();
+      await loadMarketSettings();
+
       
       // User is approved, continue with normal dashboard flow
       fetchCryptoData();
@@ -176,33 +184,21 @@ const Dashboard = () => {
     }
   };
   
-  const fetchMarketSettings = async () => {
+  const loadMarketSettings = async () => {
     try {
-      const { data: settingsData } = await supabase
-        .from("payment_settings")
-        .select("setting_key, setting_value")
-        .in("setting_key", ["forex_enabled", "commodities_enabled", "forex_momentum_enabled", "commodities_momentum_enabled"]);
-      
-      if (settingsData) {
-        settingsData.forEach((setting) => {
-          if (setting.setting_key === "forex_enabled") {
-            setForexEnabled(setting.setting_value !== "false");
-          }
-          if (setting.setting_key === "commodities_enabled") {
-            setCommoditiesEnabled(setting.setting_value !== "false");
-          }
-          if (setting.setting_key === "forex_momentum_enabled") {
-            setForexMomentumEnabled(setting.setting_value !== "false");
-          }
-          if (setting.setting_key === "commodities_momentum_enabled") {
-            setCommoditiesMomentumEnabled(setting.setting_value !== "false");
-          }
-        });
-      }
+      const settings = await fetchMarketSettings();
+      setMarketSettings(settings);
     } catch (error) {
       console.error("Error fetching market settings:", error);
     }
   };
+
+  // Re-evaluate hour windows every 60s without refetching
+  useEffect(() => {
+    const t = setInterval(() => setTick((x) => x + 1), 60000);
+    return () => clearInterval(t);
+  }, []);
+
 
   const checkAdminStatus = async () => {
     try {
@@ -386,36 +382,43 @@ const Dashboard = () => {
             {/* Pro desktop layout: markets + side rail */}
             <div className="xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:gap-6 2xl:gap-8">
             <div className="min-w-0">
-            <Tabs defaultValue="crypto" className="w-full animate-fade-in" style={{ animationDelay: "0.2s" }}>
+            <Tabs defaultValue={cryptoOpen ? "crypto" : forexOpen ? "forex" : "commodities"} key={`${cryptoOpen}-${forexOpen}-${commoditiesOpen}`} className="w-full animate-fade-in" style={{ animationDelay: "0.2s" }}>
               <TabsList className={`grid w-full mb-4 sm:mb-6 h-auto p-1.5 bg-card/60 backdrop-blur-xl border border-border/60 rounded-2xl shadow-lg ${
-                forexEnabled && commoditiesEnabled ? 'grid-cols-3' : 
-                forexEnabled || commoditiesEnabled ? 'grid-cols-2' : 'grid-cols-1'
+                [cryptoOpen, forexOpen, commoditiesOpen].filter(Boolean).length === 3 ? 'grid-cols-3' :
+                [cryptoOpen, forexOpen, commoditiesOpen].filter(Boolean).length === 2 ? 'grid-cols-2' : 'grid-cols-1'
               }`}>
-                <TabsTrigger 
-                  value="crypto" 
-                  className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
-                >
-                  Crypto
-                </TabsTrigger>
-                {forexEnabled && (
-                  <TabsTrigger 
+                {cryptoOpen && (
+                  <TabsTrigger
+                    value="crypto"
+                    className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
+                  >
+                    Crypto
+                  </TabsTrigger>
+                )}
+                {forexOpen && (
+                  <TabsTrigger
                     value="forex"
                     className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
                   >
                     Forex
                   </TabsTrigger>
                 )}
-                {commoditiesEnabled && (
-                  <TabsTrigger 
+                {commoditiesOpen && (
+                  <TabsTrigger
                     value="commodities"
                     className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
                   >
                     Commodities
                   </TabsTrigger>
                 )}
+                {!cryptoOpen && !forexOpen && !commoditiesOpen && (
+                  <div className="text-center text-sm text-muted-foreground py-3">All markets are currently closed.</div>
+                )}
               </TabsList>
 
+              {cryptoOpen && (
               <TabsContent value="crypto" className="animate-fade-in">
+
                 <div className="relative rounded-2xl bg-card/50 backdrop-blur-xl border border-border/60 p-4 sm:p-6 shadow-xl">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
                   <div className="flex items-center justify-between mb-4 sm:mb-5">
@@ -458,6 +461,9 @@ const Dashboard = () => {
                   )}
                 </div>
               </TabsContent>
+              )}
+
+
 
               {forexEnabled && (
                 <TabsContent value="forex" className="animate-fade-in">
