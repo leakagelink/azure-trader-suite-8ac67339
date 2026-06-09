@@ -65,10 +65,13 @@ const Auth = () => {
       let email = identifier;
 
       if (!identifier.includes("@")) {
+        // Allow client ID with or without "CGF" prefix
+        const idUpper = identifier.toUpperCase();
+        const idWithPrefix = /^\d+$/.test(identifier) ? `CGF${identifier}` : idUpper;
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("email")
-          .or(`mobile_number.eq.${identifier},client_id.eq.${identifier.toUpperCase()}`)
+          .or(`mobile_number.eq.${identifier},client_id.eq.${idUpper},client_id.eq.${idWithPrefix}`)
           .maybeSingle();
 
         if (profileError) {
