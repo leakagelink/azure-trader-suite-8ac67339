@@ -799,6 +799,18 @@ const Trading = () => {
   };
 
   const handleOpenPosition = async (type: 'long' | 'short') => {
+    // Market gating — block if market disabled or outside trading hours
+    if (marketSettings && !isMarketOpen(marketSettings[marketCategory])) {
+      const cfg = marketSettings[marketCategory];
+      if (!cfg.enabled) {
+        toast.error(`${marketCategory.toUpperCase()} market is disabled by Broker`);
+      } else {
+        toast.error(`${marketCategory.toUpperCase()} market is closed. Hours: ${cfg.hoursStart} - ${cfg.hoursEnd}`);
+      }
+      return;
+    }
+
+
     // Leverage validation — block invalid or out-of-range values
     const lev = Number(leverage);
     if (!Number.isFinite(lev) || isNaN(lev)) {
