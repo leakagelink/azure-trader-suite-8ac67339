@@ -406,7 +406,7 @@ const Auth = () => {
                       id="identifier"
                       name="identifier"
                       type="text"
-                      placeholder="Email, Mobile or CGF123456"
+                      placeholder="Email, Mobile or Client ID (123456)"
                       className="pl-10 h-12 bg-background/50 border-border/50 focus:border-primary/50 transition-all"
                       required
                     />
