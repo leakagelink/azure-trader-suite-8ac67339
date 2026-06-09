@@ -36,7 +36,6 @@ const signUpSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   mobileNumber: z.string().min(10, "Mobile number must be at least 10 digits"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 const Auth = () => {
@@ -115,31 +114,22 @@ const Auth = () => {
     const fullName = formData.get("name") as string;
     const email = formData.get("email") as string;
     const mobileNumber = formData.get("mobile") as string;
-    const password = formData.get("password") as string;
 
     try {
-      signUpSchema.parse({ fullName, email, mobileNumber, password });
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { full_name: fullName, mobile_number: mobileNumber },
-          emailRedirectTo: `${window.location.origin}/`,
-        },
+      signUpSchema.parse({ fullName, email, mobileNumber });
+
+      const { data, error } = await supabase.functions.invoke("signup-with-generated-password", {
+        body: { fullName, email, mobileNumber },
       });
 
-      if (error) {
-        toast.error(
-          error.message.includes("User already registered")
-            ? "This email is already registered. Please sign in instead."
-            : error.message
-        );
+      if (error || (data && data.error)) {
+        const msg = (data && data.error) || error?.message || "Sign up failed";
+        toast.error(msg);
         return;
       }
-      if (data.user) {
-        toast.success("Account created! Awaiting broker approval.");
-        navigate("/pending-approval");
-      }
+
+      toast.success("Account created! Your login credentials have been sent to your email.");
+      navigate("/pending-approval");
     } catch (error) {
       if (error instanceof z.ZodError) toast.error(error.errors[0].message);
       else toast.error("An error occurred during sign up");
@@ -523,27 +513,10 @@ const Auth = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password" className="text-sm font-semibold">Password</Label>
-                  <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Input
-                      id="signup-password"
-                      name="password"
-                      type={showSignUpPassword ? "text" : "password"}
-                      placeholder="Min. 6 characters"
-                      className="pl-10 pr-10 h-12 bg-background/50 border-border/50 focus:border-primary/50 transition-all"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowSignUpPassword(!showSignUpPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
+                <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    🔐 <strong>No password needed.</strong> A secure password will be auto-generated and sent to your email along with your Client ID. You can change it anytime after first login.
+                  </p>
                 </div>
 
                 <Button
