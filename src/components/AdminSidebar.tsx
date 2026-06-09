@@ -55,6 +55,7 @@ const transactionsItems = [
 
 const systemItems = [
   // { id: "api", title: "API Keys", icon: Settings }, // Hidden — kept for future use
+  { id: "emails", title: "Emails", icon: Mail },
   { id: "settings", title: "Settings", icon: SettingsIcon },
 ];
 
