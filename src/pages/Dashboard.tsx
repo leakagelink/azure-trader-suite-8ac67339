@@ -142,7 +142,8 @@ const Dashboard = () => {
       }
 
       // Fetch market settings
-      await fetchMarketSettings();
+      await loadMarketSettings();
+
       
       // User is approved, continue with normal dashboard flow
       fetchCryptoData();
