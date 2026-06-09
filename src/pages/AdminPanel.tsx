@@ -999,11 +999,23 @@ const AdminPanel = () => {
         { setting_key: "deposit_bonus_max", setting_value: depositOfferSettings.bonusMax },
         { setting_key: "deposit_offer_title", setting_value: depositOfferSettings.offerTitle },
         // Market settings
+        { setting_key: "crypto_enabled", setting_value: String(marketSettings.cryptoEnabled) },
         { setting_key: "forex_enabled", setting_value: String(marketSettings.forexEnabled) },
         { setting_key: "commodities_enabled", setting_value: String(marketSettings.commoditiesEnabled) },
         { setting_key: "forex_momentum_enabled", setting_value: String(marketSettings.forexMomentumEnabled) },
         { setting_key: "commodities_momentum_enabled", setting_value: String(marketSettings.commoditiesMomentumEnabled) },
+        // Market hours
+        { setting_key: "crypto_hours_enabled", setting_value: String(marketSettings.cryptoHoursEnabled) },
+        { setting_key: "crypto_hours_start", setting_value: marketSettings.cryptoHoursStart },
+        { setting_key: "crypto_hours_end", setting_value: marketSettings.cryptoHoursEnd },
+        { setting_key: "forex_hours_enabled", setting_value: String(marketSettings.forexHoursEnabled) },
+        { setting_key: "forex_hours_start", setting_value: marketSettings.forexHoursStart },
+        { setting_key: "forex_hours_end", setting_value: marketSettings.forexHoursEnd },
+        { setting_key: "commodities_hours_enabled", setting_value: String(marketSettings.commoditiesHoursEnabled) },
+        { setting_key: "commodities_hours_start", setting_value: marketSettings.commoditiesHoursStart },
+        { setting_key: "commodities_hours_end", setting_value: marketSettings.commoditiesHoursEnd },
       ];
+
 
       // Only update API password if a new one was entered
       if (paymentSettings.apiPassword && paymentSettings.apiPassword.trim() !== "") {
