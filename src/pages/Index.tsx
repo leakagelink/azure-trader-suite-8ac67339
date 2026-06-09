@@ -12,7 +12,7 @@ import { MarketNewsFeed } from "@/components/MarketNewsFeed";
 import { TopMoversStrip } from "@/components/home/TopMoversStrip";
 import { EconomicCalendar } from "@/components/home/EconomicCalendar";
 import { TradingCalculator } from "@/components/home/TradingCalculator";
-import { LiveSignals } from "@/components/home/LiveSignals";
+
 import { TrustSecurity } from "@/components/home/TrustSecurity";
 import { ComparisonTable } from "@/components/home/ComparisonTable";
 import HeroTradingAnimation from "@/components/home/HeroTradingAnimation";
@@ -564,8 +564,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Live Trading Signals */}
-      <LiveSignals />
 
       {/* Comparison Table */}
       <ComparisonTable />

@@ -23,7 +23,7 @@ import WithdrawalHistory from "./pages/WithdrawalHistory";
 import KYCStatus from "./pages/KYCStatus";
 import UserApprovals from "./pages/UserApprovals";
 import News from "./pages/News";
-import Signals from "./pages/Signals";
+
 import Charts from "./pages/Charts";
 import NotFound from "./pages/NotFound";
 
@@ -183,14 +183,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <News />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/signals"
-              element={
-                <ProtectedRoute>
-                  <Signals />
                 </ProtectedRoute>
               }
             />

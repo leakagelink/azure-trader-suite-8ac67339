@@ -13,7 +13,7 @@ import BottomNav from "@/components/BottomNav";
 import logo from "@/assets/logo.png";
 import { MarketNewsFeed } from "@/components/MarketNewsFeed";
 import { TopMoversStrip } from "@/components/home/TopMoversStrip";
-import { LiveSignals } from "@/components/home/LiveSignals";
+
 import { fetchMarketSettings, isMarketOpen, defaultMarketSettings, type MarketSettings } from "@/lib/marketSettings";
 import { MarketClosedBanner } from "@/components/MarketClosedBanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -568,9 +568,6 @@ const Dashboard = () => {
 
             {/* Right rail on xl+ */}
             <div className="xl:sticky xl:top-24 xl:self-start xl:max-h-[calc(100vh-7rem)] xl:overflow-y-auto xl:pr-1 space-y-6 xl:space-y-5 mt-8 xl:mt-0">
-              <div className="-mx-3 sm:-mx-4 md:-mx-6 xl:mx-0 animate-fade-in" style={{ animationDelay: "0.25s" }}>
-                <LiveSignals authenticated />
-              </div>
               <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
                 <div className="relative rounded-2xl bg-card/50 backdrop-blur-xl border border-border/60 p-4 sm:p-6 shadow-xl">
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
