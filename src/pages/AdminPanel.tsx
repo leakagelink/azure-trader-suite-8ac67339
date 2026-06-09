@@ -47,6 +47,7 @@ import { AdminAPIManagement } from "@/components/AdminAPIManagement";
 import { AdminKYCManagement } from "@/components/AdminKYCManagement";
 import { AdminSignalsManagement } from "@/components/AdminSignalsManagement";
 import { AdminAuditLog } from "@/components/AdminAuditLog";
+import EmailTemplateEditor from "@/components/admin/EmailTemplateEditor";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import AdminUserPaymentMethodsDialog from "@/components/AdminUserPaymentMethodsDialog";
 import { AdminAuditLogDialog } from "@/components/AdminAuditLogDialog";
@@ -1170,6 +1171,7 @@ const AdminPanel = () => {
                 <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
                 <TabsTrigger value="kyc">KYC</TabsTrigger>
                 <TabsTrigger value="settings">Settings</TabsTrigger>
+                <TabsTrigger value="emails">Emails</TabsTrigger>
                 <TabsTrigger value="audit">Audit Log</TabsTrigger>
               </TabsList>
 
@@ -1930,6 +1932,10 @@ const AdminPanel = () => {
           {/* KYC Management Tab */}
           <TabsContent value="kyc">
             <AdminKYCManagement />
+          </TabsContent>
+
+          <TabsContent value="emails">
+            <EmailTemplateEditor />
           </TabsContent>
 
           {/* Payment Settings Tab */}
