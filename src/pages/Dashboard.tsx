@@ -15,6 +15,8 @@ import { MarketNewsFeed } from "@/components/MarketNewsFeed";
 import { TopMoversStrip } from "@/components/home/TopMoversStrip";
 import { LiveSignals } from "@/components/home/LiveSignals";
 import { fetchMarketSettings, isMarketOpen, defaultMarketSettings, type MarketSettings } from "@/lib/marketSettings";
+import { MarketClosedBanner } from "@/components/MarketClosedBanner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -382,39 +384,43 @@ const Dashboard = () => {
             {/* Pro desktop layout: markets + side rail */}
             <div className="xl:grid xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] xl:gap-6 2xl:gap-8">
             <div className="min-w-0">
-            <Tabs defaultValue={cryptoOpen ? "crypto" : forexOpen ? "forex" : "commodities"} key={`${cryptoOpen}-${forexOpen}-${commoditiesOpen}`} className="w-full animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <TabsList className={`grid w-full mb-4 sm:mb-6 h-auto p-1.5 bg-card/60 backdrop-blur-xl border border-border/60 rounded-2xl shadow-lg ${
-                [cryptoOpen, forexOpen, commoditiesOpen].filter(Boolean).length === 3 ? 'grid-cols-3' :
-                [cryptoOpen, forexOpen, commoditiesOpen].filter(Boolean).length === 2 ? 'grid-cols-2' : 'grid-cols-1'
-              }`}>
-                {cryptoOpen && (
-                  <TabsTrigger
-                    value="crypto"
-                    className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
-                  >
-                    Crypto
-                  </TabsTrigger>
-                )}
-                {forexOpen && (
-                  <TabsTrigger
-                    value="forex"
-                    className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
-                  >
-                    Forex
-                  </TabsTrigger>
-                )}
-                {commoditiesOpen && (
-                  <TabsTrigger
-                    value="commodities"
-                    className="text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300"
-                  >
-                    Commodities
-                  </TabsTrigger>
-                )}
-                {!cryptoOpen && !forexOpen && !commoditiesOpen && (
-                  <div className="text-center text-sm text-muted-foreground py-3">All markets are currently closed.</div>
-                )}
-              </TabsList>
+            <Tabs defaultValue={cryptoOpen ? "crypto" : forexOpen ? "forex" : commoditiesOpen ? "commodities" : "crypto"} key={`${cryptoOpen}-${forexOpen}-${commoditiesOpen}`} className="w-full animate-fade-in" style={{ animationDelay: "0.2s" }}>
+              <TooltipProvider delayDuration={150}>
+                <TabsList className="grid w-full mb-4 sm:mb-6 h-auto p-1.5 bg-card/60 backdrop-blur-xl border border-border/60 rounded-2xl shadow-lg grid-cols-3">
+                  {([
+                    { value: "crypto", label: "Crypto", open: cryptoOpen, cfg: marketSettings.crypto, cat: "crypto" as const },
+                    { value: "forex", label: "Forex", open: forexOpen, cfg: marketSettings.forex, cat: "forex" as const },
+                    { value: "commodities", label: "Commodities", open: commoditiesOpen, cfg: marketSettings.commodities, cat: "commodities" as const },
+                  ]).map((t) => (
+                    <Tooltip key={t.value}>
+                      <TooltipTrigger asChild>
+                        <span className="block">
+                          <TabsTrigger
+                            value={t.value}
+                            disabled={!t.open}
+                            className="w-full text-xs sm:text-sm py-2.5 sm:py-3 rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:via-secondary data-[state=active]:to-accent data-[state=active]:text-primary-foreground data-[state=active]:shadow-[0_4px_20px_-4px_hsl(var(--primary)/0.5)] font-semibold transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            <span className="flex items-center justify-center gap-1.5">
+                              {t.label}
+                              {!t.open && (
+                                <span className="hidden sm:inline text-[10px] uppercase tracking-wider bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40 rounded px-1.5 py-0.5">
+                                  Closed
+                                </span>
+                              )}
+                            </span>
+                          </TabsTrigger>
+                        </span>
+                      </TooltipTrigger>
+                      {!t.open && (
+                        <TooltipContent side="bottom" className="max-w-[260px]">
+                          <MarketClosedBanner category={t.cat} config={t.cfg} variant="banner" className="!bg-transparent !border-0 !shadow-none !p-0" />
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  ))}
+                </TabsList>
+              </TooltipProvider>
+
 
               {cryptoOpen && (
               <TabsContent value="crypto" className="animate-fade-in">
