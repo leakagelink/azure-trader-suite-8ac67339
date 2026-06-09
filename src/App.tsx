@@ -107,6 +107,14 @@ const App = () => (
               }
             />
             <Route
+              path="/kyc-status"
+              element={
+                <ProtectedRoute>
+                  <KYCStatus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/admin"
               element={
                 <ProtectedRoute>
