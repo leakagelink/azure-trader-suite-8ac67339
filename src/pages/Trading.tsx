@@ -1310,25 +1310,38 @@ const Trading = () => {
 
       {/* Sticky Bottom Buy/Sell Bar */}
       <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-background via-background to-background/95 backdrop-blur-lg border-t border-border/40 px-3 pt-3 pb-7 sm:px-4 sm:pt-4 sm:pb-8 z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]" style={{ paddingBottom: 'max(1.75rem, env(safe-area-inset-bottom, 1.75rem))' }}>
-        <div className="container mx-auto flex gap-2 sm:gap-3 max-w-screen-lg">
-          <Button
-            onClick={() => setShowLongDialog(true)}
-            className="flex-1 h-12 sm:h-14 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform"
-            size="lg"
-          >
-            <TrendingUp className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            BUY
-          </Button>
-          <Button
-            onClick={() => setShowShortDialog(true)}
-            className="flex-1 h-12 sm:h-14 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform"
-            size="lg"
-          >
-            <TrendingDown className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            SELL
-          </Button>
+        <div className="container mx-auto max-w-screen-lg">
+          {!marketOpen && marketSettings && (
+            <div className="mb-2 text-center text-xs sm:text-sm font-semibold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-lg py-1.5 px-3">
+              {marketCategory.toUpperCase()} market closed
+              {marketSettings[marketCategory].hoursEnabled && (
+                <> · Hours {marketSettings[marketCategory].hoursStart} – {marketSettings[marketCategory].hoursEnd}</>
+              )}
+            </div>
+          )}
+          <div className="flex gap-2 sm:gap-3">
+            <Button
+              onClick={() => setShowLongDialog(true)}
+              disabled={!marketOpen}
+              className="flex-1 h-12 sm:h-14 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              size="lg"
+            >
+              <TrendingUp className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              BUY
+            </Button>
+            <Button
+              onClick={() => setShowShortDialog(true)}
+              disabled={!marketOpen}
+              className="flex-1 h-12 sm:h-14 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold text-sm sm:text-base md:text-lg shadow-lg touch-manipulation active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              size="lg"
+            >
+              <TrendingDown className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+              SELL
+            </Button>
+          </div>
         </div>
       </div>
+
 
       {/* Buy Position Dialog */}
       <Dialog open={showLongDialog} onOpenChange={setShowLongDialog}>
