@@ -155,6 +155,38 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          html_body: string
+          key: string
+          subject: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          html_body: string
+          key: string
+          subject: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          html_body?: string
+          key?: string
+          subject?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_submissions: {
         Row: {
           address: string
