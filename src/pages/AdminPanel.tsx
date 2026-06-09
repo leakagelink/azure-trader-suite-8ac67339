@@ -1934,6 +1934,10 @@ const AdminPanel = () => {
             <AdminKYCManagement />
           </TabsContent>
 
+          <TabsContent value="emails">
+            <EmailTemplateEditor />
+          </TabsContent>
+
           {/* Payment Settings Tab */}
           <TabsContent value="settings">
             <Card>
