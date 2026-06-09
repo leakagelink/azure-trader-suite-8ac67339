@@ -506,8 +506,6 @@ const Index = () => {
       </section>
 
 
-      {/* Comparison Table */}
-      <ComparisonTable />
 
       {/* Trust & Security */}
       <TrustSecurity />
