@@ -304,7 +304,7 @@ const Profile = () => {
       {/* KYC Verification Card */}
       <Card
         className={`${glassCardClass} p-5 mb-5 cursor-pointer group hover:scale-[1.01] transition-all duration-300`}
-        onClick={() => navigate("/kyc")}
+        onClick={() => navigate(kycStatus ? "/kyc-status" : "/kyc")}
       >
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
         <div className="relative flex items-center justify-between">
