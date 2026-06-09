@@ -14,6 +14,7 @@ import logo from "@/assets/logo.png";
 import { MarketNewsFeed } from "@/components/MarketNewsFeed";
 import { TopMoversStrip } from "@/components/home/TopMoversStrip";
 import { LiveSignals } from "@/components/home/LiveSignals";
+import { fetchMarketSettings, isMarketOpen, defaultMarketSettings, type MarketSettings } from "@/lib/marketSettings";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -27,10 +28,16 @@ const Dashboard = () => {
   const [forexLoading, setForexLoading] = useState(true);
   const [commoditiesLoading, setCommoditiesLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [forexEnabled, setForexEnabled] = useState(true);
-  const [commoditiesEnabled, setCommoditiesEnabled] = useState(true);
-  const [forexMomentumEnabled, setForexMomentumEnabled] = useState(true);
-  const [commoditiesMomentumEnabled, setCommoditiesMomentumEnabled] = useState(true);
+  const [marketSettings, setMarketSettings] = useState<MarketSettings>(defaultMarketSettings);
+  const [tick, setTick] = useState(0); // re-render every minute for hour-window updates
+  const cryptoOpen = isMarketOpen(marketSettings.crypto);
+  const forexOpen = isMarketOpen(marketSettings.forex);
+  const commoditiesOpen = isMarketOpen(marketSettings.commodities);
+  const forexEnabled = forexOpen;
+  const commoditiesEnabled = commoditiesOpen;
+  const forexMomentumEnabled = true;
+  const commoditiesMomentumEnabled = true;
+
   const [walletBalance, setWalletBalance] = useState<number>(0);
 
   const fetchWalletBalance = async () => {
