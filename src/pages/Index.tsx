@@ -190,186 +190,152 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden">
+    <div className="landing-ocean min-h-screen bg-[#f9fafb] text-[#1a4a6e] overflow-hidden" style={{ fontFamily: "'IBM Plex Sans', system-ui, sans-serif" }}>
+      {/* Scoped landing styles */}
+      <style>{`
+        .landing-ocean .font-serif-display { font-family: 'Libre Baskerville', Georgia, serif; }
+        .landing-ocean .ocean-eyebrow { letter-spacing: 0.18em; }
+        .landing-ocean h2 .ocean-accent,
+        .landing-ocean h1 .ocean-accent { color: #2d8a9e; }
+        .landing-ocean .ocean-section-title { font-family: 'Libre Baskerville', Georgia, serif; color: #0c2340; }
+      `}</style>
+
       {/* Navigation */}
-      <nav className="border-b border-border/40 backdrop-blur-xl bg-background/80 sticky top-0 z-50 shadow-sm noise">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3 group cursor-pointer">
-              <img src={logo} alt="TradixoFX" className="h-14 w-auto sm:h-20 object-contain group-hover:scale-105 transition-all duration-300" />
-            </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Button variant="ghost" onClick={() => navigate("/auth")} className="hover:bg-primary/10 transition-all hidden sm:flex">
-                Sign In
-              </Button>
-              <Button size="sm" className="bg-gradient-to-r from-primary via-primary/95 to-accent hover:shadow-lg hover:scale-105 transition-all duration-300 text-xs sm:text-sm px-3 sm:px-4 relative overflow-hidden group" onClick={() => navigate("/auth")}>
-                <span className="relative z-10 flex items-center">
-                  <span className="hidden sm:inline">Get Started</span>
-                  <span className="sm:hidden">Start</span>
-                  <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </Button>
-            </div>
+      <nav className="fixed top-0 w-full z-50 bg-[#f9fafb]/85 backdrop-blur-md border-b border-[#0c2340]/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+            <img src={logo} alt="TradixoFX" className="h-10 sm:h-12 w-auto object-contain" />
+          </div>
+          <div className="flex items-center gap-3 sm:gap-6">
+            <button
+              onClick={() => navigate("/auth")}
+              className="hidden sm:inline text-sm font-medium text-[#1a4a6e] hover:text-[#2d8a9e] transition-colors"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => navigate("/auth")}
+              className="bg-[#0c2340] text-white px-5 sm:px-6 py-2.5 rounded-full text-xs sm:text-sm font-semibold hover:bg-[#1a4a6e] transition-all flex items-center gap-2 shadow-md shadow-[#0c2340]/15"
+            >
+              Get Started
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Crypto Ticker */}
-      <div className="bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 border-b border-border/40 py-2 sm:py-4 overflow-hidden relative">
-        <div className="absolute inset-0 shimmer opacity-50" />
-        <div className="container mx-auto px-2 sm:px-4 relative">
-          <div className="flex items-center justify-center gap-2 sm:gap-8 md:gap-16 overflow-x-auto scrollbar-hide">
+      {/* Hero Section */}
+      <main className="relative pt-28 sm:pt-32 pb-16 sm:pb-24 overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 [background-image:radial-gradient(#2d8a9e_1px,transparent_1px)] [background-size:40px_40px] opacity-[0.06]" />
+          <svg className="absolute bottom-0 left-0 w-full h-[60%] opacity-25" viewBox="0 0 1440 400" fill="none" preserveAspectRatio="none">
+            <path d="M0 320C120 280 240 150 360 180C480 210 600 340 720 310C840 280 960 100 1080 120C1200 140 1320 280 1440 240V400H0V320Z" fill="url(#oceanGrad)" />
+            <defs>
+              <linearGradient id="oceanGrad" x1="720" y1="100" x2="720" y2="400" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#2d8a9e" stopOpacity="0.45" />
+                <stop offset="1" stopColor="#f9fafb" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          {/* Floating asset tags */}
+          <div className="hidden md:flex absolute top-[22%] left-[8%] bg-white/80 backdrop-blur-sm border border-[#5cbdb9]/40 px-3 py-1.5 rounded-full shadow-sm items-center gap-2 text-[11px] font-bold tracking-wider animate-float">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#5cbdb9]" /> BTC/USD <span className="text-[#2d8a9e]">+2.42%</span>
+          </div>
+          <div className="hidden md:flex absolute top-[30%] right-[12%] bg-white/80 backdrop-blur-sm border border-[#0c2340]/10 px-3 py-1.5 rounded-full shadow-sm items-center gap-2 text-[11px] font-bold tracking-wider animate-float" style={{ animationDelay: '1.2s' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400" /> XAU/USD <span className="text-red-500">-0.62%</span>
+          </div>
+          <div className="hidden md:flex absolute bottom-[22%] right-[8%] bg-white/80 backdrop-blur-sm border border-[#5cbdb9]/40 px-3 py-1.5 rounded-full shadow-sm items-center gap-2 text-[11px] font-bold tracking-wider animate-float" style={{ animationDelay: '2.4s' }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#5cbdb9]" /> SOL/USD <span className="text-[#2d8a9e]">+4.21%</span>
+          </div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
+          {/* Top Ticker Grid */}
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mb-10 sm:mb-16">
             {Object.entries(cryptoPrices).map(([symbol, data]) => {
               const displayName = symbol.replace('USDT', '');
-              const isUp = data.change > 0;
-              const isDown = data.change < 0;
-              
-              const coinIcons: { [key: string]: string } = {
-                'BTC': '₿',
-                'ETH': 'Ξ',
-                'BNB': 'B'
-              };
-              
+              const bgMap: Record<string, string> = { BTC: '#0c2340', ETH: '#1a4a6e', BNB: '#2d8a9e' };
+              const iconMap: Record<string, string> = { BTC: '₿', ETH: 'Ξ', BNB: 'B' };
               return (
                 <div
                   key={symbol}
-                  className={`flex items-center gap-1.5 sm:gap-3 p-1.5 sm:p-3 rounded-lg sm:rounded-xl transition-all duration-500 flex-shrink-0 glass hover:scale-105 cursor-pointer ${
-                    isUp ? 'glow-primary' : isDown ? 'border-red-500/30' : ''
-                  }`}
+                  className="bg-white/90 border border-[#0c2340]/10 p-3 sm:p-4 rounded-xl shadow-xl shadow-black/[0.03] flex items-center gap-3 sm:gap-4 min-w-[150px] sm:w-44 hover:-translate-y-0.5 transition-transform"
                 >
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <div className={`h-7 w-7 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-bold text-white shadow-lg text-sm sm:text-xl ${isUp || isDown ? 'animate-scale-pulse' : ''}`}>
-                      {coinIcons[displayName] || displayName.substring(0, 2)}
-                    </div>
-                    <div>
-                      <p className="font-bold text-xs sm:text-sm">{displayName}</p>
-                      <div className="flex items-center gap-0.5 sm:gap-1">
-                        <p className={`font-black text-xs sm:text-lg transition-all duration-300 ${
-                          isUp ? 'text-green-600' : isDown ? 'text-red-600' : ''
-                        }`}>
-                          ${data.price > 0 ? data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
-                        </p>
-                        {isUp && <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4 text-green-600 animate-bounce" />}
-                        {isDown && <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 animate-bounce" />}
-                      </div>
+                  <div
+                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white text-base sm:text-lg font-bold"
+                    style={{ backgroundColor: bgMap[displayName] || '#1a4a6e' }}
+                  >
+                    {iconMap[displayName] || displayName.slice(0, 2)}
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold text-[#2d8a9e] tracking-widest">{displayName}</div>
+                    <div className="text-base sm:text-lg font-bold text-[#0c2340]">
+                      ${data.price > 0 ? data.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-      </div>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-12 sm:py-24 md:py-40">
-        {/* Animated Background with Floating Orbs */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-background to-accent/20" />
-          
-          {/* Animated Orbs */}
-          <div className="absolute top-20 left-10 w-32 sm:w-72 h-32 sm:h-72 bg-primary/30 rounded-full blur-3xl animate-blob" />
-          <div className="absolute bottom-20 right-10 w-40 sm:w-96 h-40 sm:h-96 bg-accent/20 rounded-full blur-3xl animate-blob" style={{ animationDelay: '2s' }} />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[200px] sm:w-[500px] h-[200px] sm:h-[500px] bg-primary/10 rounded-full blur-3xl animate-blob" style={{ animationDelay: '4s' }} />
-          
-          {/* Floating Particles */}
-          <div className="particles">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="particle bg-primary/20"
-                style={{
-                  width: `${Math.random() * 10 + 5}px`,
-                  height: `${Math.random() * 10 + 5}px`,
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animationDelay: `${Math.random() * 5}s`,
-                  animationDuration: `${Math.random() * 10 + 5}s`,
-                }}
-              />
-            ))}
-          </div>
-          
-          {/* Grid overlay */}
-          <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-
-          {/* Trading animation overlay */}
-          <HeroTradingAnimation />
-        </div>
-
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-5xl mx-auto text-center">
-            {/* Floating Badge */}
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 glass rounded-full px-3 sm:px-6 py-1.5 sm:py-3 mb-4 sm:mb-8 shadow-lg animate-float border border-accent/30">
-              <div className="relative">
-                <Award className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
-                <div className="absolute inset-0 animate-ping">
-                  <Award className="h-4 w-4 sm:h-5 sm:w-5 text-accent/50" />
-                </div>
-              </div>
-              <span className="text-xs sm:text-sm font-bold gold-text uppercase tracking-wider">
+          {/* Hero Content */}
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 bg-[#5cbdb9]/10 border border-[#5cbdb9]/30 px-4 py-1.5 rounded-full mb-6 sm:mb-8">
+              <Award className="w-4 h-4 text-[#2d8a9e]" />
+              <span className="text-[10px] sm:text-[11px] font-bold ocean-eyebrow text-[#1a4a6e] uppercase">
                 #1 Professional Trading Platform
               </span>
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#5cbdb9] animate-pulse" />
             </div>
-            
-            <h1 className="text-3xl sm:text-6xl md:text-8xl font-black mb-4 sm:mb-8 leading-[1.05] tracking-tight animate-fade-in" style={{ animationDelay: '0.1s' }}>
-              Trade With
-              <span className="block relative mt-1 sm:mt-2">
-                <span className="gold-text">
-                  Confidence
-                </span>
-                {/* Underline glow */}
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-accent to-transparent rounded-full animate-pulse" />
-              </span>
+
+            <h1 className="font-serif-display text-5xl sm:text-7xl md:text-8xl font-bold text-[#0c2340] mb-6 sm:mb-8 leading-[1.05]">
+              Trade With <br />
+              <span className="ocean-accent">Confidence</span>
             </h1>
-            
-            <p className="text-sm sm:text-xl md:text-2xl text-muted-foreground mb-6 sm:mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in px-2" style={{ animationDelay: '0.2s' }}>
-              Experience professional trading with advanced tools, lightning-fast execution, and institutional-grade security. Join <span className="font-bold text-primary">50,000+</span> successful traders.
+
+            <p className="text-base sm:text-xl text-[#1a4a6e]/80 max-w-2xl mx-auto leading-relaxed mb-10 sm:mb-12 px-2">
+              Experience professional trading with advanced tools, lightning-fast execution, and institutional-grade security. Join <span className="text-[#0c2340] font-semibold">50,000+</span> successful traders.
             </p>
-            
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in px-4" style={{ animationDelay: '0.3s' }}>
-              <Button 
-                size="lg" 
-                className="w-full sm:w-auto bg-gradient-to-r from-primary via-primary to-accent hover:shadow-2xl hover:scale-105 transition-all duration-300 text-sm sm:text-lg px-6 sm:px-10 py-4 sm:py-6 rounded-xl font-bold group relative overflow-hidden"
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 px-4">
+              <Button
+                size="lg"
                 onClick={() => navigate("/auth")}
+                className="w-full sm:w-auto bg-[#0c2340] text-white px-8 sm:px-10 py-5 sm:py-6 rounded-xl font-bold text-base sm:text-lg hover:bg-[#1a4a6e] hover:-translate-y-0.5 transition-all shadow-xl shadow-[#0c2340]/20 flex items-center justify-center gap-3"
               >
-                <span className="relative z-10 flex items-center">
-                  Start Trading Now 
-                  <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-                {/* Shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                Start Trading Now
+                <ArrowRight className="w-5 h-5" />
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="w-full sm:w-auto text-sm sm:text-lg px-6 sm:px-10 py-4 sm:py-6 rounded-xl border-2 border-primary/20 hover:bg-primary/5 hover:border-primary/40 hover:scale-105 transition-all duration-300 backdrop-blur-sm group"
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto bg-white border border-[#0c2340]/15 text-[#0c2340] px-8 sm:px-10 py-5 sm:py-6 rounded-xl font-bold text-base sm:text-lg hover:bg-[#f1f5f9] hover:border-[#2d8a9e] transition-all flex items-center justify-center gap-3"
               >
-                <TrendingUp className="mr-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:animate-bounce" />
+                <LineChart className="w-5 h-5 text-[#2d8a9e]" />
                 View Live Markets
               </Button>
             </div>
 
-            {/* Stats Pills with Animation */}
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-6 mt-8 sm:mt-16 animate-fade-in px-2" style={{ animationDelay: '0.4s' }}>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-full glass hover:scale-105 transition-all cursor-pointer group">
-                <CheckCircle className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-green-500 group-hover:animate-bounce" />
-                <span className="font-semibold text-xs sm:text-base">SSL Secured</span>
+            {/* Trust pills */}
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-10 sm:mt-14 px-2">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#0c2340]/10 shadow-sm">
+                <CheckCircle className="w-4 h-4 text-[#2d8a9e]" />
+                <span className="font-semibold text-xs sm:text-sm text-[#0c2340]">SSL Secured</span>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-full glass hover:scale-105 transition-all cursor-pointer group">
-                <Award className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-accent group-hover:animate-bounce" />
-                <span className="font-semibold text-xs sm:text-base">ISO Certified</span>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#0c2340]/10 shadow-sm">
+                <Award className="w-4 h-4 text-[#2d8a9e]" />
+                <span className="font-semibold text-xs sm:text-sm text-[#0c2340]">ISO Certified</span>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-full glass hover:scale-105 transition-all cursor-pointer group">
-                <Users className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-primary group-hover:animate-bounce" />
-                <span className="font-semibold text-xs sm:text-base">50K+ Users</span>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#0c2340]/10 shadow-sm">
+                <Users className="w-4 h-4 text-[#2d8a9e]" />
+                <span className="font-semibold text-xs sm:text-sm text-[#0c2340]">50K+ Users</span>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </main>
 
       {/* Live Crypto Markets */}
       <section className="py-10 sm:py-20 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden noise">
@@ -384,7 +350,7 @@ const Index = () => {
               <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> Live Markets
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6 animate-fade-in">
-              Real-Time Crypto <span className="gradient-text">Markets</span>
+              Real-Time Crypto <span className="text-[#2d8a9e] italic font-serif-display">Markets</span>
             </h2>
             <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in px-4" style={{ animationDelay: '0.1s' }}>
               Track live prices with instant updates every second
@@ -483,7 +449,7 @@ const Index = () => {
                 <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-pulse" /> Real-Time Activity
               </Badge>
               <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-4">
-                Live Trading <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Activity</span>
+                Live Trading <span className="text-[#2d8a9e] italic font-serif-display">Activity</span>
               </h2>
               <p className="text-sm sm:text-xl text-muted-foreground px-2">Join thousands of traders making profitable trades</p>
             </div>
@@ -542,7 +508,7 @@ const Index = () => {
               <Newspaper className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-pulse" /> Live Feed
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6 animate-fade-in">
-              Global Market <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">News</span>
+              Global Market <span className="text-[#2d8a9e] italic font-serif-display">News</span>
             </h2>
             <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in px-2" style={{ animationDelay: '0.1s' }}>
               Real-time news on Crypto, Forex, and Commodities — auto-updates every 5 minutes
@@ -570,7 +536,7 @@ const Index = () => {
         <div className="container mx-auto px-3 sm:px-4 relative z-10">
           <div className="text-center mb-8 sm:mb-16">
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
-              Why Choose <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TradixoFX?</span>
+              Why Choose <span className="text-[#2d8a9e] italic font-serif-display">TradixoFX?</span>
             </h2>
             <p className="text-sm sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto px-2">
               Professional-grade tools trusted by thousands of successful traders worldwide
@@ -616,7 +582,7 @@ const Index = () => {
               <Star className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 fill-primary" /> Testimonials
             </Badge>
             <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
-              What Our <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Traders</span> Say
+              What Our <span className="text-[#2d8a9e] italic font-serif-display">Traders</span> Say
             </h2>
             <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto px-2">
               Join thousands of satisfied traders who trust TradixoFX
@@ -735,7 +701,7 @@ const Index = () => {
                 <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" /> FAQs
               </Badge>
               <h2 className="text-2xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-6">
-                Frequently Asked <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Questions</span>
+                Frequently Asked <span className="text-[#2d8a9e] italic font-serif-display">Questions</span>
               </h2>
               <p className="text-sm sm:text-xl text-muted-foreground px-2">
                 Everything you need to know about trading with TradixoFX
