@@ -1,4 +1,4 @@
-import { TrendingUp, Wallet, User, Layers, Newspaper, Zap } from "lucide-react";
+import { TrendingUp, Wallet, User, Layers, Newspaper } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const BottomNav = () => {
@@ -8,7 +8,6 @@ const BottomNav = () => {
   const navItems = [
     { icon: TrendingUp, label: "Trade", path: "/dashboard" },
     { icon: Layers, label: "Positions", path: "/positions" },
-    { icon: Zap, label: "Signals", path: "/signals" },
     { icon: Newspaper, label: "News", path: "/news" },
     { icon: Wallet, label: "Wallet", path: "/wallet" },
     { icon: User, label: "Profile", path: "/profile" },
