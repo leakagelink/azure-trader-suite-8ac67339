@@ -343,11 +343,22 @@ const AdminPanel = () => {
         
         // Set market settings
         setMarketSettings({
+          cryptoEnabled: settings.cryptoEnabled !== 'false',
           forexEnabled: settings.forexEnabled !== 'false',
           commoditiesEnabled: settings.commoditiesEnabled !== 'false',
           forexMomentumEnabled: settings.forexMomentumEnabled !== 'false',
           commoditiesMomentumEnabled: settings.commoditiesMomentumEnabled !== 'false',
+          cryptoHoursEnabled: settings.cryptoHoursEnabled === 'true',
+          cryptoHoursStart: settings.cryptoHoursStart || "00:00",
+          cryptoHoursEnd: settings.cryptoHoursEnd || "23:59",
+          forexHoursEnabled: settings.forexHoursEnabled === 'true',
+          forexHoursStart: settings.forexHoursStart || "00:00",
+          forexHoursEnd: settings.forexHoursEnd || "23:59",
+          commoditiesHoursEnabled: settings.commoditiesHoursEnabled === 'true',
+          commoditiesHoursStart: settings.commoditiesHoursStart || "00:00",
+          commoditiesHoursEnd: settings.commoditiesHoursEnd || "23:59",
         });
+
       }
     } catch (error: any) {
       toast({
