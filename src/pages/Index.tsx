@@ -439,65 +439,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Live Activity Feed */}
-      <section className="py-20 bg-gradient-to-b from-background to-muted/30 relative">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-        <div className="container mx-auto px-3 sm:px-4 relative z-10">
-          <div className="max-w-5xl mx-auto">
-            <div className="text-center mb-6 sm:mb-12">
-              <Badge className="mb-4 sm:mb-6 bg-primary/10 text-primary border border-primary/20 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold">
-                <Zap className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 animate-pulse" /> Real-Time Activity
-              </Badge>
-              <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-2 sm:mb-4">
-                Live Trading <span className="text-[#2d8a9e] italic font-serif-display">Activity</span>
-              </h2>
-              <p className="text-sm sm:text-xl text-muted-foreground px-2">Join thousands of traders making profitable trades</p>
-            </div>
-            
-            <Card className="p-3 sm:p-8 border-2 border-primary/10 bg-card/80 backdrop-blur-xl shadow-2xl rounded-xl sm:rounded-2xl">
-              <div className="space-y-2 sm:space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-center justify-between p-2.5 sm:p-5 rounded-lg sm:rounded-xl bg-gradient-to-r from-muted/50 to-muted/30 hover:from-primary/5 hover:to-accent/5 transition-all duration-300 border border-border/50 hover:border-primary/30 hover:shadow-lg animate-in fade-in slide-in-from-top-2"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <div className="flex items-center gap-2 sm:gap-4">
-                      <Avatar className="h-8 w-8 sm:h-12 sm:w-12 ring-2 ring-primary/20">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${activity.user}`} alt={activity.user} />
-                        <AvatarFallback className="bg-gradient-to-br from-primary to-accent text-primary-foreground font-bold text-xs sm:text-lg">
-                          {activity.user.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-bold text-sm sm:text-lg">{activity.user}</p>
-                        <p className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
-                          {activity.type === "Deposit" && <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-green-500" />}
-                          {activity.type === "Withdrawal" && <Wallet className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-blue-500" />}
-                          {activity.type === "Trade" && <LineChart className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-purple-500" />}
-                          {activity.type}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-black text-sm sm:text-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-amber-500 bg-clip-text text-transparent">
-                        {activity.amount}
-                      </p>
-                      <p className="text-[10px] sm:text-xs text-muted-foreground">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 sm:mt-6 text-center">
-                <p className="text-xs sm:text-sm text-muted-foreground flex items-center justify-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  Live updates every 5 seconds
-                </p>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section>
 
       {/* Live Market News Section */}
       <section className="py-10 sm:py-20 bg-gradient-to-br from-background via-primary/5 to-accent/5 relative overflow-hidden">
