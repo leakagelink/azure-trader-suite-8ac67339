@@ -14,7 +14,7 @@ import { EconomicCalendar } from "@/components/home/EconomicCalendar";
 import { TradingCalculator } from "@/components/home/TradingCalculator";
 
 import { TrustSecurity } from "@/components/home/TrustSecurity";
-import { ComparisonTable } from "@/components/home/ComparisonTable";
+
 import HeroTradingAnimation from "@/components/home/HeroTradingAnimation";
 
 
