@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowUpRight, ArrowDownLeft, Wallet as WalletIcon, Gift, Sparkles, Lock, Clock, CheckCircle, XCircle, History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DepositModal from "@/components/DepositModal";
@@ -16,6 +17,7 @@ interface WalletBalance {
 }
 
 const Wallet = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [depositModalOpen, setDepositModalOpen] = useState(false);
@@ -235,6 +237,26 @@ const Wallet = () => {
           </div>
         </Card>
       </div>
+
+      {/* Withdrawal History Link */}
+      <Card
+        className={`${glassCardClass} p-4 mb-6 cursor-pointer group hover:scale-[1.01] transition-all duration-300`}
+        onClick={() => navigate("/withdrawal-history")}
+      >
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-2xl bg-gradient-to-br from-blue-500/15 to-blue-600/15 border border-blue-500/30 flex items-center justify-center">
+              <History className="h-5 w-5 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm sm:text-base">Withdrawal History</h3>
+              <p className="text-xs text-muted-foreground">View pending, approved & rejected withdrawals</p>
+            </div>
+          </div>
+          <ArrowUpRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+        </div>
+      </Card>
 
       {/* Recent Transactions */}
       <Card className={`${glassCardClass} p-5 sm:p-6 mb-6 sm:mb-8`}>
