@@ -15,6 +15,7 @@ import { invokeForexData, invokeForexChartData } from "@/lib/forexCache";
 import { getContractSize, getLotLabel, getLotSpec, validateLotInput } from "@/lib/contractSize";
 import { isForexSymbol, isCommoditySymbol } from "@/lib/marketSymbols";
 import { fetchMarketSettings, isMarketOpen, type MarketCategory, type MarketSettings } from "@/lib/marketSettings";
+import { MarketClosedBanner } from "@/components/MarketClosedBanner";
 import {
   Dialog,
   DialogContent,
