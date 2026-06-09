@@ -149,11 +149,22 @@ const AdminPanel = () => {
   
   // Market settings state
   const [marketSettings, setMarketSettings] = useState({
+    cryptoEnabled: true,
     forexEnabled: true,
     commoditiesEnabled: true,
     forexMomentumEnabled: true,
     commoditiesMomentumEnabled: true,
+    cryptoHoursEnabled: false,
+    cryptoHoursStart: "00:00",
+    cryptoHoursEnd: "23:59",
+    forexHoursEnabled: false,
+    forexHoursStart: "00:00",
+    forexHoursEnd: "23:59",
+    commoditiesHoursEnabled: false,
+    commoditiesHoursStart: "00:00",
+    commoditiesHoursEnd: "23:59",
   });
+
 
   useEffect(() => {
     checkAdminStatus();
