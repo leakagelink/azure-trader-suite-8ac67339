@@ -261,7 +261,7 @@ export function AdminAuditLog() {
                           <div className="flex flex-col">
                             <span>{owner.full_name || owner.email}</span>
                             {owner.client_id && (
-                              <span className="text-muted-foreground">{owner.client_id}</span>
+                              <span className="text-muted-foreground">{owner.client_id.replace(/^CGF/i, "")}</span>
                             )}
                           </div>
                         ) : (

@@ -144,7 +144,7 @@ const Profile = () => {
               </div>
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Your Client ID</p>
-                <p className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{profile.client_id}</p>
+                <p className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{profile.client_id?.replace(/^CGF/i, "")}</p>
               </div>
             </div>
             <Button
@@ -152,7 +152,7 @@ const Profile = () => {
               size="icon"
               className="rounded-xl hover:bg-primary/10 hover:text-primary"
               onClick={() => {
-                navigator.clipboard.writeText(profile.client_id || "");
+                navigator.clipboard.writeText((profile.client_id || "").replace(/^CGF/i, ""));
                 toast.success("Client ID copied!");
               }}
             >
@@ -360,7 +360,7 @@ const Profile = () => {
         <div className="space-y-3 text-sm">
           <div className="flex justify-between items-center pb-2 border-b border-border/40">
             <span className="text-muted-foreground">Client ID:</span>
-            <span className="font-mono font-bold text-primary">{profile?.client_id || "N/A"}</span>
+            <span className="font-mono font-bold text-primary">{profile?.client_id?.replace(/^CGF/i, "") || "N/A"}</span>
           </div>
           <div className="flex justify-between items-center pb-2 border-b border-border/40">
             <span className="text-muted-foreground">Account ID:</span>

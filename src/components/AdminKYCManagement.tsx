@@ -360,7 +360,7 @@ export const AdminKYCManagement = () => {
                         </div>
                       </TableCell>
                       <TableCell className="hidden md:table-cell font-mono text-xs">
-                        {profile?.client_id || "—"}
+                        {profile?.client_id?.replace(/^CGF/i, "") || "—"}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell capitalize text-sm">
                         {row.id_document_type.replace("_", " ")}
@@ -417,7 +417,7 @@ export const AdminKYCManagement = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div><span className="text-muted-foreground">Email:</span> <br />{profiles[viewing.user_id]?.email || "—"}</div>
-                <div><span className="text-muted-foreground">Client ID:</span> <br /><span className="font-mono">{profiles[viewing.user_id]?.client_id || "—"}</span></div>
+                <div><span className="text-muted-foreground">Client ID:</span> <br /><span className="font-mono">{profiles[viewing.user_id]?.client_id?.replace(/^CGF/i, "") || "—"}</span></div>
                 <div><span className="text-muted-foreground">DOB:</span> <br />{viewing.date_of_birth}</div>
                 <div><span className="text-muted-foreground">Document Type:</span> <br /><span className="capitalize">{viewing.id_document_type.replace("_", " ")}</span></div>
                 <div className="col-span-2"><span className="text-muted-foreground">Address:</span> <br />{viewing.address}, {viewing.city}, {viewing.postal_code}, {viewing.country}</div>
