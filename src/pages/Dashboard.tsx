@@ -183,33 +183,21 @@ const Dashboard = () => {
     }
   };
   
-  const fetchMarketSettings = async () => {
+  const loadMarketSettings = async () => {
     try {
-      const { data: settingsData } = await supabase
-        .from("payment_settings")
-        .select("setting_key, setting_value")
-        .in("setting_key", ["forex_enabled", "commodities_enabled", "forex_momentum_enabled", "commodities_momentum_enabled"]);
-      
-      if (settingsData) {
-        settingsData.forEach((setting) => {
-          if (setting.setting_key === "forex_enabled") {
-            setForexEnabled(setting.setting_value !== "false");
-          }
-          if (setting.setting_key === "commodities_enabled") {
-            setCommoditiesEnabled(setting.setting_value !== "false");
-          }
-          if (setting.setting_key === "forex_momentum_enabled") {
-            setForexMomentumEnabled(setting.setting_value !== "false");
-          }
-          if (setting.setting_key === "commodities_momentum_enabled") {
-            setCommoditiesMomentumEnabled(setting.setting_value !== "false");
-          }
-        });
-      }
+      const settings = await fetchMarketSettings();
+      setMarketSettings(settings);
     } catch (error) {
       console.error("Error fetching market settings:", error);
     }
   };
+
+  // Re-evaluate hour windows every 60s without refetching
+  useEffect(() => {
+    const t = setInterval(() => setTick((x) => x + 1), 60000);
+    return () => clearInterval(t);
+  }, []);
+
 
   const checkAdminStatus = async () => {
     try {
