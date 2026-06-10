@@ -213,7 +213,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   };
 
   const handleStartQRPayment = async () => {
-    if (!amount || parseFloat(amount) < 10000 || parseFloat(amount) > 25000) {
+    if (!amount || parseFloat(amount) < 1000 || parseFloat(amount) > 25000) {
       toast({
         title: "Invalid Amount",
         description: "Please enter amount between ₹10,000 and ₹25,000",
