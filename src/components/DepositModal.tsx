@@ -216,7 +216,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     if (!amount || parseFloat(amount) < 1000 || parseFloat(amount) > 25000) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter amount between ₹1,000 and ₹25,000",
+        description: "Please enter amount between ₹10,000 and ₹25,000",
         variant: "destructive",
       });
       return;
@@ -398,7 +398,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           </div>
           <div className="flex-1">
             <h3 className="font-semibold text-lg">Quick QR Deposit</h3>
-            <p className="text-sm text-muted-foreground">Scan QR & pay up to ₹25,000</p>
+            <p className="text-sm text-muted-foreground">Scan QR & pay (min ₹10,000)</p>
           </div>
           <div className="text-primary text-2xl">→</div>
         </div>
@@ -853,7 +853,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           </SheetTitle>
           <SheetDescription>
             {depositMode === "select" ? "Choose your preferred deposit method" :
-             depositMode === "instant" ? "Scan QR & pay up to ₹25,000" :
+             depositMode === "instant" ? "Scan QR & pay (min ₹10,000)" :
              "Complete payment and submit transaction details"}
           </SheetDescription>
         </SheetHeader>
