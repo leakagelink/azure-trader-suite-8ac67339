@@ -313,7 +313,7 @@ const Dashboard = () => {
         </div>
       </header>
 
-      <div className="flex relative z-10">
+      <div className="flex relative z-10 justify-center">
         {/* Sidebar */}
         <aside className={`${sidebarOpen ? "w-64" : "w-0"} transition-all duration-500 overflow-hidden border-r border-border/40 backdrop-blur-xl bg-card/40 hidden sm:block`}>
           <nav className="p-4 space-y-2">
@@ -341,8 +341,8 @@ const Dashboard = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 pb-20 overflow-x-hidden">
-          <div className="max-w-7xl xl:max-w-[1700px] 2xl:max-w-[1900px] mx-auto w-full overflow-hidden">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 pb-20 overflow-x-hidden max-w-[1400px] mx-auto">
+          <div className="mx-auto w-full overflow-hidden">
             {/* Hero Header */}
             <div className="mb-6 sm:mb-8 animate-fade-in">
               <div className="relative inline-block">
