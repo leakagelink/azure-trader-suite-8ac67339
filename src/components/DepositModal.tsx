@@ -213,7 +213,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   };
 
   const handleStartQRPayment = async () => {
-    if (!amount || parseFloat(amount) < 10000 || parseFloat(amount) > 25000) {
+    if (!amount || parseFloat(amount) < 1000 || parseFloat(amount) > 25000) {
       toast({
         title: "Invalid Amount",
         description: "Please enter amount between ₹10,000 and ₹25,000",
@@ -292,7 +292,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       return;
     }
 
-    if (parseFloat(amount) < 10000) {
+    if (parseFloat(amount) < 1000) {
       toast({
         title: "Minimum Deposit",
         description: "Minimum deposit amount is ₹10,000",
@@ -445,7 +445,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           placeholder="Enter amount (₹10,000 – ₹25,000)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          min="10000"
+          min="1000"
           max="25000"
           className="text-xl h-14 text-center font-semibold"
         />
@@ -482,7 +482,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       <Button
         className="w-full h-12"
         onClick={handleStartQRPayment}
-        disabled={!amount || parseFloat(amount) < 10000 || parseFloat(amount) > 25000 || loading}
+        disabled={!amount || parseFloat(amount) < 1000 || parseFloat(amount) > 25000 || loading}
       >
         {loading ? "Creating..." : "Show Payment QR"}
       </Button>
@@ -642,7 +642,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           placeholder="Enter amount (min ₹10,000)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          min="10000"
+          min="1000"
           step="1"
         />
         <p className="text-xs text-muted-foreground">Minimum deposit: ₹10,000</p>
