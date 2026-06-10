@@ -216,7 +216,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     if (!amount || parseFloat(amount) < 1000 || parseFloat(amount) > 25000) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter amount between ₹10,000 and ₹25,000",
+        description: "Please enter amount between ₹1,000 and ₹25,000",
         variant: "destructive",
       });
       return;
