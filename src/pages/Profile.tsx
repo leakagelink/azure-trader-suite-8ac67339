@@ -131,7 +131,7 @@ const Profile = () => {
   }
 
   return (
-    <PageShell title="My Profile" subtitle="Manage your account information" icon={User} maxWidth="wide">
+    <PageShell title="My Profile" subtitle="Manage your account information" icon={User} maxWidth="6xl">
       {/* Client ID Card - full width banner */}
       {profile?.client_id && (
         <Card className={`${glassCardClass} p-4 mb-5 group hover:scale-[1.01] transition-all duration-300`}>

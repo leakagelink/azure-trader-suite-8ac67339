@@ -121,7 +121,7 @@ const Wallet = () => {
   }, []);
 
   return (
-    <PageShell title="My Wallet" subtitle="Manage your funds and transactions" icon={WalletIcon} maxWidth="wide">
+    <PageShell title="My Wallet" subtitle="Manage your funds and transactions" icon={WalletIcon} maxWidth="6xl">
       {/* Deposit Offer Banner */}
       {offerSettings.bonusEnabled && (
         <Card className="mb-6 sm:mb-8 p-5 sm:p-6 bg-gradient-to-r from-primary via-secondary to-accent text-primary-foreground overflow-hidden relative border-0 shadow-[0_8px_32px_-8px_hsl(var(--primary)/0.5)] animate-fade-in">
