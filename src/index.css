@@ -135,17 +135,17 @@ All colors MUST be HSL.
     background-size: 40px 40px;
   }
 
-  /* Glassmorphism */
+  /* Glassmorphism - dark theme */
   .glass {
     @apply backdrop-blur-xl border;
-    background: hsl(0 0% 100% / 0.7);
-    border-color: hsl(220 18% 88%);
+    background: hsl(220 40% 9% / 0.7);
+    border-color: hsl(220 30% 18%);
   }
 
   .glass-dark {
     @apply backdrop-blur-xl border;
-    background: hsl(220 30% 96% / 0.8);
-    border-color: hsl(220 18% 88%);
+    background: hsl(220 45% 6% / 0.8);
+    border-color: hsl(220 30% 18%);
   }
 
   /* Shimmer disabled - flat matte */
@@ -154,7 +154,7 @@ All colors MUST be HSL.
     animation: none;
   }
 
-  /* Gradient text - flat solid navy */
+  /* Gradient text - flat solid green */
   .gradient-text {
     color: hsl(var(--primary));
     background: none;
@@ -162,29 +162,30 @@ All colors MUST be HSL.
     animation: none;
   }
 
-  /* Solid navy text - matte */
+  /* Accent text */
   .gold-text {
-    color: hsl(220 70% 22%);
+    color: hsl(150 100% 41%);
     font-weight: 700;
   }
 
   .emerald-text {
-    color: hsl(220 65% 32%);
+    color: hsl(199 100% 50%);
     font-weight: 600;
   }
 
-  /* Glass card - matte white */
+  /* Glass card - dark */
   .glass-card {
     @apply border;
-    background: hsl(0 0% 100%);
-    border-color: hsl(220 18% 90%);
-    box-shadow: 0 1px 2px hsl(220 30% 20% / 0.04), 0 2px 8px hsl(220 30% 20% / 0.05);
+    background: hsl(220 40% 9%);
+    border-color: hsl(220 30% 18%);
+    color: hsl(210 25% 96%);
+    box-shadow: 0 1px 2px hsl(0 0% 0% / 0.4), 0 2px 8px hsl(0 0% 0% / 0.3);
     transition: all 0.2s ease;
   }
 
   .glass-card:hover {
-    border-color: hsl(220 30% 80%);
-    box-shadow: 0 4px 12px hsl(220 30% 20% / 0.08), 0 12px 28px hsl(220 30% 20% / 0.06);
+    border-color: hsl(150 100% 41% / 0.5);
+    box-shadow: 0 4px 12px hsl(0 0% 0% / 0.5), 0 12px 28px hsl(150 100% 41% / 0.15);
   }
 
   /* Section divider */
