@@ -445,7 +445,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           placeholder="Enter amount (₹10,000 – ₹25,000)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          min="10000"
+          min="1000"
           max="25000"
           className="text-xl h-14 text-center font-semibold"
         />
