@@ -482,7 +482,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       <Button
         className="w-full h-12"
         onClick={handleStartQRPayment}
-        disabled={!amount || parseFloat(amount) < 10000 || parseFloat(amount) > 25000 || loading}
+        disabled={!amount || parseFloat(amount) < 1000 || parseFloat(amount) > 25000 || loading}
       >
         {loading ? "Creating..." : "Show Payment QR"}
       </Button>
