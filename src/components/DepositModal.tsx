@@ -292,7 +292,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       return;
     }
 
-    if (parseFloat(amount) < 10000) {
+    if (parseFloat(amount) < 1000) {
       toast({
         title: "Minimum Deposit",
         description: "Minimum deposit amount is ₹10,000",
