@@ -8,96 +8,95 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* White + Navy Blue — Matte finish, light theme */
-    --background: 0 0% 100%;
-    --foreground: 220 60% 12%;
+    /* Dark Navy/Black background, Green primary #00D26A, Blue secondary #00A3FF */
+    --background: 220 45% 6%;
+    --foreground: 210 25% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 60% 12%;
+    --card: 220 40% 9%;
+    --card-foreground: 210 25% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 60% 12%;
+    --popover: 220 40% 9%;
+    --popover-foreground: 210 25% 96%;
 
-    /* Navy blue primary - matte */
-    --primary: 220 70% 22%;
-    --primary-foreground: 0 0% 100%;
+    /* Green primary #00D26A */
+    --primary: 150 100% 41%;
+    --primary-foreground: 220 50% 6%;
 
-    --secondary: 220 20% 95%;
-    --secondary-foreground: 220 60% 18%;
+    --secondary: 220 35% 14%;
+    --secondary-foreground: 210 25% 96%;
 
-    --muted: 220 16% 96%;
-    --muted-foreground: 220 15% 42%;
+    --muted: 220 30% 14%;
+    --muted-foreground: 215 20% 72%;
 
-    /* Slightly lighter navy accent */
-    --accent: 220 65% 32%;
-    --accent-foreground: 0 0% 100%;
+    /* Blue accent #00A3FF */
+    --accent: 199 100% 50%;
+    --accent-foreground: 220 50% 6%;
 
-    --destructive: 0 70% 48%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 60% 38%;
-    --warning: 38 92% 48%;
+    --success: 150 100% 41%;
+    --warning: 38 92% 55%;
 
-    --border: 220 18% 90%;
-    --input: 220 18% 92%;
-    --ring: 220 70% 22%;
+    --border: 220 30% 18%;
+    --input: 220 30% 16%;
+    --ring: 150 100% 41%;
 
     --radius: 0.75rem;
 
-    /* Flat solid colors - no gradients */
-    --gradient-primary: hsl(220 70% 22%);
-    --gradient-accent: hsl(220 65% 32%);
-    --gradient-hero: hsl(0 0% 100%);
-    --gradient-gold: hsl(220 70% 22%);
+    /* Flat solid colors */
+    --gradient-primary: hsl(150 100% 41%);
+    --gradient-accent: hsl(199 100% 50%);
+    --gradient-hero: hsl(220 45% 6%);
+    --gradient-gold: hsl(150 100% 41%);
     --gradient-radial: none;
 
-    /* Matte shadows - soft, neutral, no glow */
-    --shadow-card: 0 1px 2px hsl(220 30% 20% / 0.04), 0 2px 8px hsl(220 30% 20% / 0.05);
-    --shadow-elevated: 0 4px 12px hsl(220 30% 20% / 0.08), 0 12px 28px hsl(220 30% 20% / 0.06);
-    --shadow-glow: 0 8px 24px hsl(220 60% 20% / 0.12);
+    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.4), 0 2px 8px hsl(0 0% 0% / 0.3);
+    --shadow-elevated: 0 4px 12px hsl(0 0% 0% / 0.5), 0 12px 28px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 8px 24px hsl(150 100% 41% / 0.25);
 
-    --sidebar-background: 220 30% 98%;
-    --sidebar-foreground: 220 60% 14%;
-    --sidebar-primary: 220 70% 22%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 22% 94%;
-    --sidebar-accent-foreground: 220 70% 22%;
-    --sidebar-border: 220 18% 88%;
-    --sidebar-ring: 220 70% 22%;
+    --sidebar-background: 220 45% 5%;
+    --sidebar-foreground: 210 25% 96%;
+    --sidebar-primary: 150 100% 41%;
+    --sidebar-primary-foreground: 220 50% 6%;
+    --sidebar-accent: 220 35% 14%;
+    --sidebar-accent-foreground: 210 25% 96%;
+    --sidebar-border: 220 30% 18%;
+    --sidebar-ring: 150 100% 41%;
   }
 
   .dark {
-    --background: 0 0% 100%;
-    --foreground: 220 60% 12%;
+    --background: 220 45% 6%;
+    --foreground: 210 25% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 60% 12%;
+    --card: 220 40% 9%;
+    --card-foreground: 210 25% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 60% 12%;
+    --popover: 220 40% 9%;
+    --popover-foreground: 210 25% 96%;
 
-    --primary: 220 70% 22%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 150 100% 41%;
+    --primary-foreground: 220 50% 6%;
 
-    --secondary: 220 20% 95%;
-    --secondary-foreground: 220 60% 18%;
+    --secondary: 220 35% 14%;
+    --secondary-foreground: 210 25% 96%;
 
-    --muted: 220 16% 96%;
-    --muted-foreground: 220 15% 42%;
+    --muted: 220 30% 14%;
+    --muted-foreground: 215 20% 72%;
 
-    --accent: 220 65% 32%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 199 100% 50%;
+    --accent-foreground: 220 50% 6%;
 
-    --destructive: 0 70% 48%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 18% 90%;
-    --input: 220 18% 92%;
-    --ring: 220 70% 22%;
+    --border: 220 30% 18%;
+    --input: 220 30% 16%;
+    --ring: 150 100% 41%;
 
-    --sidebar-background: 220 30% 98%;
-    --sidebar-foreground: 220 60% 14%;
-    --sidebar-primary: 220 70% 22%;
+    --sidebar-background: 220 45% 5%;
+    --sidebar-foreground: 210 25% 96%;
+    --sidebar-primary: 150 100% 41%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 22% 94%;
     --sidebar-accent-foreground: 220 70% 22%;
@@ -136,17 +135,17 @@ All colors MUST be HSL.
     background-size: 40px 40px;
   }
 
-  /* Glassmorphism */
+  /* Glassmorphism - dark theme */
   .glass {
     @apply backdrop-blur-xl border;
-    background: hsl(0 0% 100% / 0.7);
-    border-color: hsl(220 18% 88%);
+    background: hsl(220 40% 9% / 0.7);
+    border-color: hsl(220 30% 18%);
   }
 
   .glass-dark {
     @apply backdrop-blur-xl border;
-    background: hsl(220 30% 96% / 0.8);
-    border-color: hsl(220 18% 88%);
+    background: hsl(220 45% 6% / 0.8);
+    border-color: hsl(220 30% 18%);
   }
 
   /* Shimmer disabled - flat matte */
@@ -155,7 +154,7 @@ All colors MUST be HSL.
     animation: none;
   }
 
-  /* Gradient text - flat solid navy */
+  /* Gradient text - flat solid green */
   .gradient-text {
     color: hsl(var(--primary));
     background: none;
@@ -163,29 +162,30 @@ All colors MUST be HSL.
     animation: none;
   }
 
-  /* Solid navy text - matte */
+  /* Accent text */
   .gold-text {
-    color: hsl(220 70% 22%);
+    color: hsl(150 100% 41%);
     font-weight: 700;
   }
 
   .emerald-text {
-    color: hsl(220 65% 32%);
+    color: hsl(199 100% 50%);
     font-weight: 600;
   }
 
-  /* Glass card - matte white */
+  /* Glass card - dark */
   .glass-card {
     @apply border;
-    background: hsl(0 0% 100%);
-    border-color: hsl(220 18% 90%);
-    box-shadow: 0 1px 2px hsl(220 30% 20% / 0.04), 0 2px 8px hsl(220 30% 20% / 0.05);
+    background: hsl(220 40% 9%);
+    border-color: hsl(220 30% 18%);
+    color: hsl(210 25% 96%);
+    box-shadow: 0 1px 2px hsl(0 0% 0% / 0.4), 0 2px 8px hsl(0 0% 0% / 0.3);
     transition: all 0.2s ease;
   }
 
   .glass-card:hover {
-    border-color: hsl(220 30% 80%);
-    box-shadow: 0 4px 12px hsl(220 30% 20% / 0.08), 0 12px 28px hsl(220 30% 20% / 0.06);
+    border-color: hsl(150 100% 41% / 0.5);
+    box-shadow: 0 4px 12px hsl(0 0% 0% / 0.5), 0 12px 28px hsl(150 100% 41% / 0.15);
   }
 
   /* Section divider */
