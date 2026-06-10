@@ -487,7 +487,7 @@ const Index = () => {
             {features.map((feature, index) => (
               <Card 
                 key={index} 
-                className="group relative p-3 sm:p-8 hover:shadow-2xl transition-all duration-500 border border-accent/40 hover:border-white/40 bg-accent text-accent-foreground rounded-xl sm:rounded-2xl animate-in fade-in slide-in-from-bottom-4 hover:-translate-y-1 overflow-hidden"
+                className="group relative p-3 sm:p-8 hover:shadow-2xl transition-all duration-500 border border-blue-400/40 hover:border-white/40 bg-[#00A3FF] text-white rounded-xl sm:rounded-2xl animate-in fade-in slide-in-from-bottom-4 hover:-translate-y-1 overflow-hidden"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 {/* Index number watermark */}
