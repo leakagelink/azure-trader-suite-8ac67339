@@ -216,7 +216,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     if (!amount || parseFloat(amount) < 1000 || parseFloat(amount) > 25000) {
       toast({
         title: "Invalid Amount",
-        description: "Please enter amount between ₹10,000 and ₹25,000",
+        description: "Minimum deposit amount is ₹10,000",
         variant: "destructive",
       });
       return;
@@ -434,7 +434,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
           <Zap className="h-8 w-8 text-primary" />
         </div>
         <h3 className="text-xl font-bold mb-2">Quick QR Deposit</h3>
-        <p className="text-muted-foreground text-sm">Pay between ₹10,000 and ₹25,000 via QR scan</p>
+        <p className="text-muted-foreground text-sm">Pay via QR scan (min ₹10,000)</p>
       </div>
 
       <div className="space-y-2">
@@ -442,14 +442,13 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
         <Input
           id="instant-amount"
           type="number"
-          placeholder="Enter amount (₹10,000 – ₹25,000)"
+          placeholder="Enter amount (min ₹10,000)"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           min="1000"
-          max="25000"
           className="text-xl h-14 text-center font-semibold"
         />
-        <p className="text-xs text-muted-foreground text-center">Min: ₹10,000 · Max: ₹25,000</p>
+        <p className="text-xs text-muted-foreground text-center">Minimum deposit: ₹10,000</p>
       </div>
 
       {/* USD Conversion Preview */}
