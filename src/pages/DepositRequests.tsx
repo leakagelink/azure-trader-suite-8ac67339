@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PaymentProofThumb } from "@/components/PaymentProofThumb";
 
 const DepositRequests = () => {
   const navigate = useNavigate();
@@ -329,26 +330,7 @@ const DepositRequests = () => {
                       <code className="text-xs bg-muted px-2 py-1 rounded">{request.transaction_id}</code>
                     </TableCell>
                     <TableCell>
-                      {request.payment_proof_url ? (
-                        <a
-                          href={request.payment_proof_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-block"
-                        >
-                          {/\.(jpg|jpeg|png|gif|webp)$/i.test(request.payment_proof_url) ? (
-                            <img
-                              src={request.payment_proof_url}
-                              alt="Payment proof"
-                              className="h-12 w-12 object-cover rounded border border-border hover:opacity-80 transition-opacity"
-                            />
-                          ) : (
-                            <Badge variant="outline" className="cursor-pointer">View File</Badge>
-                          )}
-                        </a>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
+                      <PaymentProofThumb value={request.payment_proof_url} />
                     </TableCell>
                     <TableCell>
                       <Badge
