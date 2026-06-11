@@ -159,7 +159,7 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, clientId: clientId.replace(/^CGF/i, "") }),
+      JSON.stringify({ success: true, clientId: clientId.replace(/^CGF/i, ""), emailStatus }),
       { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (err: any) {
