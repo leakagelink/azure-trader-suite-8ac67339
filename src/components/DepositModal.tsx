@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, CheckCircle, Zap, ArrowLeft, CreditCard, Clock, Lock, Upload, X as XIcon } from "lucide-react";
+import { Copy, CheckCircle, Zap, ArrowLeft, CreditCard, Clock, Lock, Upload, X as XIcon, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface DepositModalProps {
   open: boolean;
