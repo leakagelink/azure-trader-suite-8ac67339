@@ -83,6 +83,8 @@ const KYC = () => {
     trading_experience: "",
   });
   const [docFile, setDocFile] = useState<File | null>(null);
+  const [incomeProofType, setIncomeProofType] = useState<"bank_statement" | "salary_slip">("bank_statement");
+  const [incomeProofFile, setIncomeProofFile] = useState<File | null>(null);
 
   useEffect(() => {
     const init = async () => {
