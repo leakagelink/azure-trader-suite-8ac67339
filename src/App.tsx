@@ -25,6 +25,7 @@ import UserApprovals from "./pages/UserApprovals";
 import News from "./pages/News";
 
 import Charts from "./pages/Charts";
+import EmailTest from "./pages/EmailTest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
