@@ -846,7 +846,48 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     </div>
   );
 
+  const renderKycRequired = () => (
+    <div className="py-10 px-2 text-center space-y-5">
+      <div className="h-20 w-20 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mx-auto">
+        <ShieldAlert className="h-10 w-10 text-amber-500" />
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-xl font-bold">
+          {kycStatus === "pending" ? "KYC Under Review" :
+           kycStatus === "rejected" ? "KYC Rejected" :
+           "KYC Verification Required"}
+        </h3>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          {kycStatus === "pending"
+            ? "Your KYC is being reviewed by the broker. You can deposit funds once it's approved."
+            : kycStatus === "rejected"
+            ? "Your KYC was rejected. Please resubmit your KYC details to enable deposits."
+            : "To keep your account secure, please complete your KYC verification before making a deposit."}
+        </p>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <Button
+          className="h-11 px-6"
+          onClick={() => { onOpenChange(false); navigate("/kyc"); }}
+        >
+          {kycStatus === "pending" ? "View KYC Status" :
+           kycStatus === "rejected" ? "Resubmit KYC" : "Complete KYC Now"}
+        </Button>
+        <Button variant="outline" className="h-11 px-6" onClick={() => onOpenChange(false)}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
+    if (kycLoading) {
+      return <div className="py-16 text-center text-muted-foreground text-sm">Checking KYC status...</div>;
+    }
+    if (kycStatus !== "approved") {
+      return renderKycRequired();
+    }
+
     if (depositMode === "select") {
       return renderModeSelection();
     }
