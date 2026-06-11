@@ -598,7 +598,7 @@ const KYC = () => {
                 ) : (
                   <Button
                     onClick={handleSubmit}
-                    disabled={submitting || !docFile}
+                    disabled={submitting || !docFile || !incomeProofFile}
                     className="bg-gradient-to-r from-primary to-accent"
                   >
                     {submitting ? (
