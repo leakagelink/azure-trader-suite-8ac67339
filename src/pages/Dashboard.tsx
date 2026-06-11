@@ -250,19 +250,18 @@ const Dashboard = () => {
         <div className="absolute inset-x-0 -bottom-6 h-6 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
 
-        <div className="relative flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3">
+        <div className="relative flex items-center justify-between px-3 sm:px-5 py-2.5 sm:py-3 text-primary">
           <div className="flex items-center gap-2 sm:gap-3">
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl hover:bg-gradient-to-br hover:from-primary/15 hover:to-accent/15 hover:text-primary transition-all duration-300"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl text-primary hover:bg-primary/10 hover:text-primary transition-all duration-300"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate("/dashboard")}>
               <div className="relative">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 via-accent/30 to-secondary/30 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <img src={logo} alt="TradixoFX" className="relative h-11 w-auto sm:h-14 object-contain transition-transform duration-300 group-hover:scale-105" />
               </div>
             </div>
@@ -273,28 +272,28 @@ const Dashboard = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-accent/10 to-secondary/10 border border-accent/30 hover:from-accent/20 hover:to-secondary/20 hover:text-accent transition-all duration-300 shadow-[0_2px_8px_-2px_hsl(var(--accent)/0.3)]"
+                className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-primary/5 border border-primary/30 text-primary hover:bg-primary/15 hover:text-primary transition-all duration-300"
                 onClick={() => navigate("/admin")}
                 title="Broker Dashboard"
               >
-                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
+                <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               </Button>
             )}
             <Button
               variant="ghost"
-              className="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/30 hover:from-primary/20 hover:to-accent/20 hover:text-primary transition-all duration-300 shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.3)] gap-1.5 sm:gap-2"
+              className="h-9 sm:h-10 px-2.5 sm:px-3 rounded-xl bg-primary/5 border border-primary/30 text-primary hover:bg-primary/15 hover:text-primary transition-all duration-300 gap-1.5 sm:gap-2"
               onClick={() => navigate("/wallet")}
               title="Wallet Balance"
             >
               <Wallet className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-primary" />
-              <span className="font-mono font-bold text-xs sm:text-sm tabular-nums">
+              <span className="font-mono font-bold text-xs sm:text-sm tabular-nums text-primary">
                 ${walletBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl hover:bg-gradient-to-br hover:from-primary/15 hover:to-accent/15 hover:text-primary transition-all duration-300"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl text-primary hover:bg-primary/10 hover:text-primary transition-all duration-300"
               onClick={() => navigate("/profile")}
               title="Profile"
             >
@@ -303,7 +302,7 @@ const Dashboard = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl hover:bg-destructive/15 hover:text-destructive transition-all duration-300"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl text-destructive hover:bg-destructive/10 hover:text-destructive transition-all duration-300"
               onClick={signOut}
               title="Sign Out"
             >
