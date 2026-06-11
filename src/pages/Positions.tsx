@@ -275,7 +275,7 @@ const Positions = () => {
           if (position.price_mode === "edited") {
             // Edited trades are fully driven by server-side cron (drift_edited_positions)
             // and delivered via realtime. Skip live feed, skip client drift, skip DB write.
-            // Track price-flash from DB-delivered current_price only.
+            // BUT still evaluate SL / TP / liquidation against DB-delivered price + pnl.
             const prev = previousPricesRef.current[position.id];
             if (prev !== undefined && prev !== position.current_price) {
               const direction = position.current_price > prev ? "up" : "down";
@@ -285,6 +285,34 @@ const Positions = () => {
               }, PRICE_FLASH_DURATION_MS);
             }
             previousPricesRef.current[position.id] = position.current_price;
+
+            const editedPrice = position.current_price;
+            const editedPnl = Number(position.pnl) || 0;
+
+            if (position.stop_loss && !permanentlyClosedIdsRef.current.has(position.id)) {
+              const hitStopLoss =
+                (position.position_type === "long" && editedPrice <= position.stop_loss) ||
+                (position.position_type === "short" && editedPrice >= position.stop_loss);
+              if (hitStopLoss) {
+                autoCloseQueue.push({ position: { ...position }, reason: "stop_loss" });
+              }
+            }
+            if (position.take_profit && !permanentlyClosedIdsRef.current.has(position.id)) {
+              const hitTakeProfit =
+                (position.position_type === "long" && editedPrice >= position.take_profit) ||
+                (position.position_type === "short" && editedPrice <= position.take_profit);
+              if (hitTakeProfit) {
+                autoCloseQueue.push({ position: { ...position }, reason: "take_profit" });
+              }
+            }
+            if (
+              !permanentlyClosedIdsRef.current.has(position.id) &&
+              position.margin > 0 &&
+              editedPnl <= -Number(position.margin)
+            ) {
+              autoCloseQueue.push({ position: { ...position }, reason: "liquidation" });
+            }
+
             return { ...position };
           } else if (position.price_mode === "manual") {
             if (isMarketFrozen) {
