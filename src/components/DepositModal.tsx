@@ -64,6 +64,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   useEffect(() => {
     if (open) {
       fetchPaymentSettings();
+      fetchKycStatus();
       // Reset state when modal opens
       setDepositMode("select");
       setInstantStep("amount");
