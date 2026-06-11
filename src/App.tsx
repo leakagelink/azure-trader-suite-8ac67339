@@ -25,6 +25,7 @@ import UserApprovals from "./pages/UserApprovals";
 import News from "./pages/News";
 
 import Charts from "./pages/Charts";
+import EmailTest from "./pages/EmailTest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -127,6 +128,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/email-test"
+              element={
+                <ProtectedRoute>
+                  <EmailTest />
                 </ProtectedRoute>
               }
             />
