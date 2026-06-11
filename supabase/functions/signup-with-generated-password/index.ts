@@ -122,8 +122,10 @@ serve(async (req) => {
     const renderedSubject = renderTemplate(subject, vars);
     const renderedHtml = renderTemplate(htmlTpl, vars);
 
+    let emailStatus: { sent: boolean; id?: string; error?: string } = { sent: false };
     if (RESEND_API_KEY) {
       try {
+        console.log(`[signup] Sending credentials email to ${email} via Resend...`);
         const emailRes = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
@@ -137,15 +139,23 @@ serve(async (req) => {
             html: renderedHtml,
           }),
         });
+        const bodyText = await emailRes.text();
         if (!emailRes.ok) {
-          const errBody = await emailRes.text();
-          console.error("Resend send failed:", errBody);
+          console.error(`[signup] Resend FAILED (${emailRes.status}) for ${email}:`, bodyText);
+          emailStatus = { sent: false, error: `Resend ${emailRes.status}: ${bodyText}` };
+        } else {
+          let parsed: any = {};
+          try { parsed = JSON.parse(bodyText); } catch {}
+          console.log(`[signup] Resend OK for ${email} — id=${parsed?.id}`);
+          emailStatus = { sent: true, id: parsed?.id };
         }
-      } catch (e) {
-        console.error("Email send exception:", e);
+      } catch (e: any) {
+        console.error(`[signup] Resend exception for ${email}:`, e?.message || e);
+        emailStatus = { sent: false, error: e?.message || String(e) };
       }
     } else {
-      console.warn("RESEND_API_KEY not set — skipping credentials email");
+      console.warn("[signup] RESEND_API_KEY not set — skipping credentials email");
+      emailStatus = { sent: false, error: "RESEND_API_KEY missing" };
     }
 
     return new Response(
