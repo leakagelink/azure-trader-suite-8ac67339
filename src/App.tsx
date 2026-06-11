@@ -132,6 +132,14 @@ const App = () => (
               }
             />
             <Route
+              path="/admin/email-test"
+              element={
+                <ProtectedRoute>
+                  <EmailTest />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/deposit-requests"
               element={
                 <ProtectedRoute>
