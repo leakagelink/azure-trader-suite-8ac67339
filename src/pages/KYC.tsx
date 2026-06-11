@@ -527,6 +527,50 @@ const KYC = () => {
                     </label>
                   </div>
 
+                  <div className="space-y-2 pt-2 border-t border-border/40">
+                    <Label>Income Proof *</Label>
+                    <p className="text-xs text-muted-foreground -mt-1">Upload any one — Bank Statement OR Salary Slip</p>
+                    <Select
+                      value={incomeProofType}
+                      onValueChange={(v: "bank_statement" | "salary_slip") => {
+                        setIncomeProofType(v);
+                        setIncomeProofFile(null);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bank_statement">Bank Statement (last 3 months)</SelectItem>
+                        <SelectItem value="salary_slip">Salary Slip (latest)</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <label className="block border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors mt-2">
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        onChange={(e) => setIncomeProofFile(e.target.files?.[0] || null)}
+                        className="hidden"
+                      />
+                      {incomeProofFile ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <FileText className="h-10 w-10 text-primary" />
+                          <span className="text-sm font-medium break-all">{incomeProofFile.name}</span>
+                          <span className="text-xs text-muted-foreground">{(incomeProofFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <Upload className="h-10 w-10 text-muted-foreground" />
+                          <span className="text-sm font-medium">
+                            Upload {incomeProofType === "bank_statement" ? "Bank Statement" : "Salary Slip"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">JPG, PNG or PDF • Max 10MB</span>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
                     <p className="font-semibold text-foreground mb-1">📋 Review your information</p>
                     <p>Name: {form.first_name} {form.last_name}</p>
