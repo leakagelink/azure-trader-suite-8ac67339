@@ -246,7 +246,7 @@ const Dashboard = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 relative">
         {/* Glass background layers */}
-        <div className="absolute inset-0 backdrop-blur-2xl bg-background/75 border-b border-border/50" />
+        <div className="absolute inset-0 backdrop-blur-2xl bg-white border-b border-border/50" />
         <div className="absolute inset-x-0 -bottom-6 h-6 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
 
