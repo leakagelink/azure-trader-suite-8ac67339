@@ -181,6 +181,8 @@ const KYC = () => {
         postal_code: form.postal_code.trim(),
         id_document_type: form.id_document_type,
         document_url: path,
+        income_proof_type: incomeProofType,
+        income_proof_url: incPath,
         occupation_type: form.occupation_type || null,
         business_type: form.business_type || null,
         job_title: form.job_title || null,
