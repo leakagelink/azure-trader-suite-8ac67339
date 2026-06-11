@@ -124,7 +124,7 @@ const Wallet = () => {
     <PageShell title="My Wallet" subtitle="Manage your funds and transactions" icon={WalletIcon} maxWidth="6xl">
       {/* Deposit Offer Banner */}
       {offerSettings.bonusEnabled && (
-        <Card className="mb-6 sm:mb-8 p-5 sm:p-6 bg-gradient-to-r from-primary via-secondary to-accent text-primary-foreground overflow-hidden relative border-0 shadow-[0_8px_32px_-8px_hsl(var(--primary)/0.5)] animate-fade-in">
+        <Card className="mb-6 sm:mb-8 p-5 sm:p-6 bg-primary text-primary-foreground overflow-hidden relative border-0 shadow-[0_8px_32px_-8px_hsl(var(--primary)/0.5)] animate-fade-in">
           <div className="absolute inset-0 opacity-20 pointer-events-none">
             <div className="absolute top-2 left-10 text-4xl">🎁</div>
             <div className="absolute top-4 right-20 text-3xl">💰</div>
