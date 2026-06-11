@@ -140,6 +140,24 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     }
   };
 
+  const fetchKycStatus = async () => {
+    setKycLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setKycStatus(null); return; }
+      const { data } = await supabase
+        .from("kyc_submissions")
+        .select("status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setKycStatus(data?.status ?? "none");
+    } catch (e) {
+      setKycStatus("none");
+    } finally {
+      setKycLoading(false);
+    }
+  };
+
   const fetchPaymentSettings = async () => {
     try {
       const { data, error } = await supabase
