@@ -83,6 +83,8 @@ const KYC = () => {
     trading_experience: "",
   });
   const [docFile, setDocFile] = useState<File | null>(null);
+  const [incomeProofType, setIncomeProofType] = useState<"bank_statement" | "salary_slip">("bank_statement");
+  const [incomeProofFile, setIncomeProofFile] = useState<File | null>(null);
 
   useEffect(() => {
     const init = async () => {
@@ -143,7 +145,11 @@ const KYC = () => {
       toast({ title: t("kyc.toast.documentRequiredTitle"), description: t("kyc.toast.documentRequiredDesc"), variant: "destructive" });
       return;
     }
-    if (docFile.size > 10 * 1024 * 1024) {
+    if (!incomeProofFile) {
+      toast({ title: t("kyc.toast.documentRequiredTitle"), description: "Please upload your Bank Statement or Salary Slip", variant: "destructive" });
+      return;
+    }
+    if (docFile.size > 10 * 1024 * 1024 || incomeProofFile.size > 10 * 1024 * 1024) {
       toast({ title: t("kyc.toast.fileTooLargeTitle"), description: t("kyc.toast.fileTooLargeDesc"), variant: "destructive" });
       return;
     }
@@ -157,6 +163,13 @@ const KYC = () => {
         .upload(path, docFile, { upsert: true, contentType: docFile.type });
       if (uploadErr) throw uploadErr;
 
+      const incExt = incomeProofFile.name.split(".").pop() || "bin";
+      const incPath = `${userId}/${Date.now()}_income_${incomeProofType}.${incExt}`;
+      const { error: incUploadErr } = await supabase.storage
+        .from("kyc-documents")
+        .upload(incPath, incomeProofFile, { upsert: true, contentType: incomeProofFile.type });
+      if (incUploadErr) throw incUploadErr;
+
       const { error: insertErr } = await supabase.from("kyc_submissions").insert({
         user_id: userId,
         first_name: form.first_name.trim(),
@@ -168,6 +181,8 @@ const KYC = () => {
         postal_code: form.postal_code.trim(),
         id_document_type: form.id_document_type,
         document_url: path,
+        income_proof_type: incomeProofType,
+        income_proof_url: incPath,
         occupation_type: form.occupation_type || null,
         business_type: form.business_type || null,
         job_title: form.job_title || null,
@@ -512,6 +527,50 @@ const KYC = () => {
                     </label>
                   </div>
 
+                  <div className="space-y-2 pt-2 border-t border-border/40">
+                    <Label>Income Proof *</Label>
+                    <p className="text-xs text-muted-foreground -mt-1">Upload any one — Bank Statement OR Salary Slip</p>
+                    <Select
+                      value={incomeProofType}
+                      onValueChange={(v: "bank_statement" | "salary_slip") => {
+                        setIncomeProofType(v);
+                        setIncomeProofFile(null);
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bank_statement">Bank Statement (last 3 months)</SelectItem>
+                        <SelectItem value="salary_slip">Salary Slip (latest)</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <label className="block border-2 border-dashed border-border rounded-xl p-6 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors mt-2">
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        onChange={(e) => setIncomeProofFile(e.target.files?.[0] || null)}
+                        className="hidden"
+                      />
+                      {incomeProofFile ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <FileText className="h-10 w-10 text-primary" />
+                          <span className="text-sm font-medium break-all">{incomeProofFile.name}</span>
+                          <span className="text-xs text-muted-foreground">{(incomeProofFile.size / 1024 / 1024).toFixed(2)} MB</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2">
+                          <Upload className="h-10 w-10 text-muted-foreground" />
+                          <span className="text-sm font-medium">
+                            Upload {incomeProofType === "bank_statement" ? "Bank Statement" : "Salary Slip"}
+                          </span>
+                          <span className="text-xs text-muted-foreground">JPG, PNG or PDF • Max 10MB</span>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 text-xs text-muted-foreground">
                     <p className="font-semibold text-foreground mb-1">📋 Review your information</p>
                     <p>Name: {form.first_name} {form.last_name}</p>
@@ -539,7 +598,7 @@ const KYC = () => {
                 ) : (
                   <Button
                     onClick={handleSubmit}
-                    disabled={submitting || !docFile}
+                    disabled={submitting || !docFile || !incomeProofFile}
                     className="bg-gradient-to-r from-primary to-accent"
                   >
                     {submitting ? (

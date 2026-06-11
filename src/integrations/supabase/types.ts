@@ -200,6 +200,8 @@ export type Database = {
           first_name: string
           id: string
           id_document_type: string
+          income_proof_type: string | null
+          income_proof_url: string | null
           job_title: string | null
           last_name: string
           occupation_type: string | null
@@ -224,6 +226,8 @@ export type Database = {
           first_name: string
           id?: string
           id_document_type: string
+          income_proof_type?: string | null
+          income_proof_url?: string | null
           job_title?: string | null
           last_name: string
           occupation_type?: string | null
@@ -248,6 +252,8 @@ export type Database = {
           first_name?: string
           id?: string
           id_document_type?: string
+          income_proof_type?: string | null
+          income_proof_url?: string | null
           job_title?: string | null
           last_name?: string
           occupation_type?: string | null
