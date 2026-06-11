@@ -911,11 +911,13 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
-            {depositMode === "select" ? "Deposit Funds" : 
+            {kycStatus !== "approved" && !kycLoading ? "KYC Required" :
+             depositMode === "select" ? "Deposit Funds" :
              depositMode === "instant" ? "Quick QR Deposit" : "Manual Deposit"}
           </SheetTitle>
           <SheetDescription>
-            {depositMode === "select" ? "Choose your preferred deposit method" :
+            {kycStatus !== "approved" && !kycLoading ? "Complete KYC verification to enable deposits" :
+             depositMode === "select" ? "Choose your preferred deposit method" :
              depositMode === "instant" ? "Scan QR & pay (min ₹10,000)" :
              "Complete payment and submit transaction details"}
           </SheetDescription>
