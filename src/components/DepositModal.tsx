@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, CheckCircle, Zap, ArrowLeft, CreditCard, Clock, Lock, Upload, X as XIcon } from "lucide-react";
+import { Copy, CheckCircle, Zap, ArrowLeft, CreditCard, Clock, Lock, Upload, X as XIcon, ShieldAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface DepositModalProps {
   open: boolean;
@@ -36,6 +37,9 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   const [depositRequestId, setDepositRequestId] = useState<string | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [kycStatus, setKycStatus] = useState<string | null>(null);
+  const [kycLoading, setKycLoading] = useState(true);
 
   // Payment details from database
   const [upiId, setUpiId] = useState("tradixofx@upi");
@@ -60,6 +64,7 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   useEffect(() => {
     if (open) {
       fetchPaymentSettings();
+      fetchKycStatus();
       // Reset state when modal opens
       setDepositMode("select");
       setInstantStep("amount");
@@ -132,6 +137,24 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       });
     } catch (error: any) {
       console.error("Error locking deposit:", error);
+    }
+  };
+
+  const fetchKycStatus = async () => {
+    setKycLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setKycStatus(null); return; }
+      const { data } = await supabase
+        .from("kyc_submissions")
+        .select("status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setKycStatus(data?.status ?? "none");
+    } catch (e) {
+      setKycStatus("none");
+    } finally {
+      setKycLoading(false);
     }
   };
 
@@ -823,7 +846,48 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
     </div>
   );
 
+  const renderKycRequired = () => (
+    <div className="py-10 px-2 text-center space-y-5">
+      <div className="h-20 w-20 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mx-auto">
+        <ShieldAlert className="h-10 w-10 text-amber-500" />
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-xl font-bold">
+          {kycStatus === "pending" ? "KYC Under Review" :
+           kycStatus === "rejected" ? "KYC Rejected" :
+           "KYC Verification Required"}
+        </h3>
+        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          {kycStatus === "pending"
+            ? "Your KYC is being reviewed by the broker. You can deposit funds once it's approved."
+            : kycStatus === "rejected"
+            ? "Your KYC was rejected. Please resubmit your KYC details to enable deposits."
+            : "To keep your account secure, please complete your KYC verification before making a deposit."}
+        </p>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <Button
+          className="h-11 px-6"
+          onClick={() => { onOpenChange(false); navigate("/kyc"); }}
+        >
+          {kycStatus === "pending" ? "View KYC Status" :
+           kycStatus === "rejected" ? "Resubmit KYC" : "Complete KYC Now"}
+        </Button>
+        <Button variant="outline" className="h-11 px-6" onClick={() => onOpenChange(false)}>
+          Cancel
+        </Button>
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
+    if (kycLoading) {
+      return <div className="py-16 text-center text-muted-foreground text-sm">Checking KYC status...</div>;
+    }
+    if (kycStatus !== "approved") {
+      return renderKycRequired();
+    }
+
     if (depositMode === "select") {
       return renderModeSelection();
     }
@@ -847,11 +911,13 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
       <SheetContent side="bottom" className="max-h-[90vh] overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
-            {depositMode === "select" ? "Deposit Funds" : 
+            {kycStatus !== "approved" && !kycLoading ? "KYC Required" :
+             depositMode === "select" ? "Deposit Funds" :
              depositMode === "instant" ? "Quick QR Deposit" : "Manual Deposit"}
           </SheetTitle>
           <SheetDescription>
-            {depositMode === "select" ? "Choose your preferred deposit method" :
+            {kycStatus !== "approved" && !kycLoading ? "Complete KYC verification to enable deposits" :
+             depositMode === "select" ? "Choose your preferred deposit method" :
              depositMode === "instant" ? "Scan QR & pay (min ₹10,000)" :
              "Complete payment and submit transaction details"}
           </SheetDescription>
