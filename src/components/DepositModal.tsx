@@ -37,6 +37,9 @@ const DepositModal = ({ open, onOpenChange, onSuccess }: DepositModalProps) => {
   const [depositRequestId, setDepositRequestId] = useState<string | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [kycStatus, setKycStatus] = useState<string | null>(null);
+  const [kycLoading, setKycLoading] = useState(true);
 
   // Payment details from database
   const [upiId, setUpiId] = useState("tradixofx@upi");
