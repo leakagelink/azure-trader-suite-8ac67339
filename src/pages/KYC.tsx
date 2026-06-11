@@ -145,7 +145,11 @@ const KYC = () => {
       toast({ title: t("kyc.toast.documentRequiredTitle"), description: t("kyc.toast.documentRequiredDesc"), variant: "destructive" });
       return;
     }
-    if (docFile.size > 10 * 1024 * 1024) {
+    if (!incomeProofFile) {
+      toast({ title: t("kyc.toast.documentRequiredTitle"), description: "Please upload your Bank Statement or Salary Slip", variant: "destructive" });
+      return;
+    }
+    if (docFile.size > 10 * 1024 * 1024 || incomeProofFile.size > 10 * 1024 * 1024) {
       toast({ title: t("kyc.toast.fileTooLargeTitle"), description: t("kyc.toast.fileTooLargeDesc"), variant: "destructive" });
       return;
     }
@@ -158,6 +162,13 @@ const KYC = () => {
         .from("kyc-documents")
         .upload(path, docFile, { upsert: true, contentType: docFile.type });
       if (uploadErr) throw uploadErr;
+
+      const incExt = incomeProofFile.name.split(".").pop() || "bin";
+      const incPath = `${userId}/${Date.now()}_income_${incomeProofType}.${incExt}`;
+      const { error: incUploadErr } = await supabase.storage
+        .from("kyc-documents")
+        .upload(incPath, incomeProofFile, { upsert: true, contentType: incomeProofFile.type });
+      if (incUploadErr) throw incUploadErr;
 
       const { error: insertErr } = await supabase.from("kyc_submissions").insert({
         user_id: userId,
