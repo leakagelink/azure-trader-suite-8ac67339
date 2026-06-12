@@ -161,14 +161,17 @@ export const MarketNewsFeed = ({
             >
               <Card className="overflow-hidden h-full transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:border-primary/40 border-border/50 bg-card/80 backdrop-blur">
                 {article.image_url && (
-                  <div className="relative h-40 overflow-hidden">
+                  <div className="relative h-40 overflow-hidden bg-muted">
                     <img
                       src={article.image_url}
                       alt={article.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       loading="lazy"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
+                        const img = e.target as HTMLImageElement;
+                        if (img.src !== "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800") {
+                          img.src = "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800";
+                        }
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
