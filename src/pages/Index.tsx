@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { MarketNewsFeed } from "@/components/MarketNewsFeed";
 import { TopMoversStrip } from "@/components/home/TopMoversStrip";
-import { EconomicCalendar } from "@/components/home/EconomicCalendar";
+import { RegulatoryLicenses } from "@/components/home/RegulatoryLicenses";
 import { TradingCalculator } from "@/components/home/TradingCalculator";
 
 import { TrustSecurity } from "@/components/home/TrustSecurity";
@@ -465,8 +465,8 @@ const Index = () => {
       {/* Top Movers Strip */}
       <TopMoversStrip />
 
-      {/* Economic Calendar */}
-      <EconomicCalendar />
+      {/* Regulatory Licenses */}
+      <RegulatoryLicenses />
 
       {/* Trading Calculator */}
       <TradingCalculator />
