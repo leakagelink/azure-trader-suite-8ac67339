@@ -204,7 +204,7 @@ const Index = () => {
       <nav className="fixed top-0 w-full z-50 bg-[#f9fafb]/85 backdrop-blur-md border-b border-[#0c2340]/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-            <img src={logo} alt="TradixoFX" className="h-10 sm:h-12 w-auto object-contain" />
+            <img src={logo} alt="TradixoFX" className="h-12 sm:h-16 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-3 sm:gap-6">
             <button
@@ -743,7 +743,7 @@ const Index = () => {
               {/* Brand */}
               <div className="flex flex-col items-center md:items-start gap-3 sm:col-span-2 md:col-span-1">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <img src={logo} alt="TradixoFX" className="h-14 w-14 sm:h-16 sm:w-16 object-contain" />
+                  <img src={logo} alt="TradixoFX" className="h-14 sm:h-16 w-auto object-contain" />
                 </div>
                 <p className="text-xs sm:text-sm text-muted-foreground text-center md:text-left leading-relaxed max-w-xs">
                   Your trusted platform for crypto, forex & commodities trading. Built for professionals, accessible for everyone.

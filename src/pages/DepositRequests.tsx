@@ -222,7 +222,7 @@ const DepositRequests = () => {
       <header className="border-b border-border/40 backdrop-blur-sm bg-background/80 sticky top-0 z-50">
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="TradixoFX Broker" className="h-10 w-auto object-contain" />
+            <img src={logo} alt="TradixoFX Broker" className="h-12 w-auto object-contain" />
           </div>
            <Button variant="ghost" onClick={() => navigate("/admin")}>
              Back to Broker
