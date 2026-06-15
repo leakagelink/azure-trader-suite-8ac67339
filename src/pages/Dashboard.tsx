@@ -262,7 +262,7 @@ const Dashboard = () => {
             </Button>
             <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate("/dashboard")}>
               <div className="relative">
-                <img src={logo} alt="TradixoFX" className="relative h-11 w-auto sm:h-14 object-contain transition-transform duration-300 group-hover:scale-105" />
+                <img src={logo} alt="TradixoFX" className="relative h-12 w-auto sm:h-16 object-contain transition-transform duration-300 group-hover:scale-105" />
               </div>
             </div>
           </div>

@@ -137,7 +137,7 @@ export function AdminSidebar({
             <img
               src={logo}
               alt="TradixoFX"
-              className="relative h-9 w-9 object-contain rounded-full ring-2 ring-primary/30"
+              className="relative h-10 w-auto max-w-[140px] object-contain"
             />
           </div>
           {!collapsed && (
