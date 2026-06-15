@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminTradeManagement } from "@/components/AdminTradeManagement";
+import { AdminTradeHistory } from "@/components/AdminTradeHistory";
 import { AdminAPIManagement } from "@/components/AdminAPIManagement";
 import { AdminKYCManagement } from "@/components/AdminKYCManagement";
 import { AdminSignalsManagement } from "@/components/AdminSignalsManagement";
@@ -1199,6 +1200,7 @@ const AdminPanel = () => {
                 <TabsTrigger value="approvals">Approvals</TabsTrigger>
                 <TabsTrigger value="users">Users</TabsTrigger>
                 <TabsTrigger value="trades">Trades</TabsTrigger>
+                <TabsTrigger value="trade-history">Trade History</TabsTrigger>
                 <TabsTrigger value="signals">Signals</TabsTrigger>
                 <TabsTrigger value="api">API Keys</TabsTrigger>
                 <TabsTrigger value="deposits">Deposits</TabsTrigger>
@@ -1584,6 +1586,11 @@ const AdminPanel = () => {
           {/* Trades Tab */}
           <TabsContent value="trades">
             <AdminTradeManagement />
+          </TabsContent>
+
+          {/* Trade History Tab */}
+          <TabsContent value="trade-history">
+            <AdminTradeHistory />
           </TabsContent>
 
           {/* Signals Tab */}
