@@ -43,6 +43,7 @@ const operationsItems = [
   { id: "approvals", title: "Approvals", icon: Shield, badgeKey: "approvals" },
   { id: "users", title: "Users", icon: Users },
   { id: "trades", title: "Trades", icon: TrendingUp },
+  { id: "trade-history", title: "Trade History", icon: History },
   { id: "signals", title: "Signals", icon: Zap },
   { id: "kyc", title: "KYC", icon: FileText, badgeKey: "kyc" },
   { id: "audit", title: "Audit Log", icon: History },
