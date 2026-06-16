@@ -879,6 +879,7 @@ export type Database = {
         Args: { transaction_ref?: string; withdrawal_id: string }
         Returns: undefined
       }
+      auto_liquidate_positions: { Args: never; Returns: number }
       check_edited_positions_consistency: {
         Args: never
         Returns: {
